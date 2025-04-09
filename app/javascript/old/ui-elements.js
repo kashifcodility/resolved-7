@@ -413,6 +413,8 @@ function bind_favorites() {
 bind_favorites()
 
 // Product quickview
+
+
 function bind_quickviews() {    
     var qv_btns = document.getElementsByClassName('qv_btn');
     var roomIdElement = document.getElementById('room_id');
@@ -476,44 +478,159 @@ function bind_quickviews() {
         });
     }
 }
-$(function() { bind_quickviews(); });
+$(function() { 
+    bind_quickviews(); 
+});
+
+
+
+
+// function bind_quickviews() {
+//     // Use event delegation to bind the click event to dynamically added .qv_btn elements
+//     $('.products').on('click', '.qv_btn', function(e) {
+//         e.preventDefault();
+//         document.getElementById('qv_body').innerHTML = "";
+        
+//         var spinner = document.createElement('div');
+//         spinner.classList.add('spinner-border', 'spinner-border-lg');
+
+//         var alert = document.createElement('div');
+//         alert.classList.add('alert', 'alert-danger');
+//         alert.innerText = 'Error loading product quickview.';
+
+//         $.ajax({
+//             url: pdp_path(this.dataset.pid),  // Use 'this' since we're in the event handler
+//             type: 'GET',
+//             beforeSend: function() {
+//                 var body = document.getElementById('qv_body');
+//                 body.classList.add('text-center');
+//                 body.appendChild(spinner);
+
+//                 $('#quickview').modal('show');
+//             },
+//             complete: function() {
+//                 document.getElementById('qv_body').classList.remove('text-center');
+//                 spinner.remove();
+//             },
+//             success: function(result) {
+//                 var qv_modal = $('#quickview');
+//                 var title = document.getElementById('qv_title');
+//                 var body = document.getElementById('qv_body');
+                
+//                 body.removeChild(spinner);
+
+//                 if(result.html) {
+//                     body.innerHTML = result.html;
+//                     var maxRating = 3; 
+//                     var starsInner = document.getElementById('fto');
+//                     var percentage = (parseFloat(this.dataset.rating) / maxRating) * 100; 
+//                     if (starsInner) {
+//                         starsInner.style.width = percentage + '%'; 
+//                     } 
+//                     qv_modal.trigger('quickviewLoaded');
+//                 } else {
+//                     body.appendChild(alert);
+//                 }
+//             },
+//             error: function() {
+//                 body.appendChild(alert);
+//             }
+//         });
+//     });
+// }
+
+// $(function() { 
+//     bind_quickviews();  // Bind initial quickviews
+// });
+
+window.bind_quickviews = bind_quickviews; // Expose the function globally if needed
+
+
+
+
+
+
+
 
 // Adds an item to the cart
-function add_to_cart(remaining_quantity, product_id, intent, room , resolve, reject) {
-    console.log(room,'room...........');
-    // var itemId = $(this).data('id');
-        // var action = $(this).data('action');
-        var cart_items = parseInt($('#qty_of_items').text());
-        var quantity = parseInt($('#item_quantity_popup_' + product_id).text());
-    if (room === "0"){
-        room_org = document.getElementById('room_id');
-        if (room_org){
-            room_id =  document.getElementById('room_id').value; 
-        }
-        else{
+// function add_to_cart(remaining_quantity, product_id, intent, room , resolve, reject) {
+//     console.log(room,'room...........');
+//     // var itemId = $(this).data('id');
+//         // var action = $(this).data('action');
+//         var cart_items = parseInt($('#qty_of_items').text());
+//         var quantity = parseInt($('#item_quantity_popup_' + product_id).text());
+
+//     if (room === "0"){
+//         let room_org = document.getElementById('room_id');
+//         let room_id;
+//         if (room_org){
+//             room_id =  document.getElementById('room_id').value; 
+//         }
+//         else{
+//             room_id = '0';
+//         }
+//     }
+//     else{
+//         room_id = room;
+//     }
+//     return new Promise(function(resolve, reject) {
+// 	$.ajax({
+// 	    url: add_to_cart_path(),
+// 	    type: 'POST',
+// 	    data: { remaining_quantity: remaining_quantity, intent: intent, product_id: product_id, room_id: room_id, quantity: quantity },
+// 	    success: function(response) {
+//         if (response.message !== "Item quantity not available."){
+//            $('#qty_of_items').text(cart_items + quantity);
+//         }        
+// 		resolve(response);
+// 	    },
+// 	    error: function(reject) {
+// 		reject(response);
+// 	    }
+// 	})
+//     })
+// }
+
+
+
+
+
+
+function add_to_cart(remaining_quantity, product_id, intent, room) {
+    console.log(room, 'room...........');
+    var cart_items = parseInt($('#qty_of_items').text());
+    var quantity = parseInt($('#item_quantity_popup_' + product_id).text());
+
+    let room_id;
+    if (room === "0") {
+        let room_org = document.getElementById('room_id');
+        if (room_org) {
+            room_id = room_org.value;
+        } else {
             room_id = '0';
         }
-    }
-    else{
+    } else {
         room_id = room;
     }
+
     return new Promise(function(resolve, reject) {
-	$.ajax({
-	    url: Routes.add_to_cart_path(),
-	    type: 'POST',
-	    data: { remaining_quantity: remaining_quantity, intent: intent, product_id: product_id, room_id: room_id, quantity: quantity },
-	    success: function(response) {
-        if (response.message !== "Item quantity not available."){
-           $('#qty_of_items').text(cart_items + quantity);
-        }        
-		resolve(response);
-	    },
-	    error: function(reject) {
-		reject(response);
-	    }
-	})
-    })
+        $.ajax({
+            url: add_to_cart_path(),
+            type: 'POST',
+            data: { remaining_quantity: remaining_quantity, intent: intent, product_id: product_id, room_id: room_id, quantity: quantity },
+            success: function(response) {
+                if (response.message !== "Item quantity not available.") {
+                    $('#qty_of_items').text(cart_items + quantity);
+                }
+                resolve(response);  // Resolving the promise with response
+            },
+            error: function(response) {
+                reject(response);  // Rejecting the promise with response
+            }
+        });
+    });
 }
+
 
 
 
@@ -594,15 +711,122 @@ if(document.getElementById("cart-subtotal")){
 }
 
 
-// Quickview add to cart buttons
+// Quickview add to cart buttons 
+// $(function(){
+//     console.log('quickview add to cart buttons bnnn..........');
+//     qv_modal = $('#quickview');
+//     if (qv_modal) {
+//         qv_modal.on('quickviewLoaded', function (qv_e) {
+
+//             // Bind slide show events for this quickviewo
+//             show_item_image(this);
+
+//             var atc_btns = document.querySelectorAll('#quickview .add_to_cart_btn');
+
+//             Array.from(atc_btns).forEach(function(atc_btn) {
+//                 atc_btn.addEventListener('click', function(e) {
+//                     e.preventDefault();
+
+//                     var cta_container = document.querySelector('#quickview #product_ctas');
+//                     var spinner = document.createElement('div');
+//                     spinner.classList.add('spinner-border', 'spinner-border-lg');
+//                     // cta_container.innerHTML = '';
+//                     cta_container.appendChild(spinner);
+//                     add_to_cart(atc_btn.dataset.quantity, atc_btn.dataset.pid, atc_btn.dataset.intent, atc_btn.dataset.room)
+//                         .then(function(response) {
+//                             // cta_container.innerHTML = '';
+//                             var notice = document.createElement('div');
+//                             notice.classList.add('alert');
+//                             notice.innerText = response.message;
+
+//                             if(response.success) {
+//                                 refresh_cart_preview();
+//                                // remove_item_from_listing(atc_btn.dataset.pid);
+//                                 notice.classList.add('alert-success');
+//                             } else {
+//                                 notice.classList.add('alert-danger');
+//                             }
+
+//                             cta_container.removeChild(spinner);
+//                             cta_container.appendChild(notice);			     
+//                         })
+//                 })
+//             });
+
+//             var ato_frm = document.querySelector('#quickview form#add_to_order');
+//             if(ato_frm) {
+//                 var ato_selector = ato_frm.elements['order_id'];
+//                 var ato_submit = ato_frm.elements['commit'];
+
+//                 // Disable submit unless non-empty value
+//                 ato_selector.addEventListener('change', function(e) {
+//                     ato_submit.disabled = (ato_selector.value == '');
+//                 });
+
+//                 ato_frm.addEventListener('submit', function(e) {		
+//                     e.preventDefault();
+
+//                     var order_id = ato_frm.elements['order_id'].value
+//                     var product_id =  ato_frm.elements['product_id'].value
+//                     var cta_container = document.querySelector('#quickview #product_ctas');
+//                     var ato_container = document.querySelector('#quickview #ato_container');
+//                     var ato_confirm = document.querySelector('#quickview #ato_confirm');
+//                     var ato_confirm_yes = document.querySelector('#quickview #ato_confirm_yes');
+//                     var ato_confirm_no = document.querySelector('#quickview #ato_confirm_no');
+
+//                     ato_frm.classList.add('d-none');
+//                     ato_confirm.classList.remove('d-none');
+
+//                     // Confirmation cancel
+//                     ato_confirm_no.addEventListener('click', function(e) {
+//                         ato_confirm.classList.add('d-none');
+//                         ato_frm.classList.remove('d-none');
+//                         ato_submit.disabled = false;
+//                     });
+
+//                     ato_confirm_yes.addEventListener('click', function(e) {
+//                         var spinner = document.createElement('div');
+//                         spinner.classList.add('spinner-border', 'spinner-border-lg');
+//                         //cta_container.innerHTML = '';
+//                         cta_container.appendChild(spinner);
+
+//                         add_to_order(order_id, product_id, 'rent')
+//                             .then(function(response) {
+//                                 var notice = document.createElement('div');
+//                                 notice.classList.add('alert');
+//                                 notice.innerText = response.message;
+
+//                                 if(response.success) {
+//                                     remove_item_from_listing(product_id);
+//                                     notice.classList.add('alert-success');
+//                                 } else {
+//                                     notice.classList.add('alert-danger');
+//                                 }
+
+//                                 cta_container.removeChild(spinner);
+//                                 cta_container.appendChild(notice);			
+//                             })
+//                     });		
+//                 })
+//             }
+//         })
+//     }     
+// });
+
+
+
 $(function(){
-    qv_modal = $('#quickview');
-    if (qv_modal) {
+    console.log('quickview add to cart buttons bnnn..........');
+
+    // Check if the modal element exists before proceeding
+    var qv_modal = $('#quickview');
+    if (qv_modal.length > 0) { // Ensure qv_modal is found in the DOM
         qv_modal.on('quickviewLoaded', function (qv_e) {
 
             // Bind slide show events for this quickview
             show_item_image(this);
 
+            // Find the add to cart buttons inside the quickview modal
             var atc_btns = document.querySelectorAll('#quickview .add_to_cart_btn');
 
             Array.from(atc_btns).forEach(function(atc_btn) {
@@ -612,18 +836,17 @@ $(function(){
                     var cta_container = document.querySelector('#quickview #product_ctas');
                     var spinner = document.createElement('div');
                     spinner.classList.add('spinner-border', 'spinner-border-lg');
-                    // cta_container.innerHTML = '';
                     cta_container.appendChild(spinner);
+
+                    // Assuming add_to_cart is an async function
                     add_to_cart(atc_btn.dataset.quantity, atc_btn.dataset.pid, atc_btn.dataset.intent, atc_btn.dataset.room)
                         .then(function(response) {
-                            // cta_container.innerHTML = '';
                             var notice = document.createElement('div');
                             notice.classList.add('alert');
                             notice.innerText = response.message;
 
                             if(response.success) {
                                 refresh_cart_preview();
-                               // remove_item_from_listing(atc_btn.dataset.pid);
                                 notice.classList.add('alert-success');
                             } else {
                                 notice.classList.add('alert-danger');
@@ -631,12 +854,12 @@ $(function(){
 
                             cta_container.removeChild(spinner);
                             cta_container.appendChild(notice);			     
-                        })
-                })
+                        });
+                });
             });
 
             var ato_frm = document.querySelector('#quickview form#add_to_order');
-            if(ato_frm) {
+            if (ato_frm) {
                 var ato_selector = ato_frm.elements['order_id'];
                 var ato_submit = ato_frm.elements['commit'];
 
@@ -648,8 +871,8 @@ $(function(){
                 ato_frm.addEventListener('submit', function(e) {		
                     e.preventDefault();
 
-                    var order_id = ato_frm.elements['order_id'].value
-                    var product_id =  ato_frm.elements['product_id'].value
+                    var order_id = ato_frm.elements['order_id'].value;
+                    var product_id = ato_frm.elements['product_id'].value;
                     var cta_container = document.querySelector('#quickview #product_ctas');
                     var ato_container = document.querySelector('#quickview #ato_container');
                     var ato_confirm = document.querySelector('#quickview #ato_confirm');
@@ -669,7 +892,6 @@ $(function(){
                     ato_confirm_yes.addEventListener('click', function(e) {
                         var spinner = document.createElement('div');
                         spinner.classList.add('spinner-border', 'spinner-border-lg');
-                        //cta_container.innerHTML = '';
                         cta_container.appendChild(spinner);
 
                         add_to_order(order_id, product_id, 'rent')
@@ -687,13 +909,25 @@ $(function(){
 
                                 cta_container.removeChild(spinner);
                                 cta_container.appendChild(notice);			
-                            })
+                            });
                     });		
-                })
+                });
             }
-        })
-    }     
+        });
+    } else {
+        console.error('Quickview modal not found');
+    }
 });
+
+
+
+
+
+
+
+
+
+
 
 // PLP add to cart/order buttons
 // TODO: DRY with quickview logic

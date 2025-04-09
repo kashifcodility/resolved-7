@@ -638,9 +638,10 @@ $(function() {
             loader.removeClass('d-none');
         },
         onAfterPageLoad: function(items, more) {
-//			$(function() { bind_quickviews(); });
+			//$(function() { bind_quickviews(); });
 
-            bind_quickviews();
+           window.bind_quickviews();
+		   
             isLoading = false; // Reset flag after loading
 
             var loader = $('#products_list_loader');

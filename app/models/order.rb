@@ -185,15 +185,15 @@ class Order < ApplicationRecord
          
 
 
-    def transactions()  Transaction.all(order: [ :id.asc ]).for_order(id)  end
+    def transactions()  Transaction.where(order: [ :id.asc ]).for_order(id)  end
     def on_hold?()  hold&.on_hold == 'HOLD'  end
     def finalized?() finalized =~ /Yes/i end
     def show_in_orders?() show_in_orders =~ /Yes/i end
     def rental?()                order_type == 'Rental'    end
     def sales?()                 order_type == 'Sales'     end
-    def self.rentals()           all(order_type: 'Rental') end
-    def self.sales()             all(order_type: 'Sales')  end
-    def self.renting_rentals()   all(order_type: 'Rental', status: 'Renting')  end # TODO: Replace useage of this with .renting.rentals
+    def self.rentals()           where(order_type: 'Rental') end
+    def self.sales()             where(order_type: 'Sales')  end
+    def self.renting_rentals()   where(order_type: 'Rental', status: 'Renting')  end # TODO: Replace useage of this with .renting.rentals
 
 
     #
@@ -207,10 +207,10 @@ class Order < ApplicationRecord
     def complete?() status == 'Complete'       end
     def void?()     status.downcase == 'void'  end
     def can_be_reopened?()   status.among?('Pulled', 'InTransit', 'Renting') end
-    def self.not_voided()  all(conditions: ["LOWER(status) != 'void'"])  end
-    def self.open()        all(status: 'Open')     end
-    def self.renting()     all(status: 'Renting')  end
-    def self.active()      all(:status.not => [ 'Complete', 'Void' ])  end
+    def self.not_voided()  where(conditions: ["LOWER(status) != 'void'"])  end
+    def self.open()        where(status: 'Open')     end
+    def self.renting()     where(status: 'Renting')  end
+    def self.active()      where(:status.not => [ 'Complete', 'Void' ])  end
 
     def cancellable_by_customer?(at: Time.zone.now)
         open? && rental? && frozen?(at: at)
@@ -273,7 +273,7 @@ class Order < ApplicationRecord
     #
 
 
-    def self.for_site(site_id)  all(site_id: site_id.to_i)  end
+    def self.for_site(site_id)  where(site_id: site_id.to_i)  end
 
 
     #
@@ -322,7 +322,7 @@ class Order < ApplicationRecord
     end
 
     def last_credit_card_charge
-        Transaction.all(order: [ :id.desc ], limit: 1).for_order(id).credit_card.first
+        Transaction.where(order: [ :id.desc ], limit: 1).for_order(id).credit_card.first
     end
 
 
@@ -427,13 +427,18 @@ class Order < ApplicationRecord
         end
 
         # Creates freezes at starting point to begin stepping back from, with proper time/zone
-        date = shipping_scheduled_at.to_time.asctime.in_time_zone.is_changed(tod)
+        date = shipping_scheduled_at.to_time.asctime.in_time_zone.change(tod)
 
         biz_days = 0
         while biz_days < fd
-            biz_days += 1 unless date.to_date.among?(FREEZE_DATE_EXCLUSIONS.map{ |d| d.to_date }) or date.to_date.wday.among?(FREEZE_WDAY_EXCLUSIONS)
+            unless FREEZE_DATE_EXCLUSIONS.include?(date) || FREEZE_WDAY_EXCLUSIONS.include?(date.wday)
+                biz_days += 1
+            end
+            # biz_days += 1 unless date.to_date.among?(FREEZE_DATE_EXCLUSIONS.map{ |d| d.to_date }) or date.to_date.wday.among?(FREEZE_WDAY_EXCLUSIONS)
             date -= 1.day
         end
+
+        
 
         return date
     end
@@ -598,16 +603,16 @@ class Order < ApplicationRecord
 
     # Broadly searches orders and ancillary attributes
     def self.search_id_user_project_address(query)
-        return all() unless query
-        return all(:conditions                 => [ "CAST(id AS CHAR) LIKE '#{query.to_i}%'" ]) |
-               all(Order.user.first_name.like  => "%#{query}%") |
-               all(Order.user.last_name.like   => "%#{query}%") |
-               all(Order.user.email.like       => "%#{query}%") |
-               all(:project_name.like          => "%#{query}%") |
-               all(Order.address.address1.like => "%#{query}%") |
-               all(Order.address.city.like     => "%#{query}%") |
-               all(Order.address.zipcode.like  => "#{query}%") |
-               all(Order.site.site => query)
+        return where() unless query
+        return where(:conditions                 => [ "CAST(id AS CHAR) LIKE '#{query.to_i}%'" ]) |
+               where(Order.user.first_name.like  => "%#{query}%") |
+               where(Order.user.last_name.like   => "%#{query}%") |
+               where(Order.user.email.like       => "%#{query}%") |
+               where(:project_name.like          => "%#{query}%") |
+               where(Order.address.address1.like => "%#{query}%") |
+               where(Order.address.city.like     => "%#{query}%") |
+               where(Order.address.zipcode.like  => "#{query}%") |
+               where(Order.site.site => query)
     end
 
     # Gets sibling orders
@@ -638,7 +643,7 @@ class Order < ApplicationRecord
 
         order_ids = repository.adapter.select(query, address.address1)
 
-        orders = only_currently_renting ? Order.all(id: order_ids).renting_rentals : Order.all(id: order_ids)
+        orders = only_currently_renting ? Order.where(id: order_ids).renting_rentals : Order.where(id: order_ids)
         orders << self if include_source
 
         return orders
