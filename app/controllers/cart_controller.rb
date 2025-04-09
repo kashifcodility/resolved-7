@@ -4,27 +4,90 @@ class CartController < ApplicationController
     before_action :require_login, :redirect_if_no_cart
     skip_before_action :redirect_if_no_cart, only: [:index, :create]
 
-    const_def :REQUIRED_SHIPPING_FIELDS, [ 'project_name', 'shipping_method', 'shipping_contact_name', 'shipping_contact_phone',
-                                           'shipping_address', 'shipping_city', 'shipping_state', 'shipping_zipcode', ]
-    const_def :REQUIRED_DELIVERY_FIELDS, [ 'delivery_date', 'delivery_parking', 'delivery_home_type', 'delivery_levels', ]
-    const_def :REQUIRED_PICKUP_FIELDS,   [ 'pickup_date', 'pickup_time',  ]
+    # const_def :REQUIRED_SHIPPING_FIELDS, [ 'project_name', 'shipping_method', 'shipping_contact_name', 'shipping_contact_phone',
+    #                                        'shipping_address', 'shipping_city', 'shipping_state', 'shipping_zipcode', ]
+    # const_def :REQUIRED_DELIVERY_FIELDS, [ 'delivery_date', 'delivery_parking', 'delivery_home_type', 'delivery_levels', ]
+    # const_def :REQUIRED_PICKUP_FIELDS,   [ 'pickup_date', 'pickup_time',  ]
 
-    const_def :REQUIRED_PAYMENT_FIELDS,  [ 'payment_method', ]
-    const_def :REQUIRED_NEW_CARD_FIELDS, [ 'new_card_address1', 'new_card_city', 'new_card_state', 'new_card_zipcode', 'cc_name',
-                                           'cc_number', 'cc_verification', 'cc_expiration_month', 'cc_expiration_year', ]
-
-
+    # const_def :REQUIRED_PAYMENT_FIELDS,  [ 'payment_method', ]
+    # const_def :REQUIRED_NEW_CARD_FIELDS, [ 'new_card_address1', 'new_card_city', 'new_card_state', 'new_card_zipcode', 'cc_name',
+    #                                        'cc_number', 'cc_verification', 'cc_expiration_month', 'cc_expiration_year', ]
 
 
-    const_def :REQUIRED_FIELDS_BILL,     [ 'address1', 'city', 'state', 'delivery_phone',
-                                           'zipcode', 'phone', 'mobile_phone', 'payment_method', ]
-    const_def :REQUIRED_FIELDS_BILL_CC,  [ 'cc_name', 'cc_number', 'cc_verification',
-                                           'cc_expiration_month', 'cc_expiration_year', ]
-    const_def :REQUIRED_FIELDS_DEL,      [ 'first_name', 'last_name', 'address', 'city', 'state',
-                                           'zipcode', 'delivery_method', 'delivery_date', ]
-    const_def :REQUIRED_FIELDS_DEL_TYPE, [ 'parking', 'dwelling_type', 'levels', ]
-    const_def :REQUIRED_FIELDS_PU_TYPE,  [ 'pickup_time', ]
-    const_def :VALID_OCCUPATIONS,        [ 'stager', 'builder', 'realtor_broker', 'home_shopper', ]
+
+
+    # const_def :REQUIRED_FIELDS_BILL,     [ 'address1', 'city', 'state', 'delivery_phone',
+    #                                        'zipcode', 'phone', 'mobile_phone', 'payment_method', ]
+    # const_def :REQUIRED_FIELDS_BILL_CC,  [ 'cc_name', 'cc_number', 'cc_verification',
+    #                                        'cc_expiration_month', 'cc_expiration_year', ]
+    # const_def :REQUIRED_FIELDS_DEL,      [ 'first_name', 'last_name', 'address', 'city', 'state',
+    #                                        'zipcode', 'delivery_method', 'delivery_date', ]
+    # const_def :REQUIRED_FIELDS_DEL_TYPE, [ 'parking', 'dwelling_type', 'levels', ]
+    # const_def :REQUIRED_FIELDS_PU_TYPE,  [ 'pickup_time', ]
+    # const_def :VALID_OCCUPATIONS,        [ 'stager', 'builder', 'realtor_broker', 'home_shopper', ]
+
+     # Shipping related constants
+        REQUIRED_SHIPPING_FIELDS = [
+            'project_name', 'shipping_method', 'shipping_contact_name', 'shipping_contact_phone',
+            'shipping_address', 'shipping_city', 'shipping_state', 'shipping_zipcode'
+        ].freeze
+
+        # Delivery related constants
+        REQUIRED_DELIVERY_FIELDS = [
+            'delivery_date', 'delivery_parking', 'delivery_home_type', 'delivery_levels'
+        ].freeze
+
+        # Pickup related constants
+        REQUIRED_PICKUP_FIELDS = [
+            'pickup_date', 'pickup_time'
+        ].freeze
+
+        # Payment related constants
+        REQUIRED_PAYMENT_FIELDS = [
+            'payment_method'
+        ].freeze
+
+        # New Card related constants
+        REQUIRED_NEW_CARD_FIELDS = [
+            'new_card_address1', 'new_card_city', 'new_card_state', 'new_card_zipcode', 'cc_name',
+            'cc_number', 'cc_verification', 'cc_expiration_month', 'cc_expiration_year'
+        ].freeze
+
+        # Billing related constants
+        REQUIRED_FIELDS_BILL = [
+            'address1', 'city', 'state', 'delivery_phone',
+            'zipcode', 'phone', 'mobile_phone', 'payment_method'
+        ].freeze
+
+        # Credit card related billing fields
+        REQUIRED_FIELDS_BILL_CC = [
+            'cc_name', 'cc_number', 'cc_verification',
+            'cc_expiration_month', 'cc_expiration_year'
+        ].freeze
+
+        # Delivery related constants
+        REQUIRED_FIELDS_DEL = [
+            'first_name', 'last_name', 'address', 'city', 'state',
+            'zipcode', 'delivery_method', 'delivery_date'
+        ].freeze
+
+        # Delivery type-related fields
+        REQUIRED_FIELDS_DEL_TYPE = [
+            'parking', 'dwelling_type', 'levels'
+        ].freeze
+
+        # Pickup type related field
+        REQUIRED_FIELDS_PU_TYPE = [
+            'pickup_time'
+        ].freeze
+
+        # Valid occupations for users
+        VALID_OCCUPATIONS = [
+            'stager', 'builder', 'realtor_broker', 'home_shopper'
+        ].freeze
+
+
+
 
     # Shows user's cart
     def index

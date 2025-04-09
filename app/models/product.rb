@@ -404,7 +404,7 @@ class Product < ApplicationRecord
     # Master method to determine if a product is available to buy or rent (common logic)
     # Checking for site because some old products don't have a site on their last Storage order (bad data)
     def is_available?
-        !self.is_reserved? && self.active == 'Active' && self.site
+        !self.is_reserved? && self.active == 'active' && self.site
     end
 
 

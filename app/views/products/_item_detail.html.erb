@@ -139,6 +139,7 @@
 									<!-- Add to Cart Buttons -->
 									<div class="row pb-3 mb-3">
 										<div class="pl-3">
+										<%#binding.pry%>
 											<% if product.is_rentable? && @is_available %>
 												<a href="#" data-quantity="<%= product.quantity %>" data-room="0" data-pid="<%= product.id %>" class="single_add_to_cart_button button alt add_to_cart_btn " data-intent="rent"><%=image_tag("rent.svg")%> Rent <%=number_to_currency(product.rating_price_rent)%>/ 30 days</a>
 											<% end %>
