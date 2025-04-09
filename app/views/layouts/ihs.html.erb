@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title><%= @title || "re|SOLVED | Rental Furniture" %></title>
+    <meta property="type" content="website" />
+    <meta property="title" content="re|SOLVED | Home Staging & Furniture Rental" />
+    <meta name="description" content="Our inventory has been curated by stagers, designers, Realtors, and builders. From transitional to modern to one-of-a-kind, you’ll find the style, scale, and price point to suit your project, perfectly.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keyword" content="Seattle, Staging, Decor, Home, Real-Estate, Design, Rental, Stagers, Furniture, Rent" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="msapplication-navbutton-color" content="#FFFFFF" />
+    <link rel="apple-touch-icon" href="favicon/new-apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="favicon/new-apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/new-apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="favicon/new-apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href='<%=image_path("favicon/new-apple-touch-icon.png") %>'>
+    <link rel="icon" type="image/png" sizes="32x32" href='<%=image_path("favicon/new-favicon-32x32.png") %>'>
+    <link rel="icon" type="image/png" sizes="16x16" href='<%=image_path("favicon/new-favicon-16x16.png") %>'>
+    <link rel="shortcut icon" href="favicon/new-favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <link href="https://www.r-e-solved.com" hreflang="en" rel="alternate" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat|PT+Serif&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>        
+    
+    <!--Font Awesome Version 5.0.0  || https://fontawesome.com/icons?d=gallery  -->
+    <%= stylesheet_link_tag    "application", :media => "all" %>
+    <%= javascript_include_tag 'application', media: 'all' %>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <!-- Google Icons-->
+    <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+
+
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-30293159-1"></script>
+
+    <!-- Google Analytics -->
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+        ga('set', 'userId', '<%unless @current_user.nil? %><%=@current_user.id%><%end%>'); 
+        ga('create', 'UA-30293159-1', 'auto');
+        ga('send', 'pageview');
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-30293159-1', {'currency': 'USD'});
+    </script>
+    <!-- End Google Analytics -->
+
+    <style type="text/css">
+        .in_cart {
+            box-shadow: 0px 0px 20px var(--brand);
+            color: white;
+            background: var(--brand);
+            /* border: solid var(--brand) 1px; */
+        }
+        #ihs_steps, #ihs_steps a {
+            color: #1d9690;
+        }
+        #ihs_steps span.active {
+            border-bottom: 2px solid var(--brand);             
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="sdn_logo_container">
+        <div class="sdn_logo">
+            <a href="https://www.r-e-solved.com/" target="_blank"><img src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/sdn_logo.png" alt="logo"></a>    
+        </div>
+    </div>
+
+    <div class="catalog_header_container">
+        <div class="catalog_text">
+            <h4><%= "#{@stage_address.address1}, #{@stage_address.city}" %></h4>
+            <h4><%= "#{@stage_address.address1}" %>, <br><%= "#{@stage_address.city}" %></h4>
+            <p>Staging Catalog #<%= @catalog_id %></p>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<%= render 'layouts/notifications' %>
+
+<%= yield %>
+<%= render 'layouts/footer'%>
+
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="https://kit.fontawesome.com/0bffe0d6ee.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://sdninc.atlassian.net/s/d41d8cd98f00b204e9800998ecf8427e-T/-vm4ego/b/20/a44af77267a987a660377e5c46e0fb64/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?locale=en-US&collectorId=487ecfa8&SameSite=None"></script>
+<%= javascript_include_tag "ui-elements.js" %>
+
+</html>

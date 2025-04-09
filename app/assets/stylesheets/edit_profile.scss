@@ -1,0 +1,50 @@
+@import'./colors';
+
+// EDIT PROFILE
+.edit_user_info{
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+.edit_user_info > div:first-child{
+	width: 100%;
+}
+.edit_user_info > div:first-child > img{
+	margin: 0;
+	padding: 0;
+	width: 200px;
+	height: 200px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+.edit_user_photo{
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+.edit_user_photo input{
+	padding: 0;
+}
+.edit_user_photo > div{
+	margin-top: 10px;
+}
+.upload_user_photo_btn{
+	padding: 5px 10px !important;
+}
+
+.edit_page_tables .form-group{
+	margin-bottom: 10px;
+}
+.edit_page_tables label{
+	font-size: 12px;
+	margin-bottom: 3px;
+	color: $grey;
+}
+.edit_page_tables input, 
+.edit_page_tables select{
+	font-size: 14px;
+}
+.edit_page_form_title{
+	margin-top: 10px;
+}
+

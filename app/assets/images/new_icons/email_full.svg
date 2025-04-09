@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 25.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#222222;}
+</style>
+<g id="Email">
+	<path class="st0" d="M80,232.4L213.8,334l37.4-28.4c2.9-2.2,6.8-2.2,9.7,0l37.3,28.3L432,232.4V80H80V232.4z M256,120
+		c39.7,0,72,32.3,72,72v16c0,13.2-10.7,24-23.9,24c-8.3,0-16-4.2-20.4-11.3c-15.9,15.3-41.2,14.8-56.4-1.1s-14.8-41.2,1.1-56.4
+		s41.2-14.8,56.4,1.1c7.2,7.5,11.1,17.4,11.1,27.7v16c0,4.4,3.6,8,8,8s8-3.6,8-8v-16c0-30.9-25.1-56-56-56s-56,25.1-56,56
+		s25.1,56,56,56h24c4.4,0,8,3.6,8,8c0,4.4-3.6,8-8,8h-24c-39.8,0-72-32.2-72-72S216.2,120,256,120z"/>
+	<circle class="st0" cx="256" cy="192" r="24"/>
+	<path class="st0" d="M37.2,200L64,220.3v-40.6L37.2,200z"/>
+	<path class="st0" d="M32,471.9L200.6,344L32,216.1V471.9z"/>
+	<path class="st0" d="M448,220.3l26.8-20.3L448,179.7V220.3z"/>
+	<path class="st0" d="M480,216.1L311.4,344L480,471.9V216.1z"/>
+	<path class="st0" d="M256,322L47.8,480h416.4L256,322z"/>
+	<path class="st0" d="M216.5,64h79L256,34L216.5,64z"/>
+</g>
+</svg>

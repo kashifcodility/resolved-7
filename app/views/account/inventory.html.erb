@@ -1,0 +1,163 @@
+<div class="separator20"></div>
+<h3 class="section_title_h3">Inventory</h3>
+<div class="separator20"></div>
+
+
+<div class="container">
+    <div class="woocommerce">
+        <!--Inventory Sub Nav--->
+        <div class="profile-navigation sub">
+            <div class="col-12">
+                <ul class="navbar navbar-expand-xs">
+                    <li data-target="#inventoryManagement" data-slide-to="0" class="active"><a class="profile-nav-item" href="">My Inventory</a></li>
+                    <li data-target="#inventoryManagement" data-slide-to="1"><a class="profile-nav-item" href="">My Purchases</a></li>
+                    <li data-target="#inventoryManagement" data-slide-to="2"><a class="profile-nav-item" href="">My Favorites</a></li>
+                </ul>
+            </div>
+        </div>
+        <div id="inventoryManagement" class="carousel slide" data-ride="carousel" data-interval="false">
+            <div class="carousel-inner">
+                <!--- Manage Owned Items-->
+                <div class="carousel-item active">
+                    <!--Filters--->
+                    <div class="container account-filter">
+                        <div class="row">
+                            <div class="col-xs-6 col-sm-6 col-md-6">
+                                <aside class="widget widget-categories">
+                                    <h3 class="account-filter-title">Filter By:</h3>
+                                    <select class="account-sort" name="sort" id="owned_filter">
+                                        <option value="">-- Category --</option>
+                                        <option value="Available">Available</option>
+                                        <option value="Rented">Rented</option>
+                                        <option value="Purchased">Purchased</option>
+                                    </select>
+                                </aside>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-6">
+                                <h3 class="account-filter-title">Search:</h3>
+                                <div class="input-group">
+                                    <input class="form-control account-search" id="owned_products" type="text" placeholder="Item # / Item Name">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                   <%= render 'inventory_items', inventory_items: @inventory_items %>
+
+                   <%= render 'pagination', total_pages: @total_pages, current_page: @current_page %>
+        </div>
+        <!--- See Past Purchased Inventory --->
+        <div class="carousel-item">
+            <ul class="purchased">
+                <% @purchased_products.each do |product| %>
+                <li class="purchased-item">
+                    <div class="d-flex flex-row">
+                        <div class="p-2">
+                            <img src="<%= product.image_url %>" alt="<%= product.name %> Image">
+                        </div>
+                        <div class="p-2">
+                            <div>Item #:</div>
+                            <div><%= product.id %></div>
+                        </div>
+                        <div class="p-2">
+                            <div>Name:</div>
+                            <div><%= product.name %></div>
+                        </div>
+                        <div class="p-2">
+                            <div>Purchase Price:</div>
+                            <div>$<%= number_with_precision(product.sale_price, precision: 2) %></div>
+                        </div>
+                        <div class="p-2">
+                            <div>Purchase Date:</div>
+                            <div><%= product.purchased_date&.strftime('%D') %></div>
+                        </div>
+                        <div class="small-hide">
+                            <%= link_to('View', pdp_path(product.id), class: 'button quickview') %>
+                            <%
+                                # <input type="submit" name="commit" value="Quick View" class="single_add_to_cart_button button quickview" data-disable-with="Rent">
+                                %>
+                        </div>
+                    </div>
+                </li>
+                <%end if @purchased_products.present?%>
+            </ul>
+        </div>
+        <!--- Favorites--->
+        <div class="carousel-item" id="cat-items">
+            <ul class="products">
+                <% if @favorites.present? && @favorites.any? %>
+                <ul class="products favorite_products_list" id="product_list">
+                    <% @favorites.each do |product| %>
+                        <%= render partial: 'products/items', locals: { product: product, show_favorite: true, show_site: true } %>
+                    <% end if @favorites.present?%>
+                </ul>
+                <% else %>
+                <h2>No Results Found</h2>
+                <% end %>
+            </ul>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+
+<div id="private_alert" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title color-brand">Change Item #<span id="item_number"></span> to Private</h4>
+            </div>
+            <div class="modal-body">
+          
+                <div class="mt-3">
+                    Private Storage Rate:
+                    <ul>
+                    <li>$<span id="storage_price">0.00</span>/ day</li> 
+                    <li>$<span id="30_day_storage_price">0.00</span>/ month</li> 
+                    </ul>
+                 Starting today, Private Storage Rates will apply for each day the item is in the warehouse.
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-default" id="cancel" data-dismiss="modal" >Cancel</button>
+            <button type="button" class="btn btn-primary" id="make_private" data-dismiss="modal">Confirm</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<!-- jQuery AJAX Pagination Script -->
+<script>
+ // app/assets/javascripts/pagination.js
+$(document).on('click', '.pagination-link', function(e) {
+  $(".loader").fadeIn();
+  e.preventDefault();
+  const url = $(this).attr('href');
+
+  $.ajax({
+    url: url,
+    type: 'GET',
+    dataType: 'script', // Expecting JS response to update the content
+    success: function(data) {
+      $(".loader").fadeOut();
+      // Content will be updated automatically via the response from the controller
+    },
+    error: function() {
+      alert('There was an error loading more products');
+    }
+  });
+});
+
+</script>

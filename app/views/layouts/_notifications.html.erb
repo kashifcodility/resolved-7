@@ -1,0 +1,47 @@
+<%
+# TODO: Consolidate these into a single function
+
+return if flash.empty?
+
+# FIXME: Our implementation of flash messages does not appear to consolidate flash.now's and flash's.
+#        flash[:alert] is only populated when flash.now[:alert] is used to assign it
+#        when flash[:alert] (non-now) is used to assign the message, it's only accessibly via flash['flashes']['alert']
+flashes = { 
+    alert: flash[:alert] || (flash['flashes']['alert'] rescue nil), 
+    notice: flash[:notice] || (flash['flashes']['notice'] rescue nil), 
+}
+%>
+
+
+<div class="alerts_container">
+
+    <% unless flashes[:alert].nil? %>
+    <!-- Alerts -->
+    <div class="alert alert-danger alert-dismissible fade show alert_float" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <ul class="mb-0">
+            <% Array(flashes[:alert]).each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+        </ul>
+    </div>
+<% end %>
+
+<% unless flashes[:notice].nil? %>
+    <!-- Notices -->
+    <div class="alert alert-primary alert-dismissible fade show alert_float" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <ul class="mb-0">
+            <% Array(flashes[:notice]).each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+        </ul>
+    </div>
+<% end %>
+
+
+</div>

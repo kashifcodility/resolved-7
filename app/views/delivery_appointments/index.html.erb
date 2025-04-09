@@ -1,0 +1,59 @@
+
+
+<div class="separator20"></div>
+<h3 class="section_title_h3">Delivery Appointments</h3>
+<div class="separator20"></div>
+
+<div class="container-self" style="overflow: scroll;">
+    <div class="woocommerce my_account_box">
+
+        <div class="member-info">
+        
+            <div id="profileOptions">              
+
+                
+                <div class="text-center bootstrap_table_container">
+                    <table class="table table-hover table-condensed bordered">
+                        <thead>
+                            <tr>
+                                <th>Client Name</th>
+                                <th>Client info</th>                                
+                                <th>Project Name</th>
+                                <th>Date</th>
+                                <th>Delivery or Will Call</th>
+                                <th>Approx Budget</th>
+                                <th>Status</th>
+                                <%if current_user.type == "Employee"%>
+                                  <th>Action</th>
+                                <%end%>
+                            </tr>
+                        </thead>
+                        <tbody>
+                           <%@delivery_appointments.each do |delivery_appointment|%>
+                                <tr>
+                                    <td><%= delivery_appointment.client_name %></td>
+                                    <td><%= delivery_appointment.contact_info %></td>
+                                    <td><%= delivery_appointment.project_name %></td>
+                                    <td><%= delivery_appointment.schedule_date&.to_datetime&.strftime("%Y/%m/%d") %></td>
+                                    <td><%= delivery_appointment.delivery %></td>
+                                    <td><%= number_to_currency(delivery_appointment.approx_budget) %></td>                  
+                                    <td><%= delivery_appointment.status == false ? "Not approved" : "Approved" %></td>
+                                    <%if current_user.type == "Employee"%>
+                                      <td><%= link_to "Edit", edit_delivery_appointment_path(delivery_appointment.id) %></td>
+                                    <%end%>
+                                </tr>
+                            <%end%>  
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="6"><%= link_to('Add New Appointment Date', '/delivery_appointments/new_delivery_appointment') %></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>                 
+                
+            </div>
+        </div>
+
+    </div>
+</div>

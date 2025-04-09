@@ -1,0 +1,46 @@
+<%
+
+case params[:delivery_method]
+when 'delivery'
+    tax = @summary.delivery_address_tax
+when 'pickup'
+    tax = @summary.will_call_tax
+else
+    tax = @summary.stage_address_tax
+end
+
+%><div class="checkout-form-holder">                                                        
+    <h2>Order Summary</h2>
+    <div class="mx-4 px-4">
+        <table class="table table-borderless table-sm">
+            <tbody>
+                <tr>
+                    <td>Subtotal:</td>
+                    <td class="text-right"><%= number_to_currency(@summary.subtotal) %></td>
+                </tr>
+                <tr>
+                    <td>Delivery:</td>
+                    <td id="summary_delivery_total" class="text-right"><%= number_to_currency(@summary.delivery.fetch(params[:delivery_method]&.to_sym, @summary.delivery[:inhome])) %></td>
+                </tr>
+                <tr style="border-bottom:1px solid #ccc;">
+                    <td>Tax:</td>
+                    <td id="summary_tax_total" class="text-right"><%= number_to_currency(tax) %></td>
+                </tr>
+                <tr>
+                    <td>Total:</td>
+                    <td id="summary_total"  class="text-right"><%= number_to_currency(tax + @summary.subtotal + @summary.delivery.fetch(params[:delivery_method]&.to_sym, @summary.delivery[:inhome])) %></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <hr>
+
+    <p class="text-center">
+        <small>By placing your order you agree to Staging and Design Network's <a href="#">privacy notice</a> and <a href="#">terms of use</a>.</small>
+    </p>
+
+    <div class="text-center">
+        <input type="submit" value="Place Your Order" class="btn btn-secondary"<%= ' disabled="disabled"' if @order.status == 'Open' %>>
+    </div>
+</div>

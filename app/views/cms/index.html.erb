@@ -1,0 +1,55 @@
+<%= render 'layouts/header' %>
+<div id="nav_bg"></div>
+<%= render 'layouts/notifications' %>
+<div class="separator20"></div>
+<h3 class="section_title_h3">Edit Pages with CMS</h3>
+<div class="separator20"></div>
+
+<div class="container">
+    <div class="woocommerce">
+        <!--Inventory Sub Nav--->
+        <div class="profile-navigation sub">
+            <div class="col-12">
+                <ul class="navbar navbar-expand-xs">
+                    <li data-target="#cms" data-slide-to="0" class="active"><a class="profile-nav-item" href="">My Pages</a></li>
+                </ul>
+            </div>
+            <div class="container">
+                <div class="row">
+                  <div class="col-md-4">
+                      <p class='text-center'>About</p>
+                      <a href="/cms/about" class="card tile" style="background-image: url('<%= asset_url('cms/about.png') %>');">
+                      <div class="text-preview">
+                          <p class='text-light font-weight-bold'>PREVIEW</p>
+                      </div>
+                      </a>
+                  </div>
+                  <div class="col-md-4">
+                      <p class='text-center'>Homepage</p>
+                      <a href="/cms/homepage" class="card tile" style="background-image: url('<%= asset_url('cms/homepage.png') %>');">
+                      <div class="text-preview">
+                          <p class='text-light font-weight-bold'>PREVIEW</p>
+                      </div>
+                      </a>
+                  </div>
+                <!-- Add more tiles as needed -->
+                </div>
+            </div>
+        </div>
+</div>
+</div>
+</div>
+<%= render 'layouts/footer' %>
+  <script>
+    // Use jQuery to show/hide text preview on hover
+    $(document).ready(function() {
+      $('.tile').hover(
+        function() {
+          $(this).find('.text-preview').fadeIn();
+        },
+        function() {
+          $(this).find('.text-preview').fadeOut();
+        }
+      );
+    });
+  </script>

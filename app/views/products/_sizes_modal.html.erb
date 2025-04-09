@@ -1,0 +1,33 @@
+<div class="modal fade" id="sizeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel"><%= "Choose sizes for filter products" %></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+       <div class="modal-body">
+        <form id="sizeFilterForm">
+        <%#binding.pry%>
+          <% sizes.each do |size| %>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="size_<%= size.id %>" value="<%= size.id %>">
+              <label class="form-check-label" for="size_<%= size.id %>"><%= size.label %></label>
+            </div>
+          <% end %>
+        </form>
+      </div>
+
+
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <!-- Replace button with a link -->
+        <a href="/" class="btn btn-primary" id="filter-size">Filter</a>
+      </div>
+    </div>
+  </div>
+</div>

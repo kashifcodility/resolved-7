@@ -1,0 +1,199 @@
+@import'./colors';
+
+.service_block{
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    overflow-x: hidden;
+    .paralax_element{
+        position: absolute;
+        z-index: -1;
+        width: 30%;
+        top:0;
+        bottom:0;
+        background-color: #f3f3f3;
+    }
+}
+
+.service_block.image_left .paralax_element{
+    left:0;
+}
+
+.service_block.image_right .paralax_element{
+    right:12%;
+}
+
+#par_3{
+    left :10%;
+}
+
+
+.service_container{
+    width: 100%;
+    max-width: 1500px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    height: 100%;
+    min-height: 500px;
+    position: relative;
+    padding: 40px 20px;
+    p{
+        font-size: 15px;
+        line-height: 1.6;
+    }
+}
+
+.hp_service_image img{
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+.service_description{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px;
+    h4{
+        font-size: 26px;
+        margin-bottom: 20px;
+        color: $font_black_4;
+        font-weight: bold;
+    }
+    p{
+        line-height: 1.6;
+        color: $font_black_4;
+    }
+}
+
+.service_description.text_align_right{ // when we applying class text_align_right to service_description
+    h4, p{
+        text-align: right;
+    }
+}
+.section_btn{
+    display: inline-block;
+    text-decoration: none;
+    margin-top: 5px;
+    padding: 10px 20px 10px 38px;
+    border :1px solid $font_black_4;
+    color: #222;
+    text-transform: uppercase;
+    transition: 0.4s;
+    position: relative;
+    cursor: pointer;
+    font-size: 14px;
+    img{
+        height: 15px;
+        width: auto;
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    &:hover {
+        background-color: #f3f3f3;
+        color: $font_black_4;
+    }
+}
+.text_align_right > .section_btn_container{
+    text-align: right;
+}
+
+
+// MEDIA
+@media only screen and (max-width: 1000px) {
+    .service_container {
+        p{
+            font-size: 13px;
+        }
+        a{
+            font-size: 13px;
+        }
+        h4{
+            font-size: 18px;
+        }
+    }
+}
+@media only screen and (max-width: 619px) {
+    .service_container{
+        grid-gap: 10px;
+    }
+    .service_description h4{
+        margin-bottom: 3px;
+    }
+    .section_btn_container{
+        margin-top: 5px;
+    }
+    .section_btn{
+        padding: 8px 18px 8px 36px;
+        font-size: 12px !important;
+        img{
+            height: 18px;
+
+        }
+    }
+    .section_btn_container > a,
+    .section_btn_container > p,
+    .section_btn{
+        font-size: 12px !important;
+    }
+}
+
+@media only screen and (max-width: 589px) {
+    .service_container{
+        display: grid;
+        grid-template-columns: 1fr;
+        min-height: 160px;
+        grid-template-areas: 
+            "hp_service_image"
+            "service_description"
+            ;
+        .hp_service_image{
+            grid-area: hp_service_image;
+        }
+        .service_description{
+            grid-area: service_description;
+            h4, p{
+                text-align: center;
+            }
+        }
+        .section_btn_container{
+            width: 100%;
+            text-align: center !important;
+        }
+    }
+    .service_block .paralax_element{
+        width: 80%;
+        height: 50%;
+        max-height: 280px;
+    }
+}
+
+@media only screen and (max-width: 420px) {
+    .service_container{
+        p{
+            font-size: 12px;
+            margin-bottom: 0;
+        }
+        h4{
+            font-size: 16px;
+        }
+
+
+    }
+
+    
+    .section_btn{
+        padding: 7px 16px 7px 36px;
+        a, p{
+            font-size: 10px;
+        }
+        img{
+            height: 16px;
+            left: 14px;
+        }
+    }
+}

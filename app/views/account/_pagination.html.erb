@@ -1,0 +1,36 @@
+<div id="pagination" style="margin-left: 35px;">
+  <% if @total_pages && @total_pages > 1 %>
+    <!-- Previous Page Link -->
+    <% if @current_page > 1 %>
+      <%= link_to 'Previous', account_inventory_path(page: @current_page - 1), remote: true, class: "pagination-link" %>
+    <% else %>
+      <span class="pagination-link disabled">Previous</span>
+    <% end %>
+
+    <!-- Page Numbers -->
+    <% if @start_page > 1 %>
+      <%= link_to 1, account_inventory_path(page: 1), remote: true, class: "pagination-link" %>
+      <% if @start_page > 2 %>
+        <span class="pagination-link">...</span>
+      <% end %>
+    <% end %>
+
+    <% (@start_page..@end_page).each do |page_number| %>
+      <%= link_to page_number, account_inventory_path(page: page_number), remote: true, class: "pagination-link #{'active' if page_number == @current_page}" %>
+    <% end %>
+
+    <% if @end_page < @total_pages %>
+      <% if @end_page < @total_pages - 1 %>
+        <span class="pagination-link">...</span>
+      <% end %>
+      <%= link_to @total_pages, account_inventory_path(page: @total_pages), remote: true, class: "pagination-link" %>
+    <% end %>
+
+    <!-- Next Page Link -->
+    <% if @current_page < @total_pages %>
+      <%= link_to 'Next', account_inventory_path(page: @current_page + 1), remote: true, class: "pagination-link" %>
+    <% else %>
+      <span class="pagination-link disabled">Next</span>
+    <% end %>
+  <% end %>
+</div>

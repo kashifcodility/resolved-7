@@ -1,0 +1,120 @@
+@import'./colors';
+
+.all_sb_components{
+    padding: 0 15px;
+}
+.sb_component{
+    width: 100%;
+    max-width: 1200px;
+    margin: auto;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-template-areas: 
+        "sb_image sb_description"
+    ;
+    margin-bottom: 120px;
+}
+
+.all_sb_components > .sb_component:last-child{
+    margin-bottom: 0;
+}
+
+.sb_image{
+    grid-area: sb_image;
+    width: 100%;
+    height: 100%;
+    font-size: 0;
+    img{
+        width: 100%;
+        height: 100%;
+        min-height: 460px;
+        max-height: 540px;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 5px;
+    }
+}
+
+
+.sb_description{
+    grid-area: sb_description;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 40px;
+    font-family: $new_font;
+    h4{
+        font-size: 28px;
+        margin-bottom: 20px;
+        color: $new_black;
+        font-family: $new_font;
+        font-weight: bold;
+    }
+    p{
+        line-height: 1.6;
+        color: $new_black;
+        font-family: $new_font;
+    }
+    .sb_link{
+        margin-top: 20px;
+        text-decoration: underline !important;
+        color: $new_black;
+        font-family: $new_font;
+    }
+}
+
+
+// .all_sb_components > .sb_component:nth-child(odd){
+//     background-color: red;
+// }
+.all_sb_components > .sb_component:nth-child(even){
+    // background-color: green;
+    grid-template-areas: 
+    "sb_description sb_image"
+    ;
+    .sb_description{
+        h4, p, a{
+            text-align: right;
+        }
+    }
+}
+
+
+// MEDIA
+@media only screen and (max-width: 639px) {
+    .sb_component{
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        grid-template-areas: 
+            "sb_image"
+            "sb_description"
+        ;
+        margin-bottom: 80px;
+    }
+    .all_sb_components > .sb_component:last-child{
+        margin-bottom: 0;
+    }
+    
+    .all_sb_components > .sb_component:nth-child(even){
+        grid-template-areas: 
+            "sb_image"
+            "sb_description"
+        ;
+        .sb_description{
+            h4, p, a{
+                text-align: left;
+            }
+        }
+    }
+    .sb_image{
+        img{
+            min-height: 380px;
+            max-height: 420px;
+        }
+    }
+    .sb_description{
+        min-height: 300px;
+    }
+}

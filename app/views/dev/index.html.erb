@@ -1,0 +1,21 @@
+<!-- These are disabled vvv -->
+<% #include_css 'main' %>
+<% #include_js  'common/jquery/jquery.history', 'common/jquery/tablefilter' %>
+<!-- ^^^ These are disabled -->
+
+<h1> Experiments (iter=<%= @i %>) <% if flash[:notice] %>notice: <%= flash[:notice] %><% end %></H1>
+<% if user_signed_in? %>
+    <h3>Authenticated user: <%= current_user.inspect %></h3>
+<% end %>
+
+<% if params.keys.size %>
+    Params:
+    <ul>
+        <% params.each do |foo, bar| %>
+            <li><%= foo %>: <%= bar %></li>
+        <% end %>
+    </ul>
+<% end %>
+
+<%= link_to "Login (SDN credentials)", login_path %>
+<%= link_to "Logout", logout_path %>

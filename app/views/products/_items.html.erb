@@ -1,0 +1,56 @@
+    <li class="product one_product_container" id="p_<%= product.id %>">
+
+        <% if product&.premium? %>
+            <span class="new-product">Premium</span>
+        <% end %>
+        <% if product&.closeout?%>
+            <span class="sale-item">Closeout</span>
+        <% elsif product&.sales_item?%>
+            <span class="sale-item">Sales</span>
+        <% elsif product&.discount_rental?%>
+            <span class="sale-item">Discount</span>
+        <% end %>
+
+        <div class="product-image">
+            <span class="img-helper"></span>
+            <img src="<%= product.main_image_url || "https://sdn-content.s3.us-west-1.amazonaws.com/mdamron_1717742775_Image-Coming-Soon.png" %>" alt="<%= product.name %> main image" class="rounded mx-auto d-block">
+            <%if product&.quantity&.present?%>
+
+              <div class="overlay-home" style="background-color: <%= product.color %>"><%= pluralize(product.quantity, 'item') %> left</div>
+            <%end%>
+        </div>
+
+        <% if user_signed_in? %>
+        <button type="button" class="quickview qv_btn" data-pid="<%= product.id %>" data-rating="<%= product.rating %>">Quick View</button>
+        <% else %>
+        <button type="button" class="quickview" data-toggle="modal" data-target="#user">Login to view</button>
+        <% end %>
+        
+        <div class="text-left">
+        
+        <small>#<%= product.id%>  </small>
+
+        <% if defined?(show_favorite) && show_favorite %>
+            <span class="float-right">
+            <% if product&.favorite? %>
+                <%= link_to(raw(%Q(<i class="fas fa-heart " aria-hidden="true" aria-label="Unfavorite"></i>)), pdp_path(product.id), class: 'favorite_btn', aria: { role: 'switch' }, data: { pid: product.id, action: 'unfavorite' }) %>
+            <% else %>
+                <%= link_to(raw(%Q(<i class="far fa-heart " aria-hidden="true" aria-label="Favorite"></i>)), pdp_path(product.id), class: 'favorite_btn', aria: { role: 'switch' }, data: { pid: product.id, action: 'favorite' }) %>	    
+            <% end %>
+            </span>
+        <% end %>
+
+        </div>
+
+        <div class="product-name product_title" title="<%= product.name %>">
+            <%= link_to(product.name.titleize.truncate(40), pdp_path(product.id)) %>
+        </div>
+        <div class="quick-add">
+            <div class="rent_buy_link_container">
+                <% if product.for_rent? %>
+                    <p class="qv_btn rent_buy_link" data-pid="<%= product.id %>">Rent: <%= number_to_currency(product.rent_per_month)%>/ 30 days</p>
+                    <p class="qv_btn rent_buy_link" data-pid="<%= product.id %>">Buy: <%= number_to_currency(product.sale_price)%></p>
+                <% end %>
+            </div>
+        </div>
+    </li>

@@ -1,0 +1,40 @@
+
+		<!-- Page Banner -->
+		<div class="page-banner shop-banner container-fluid no-padding">
+			<div class="page-banner-content">
+				    <h3> Rent & Buy Furniture </h3>	
+			</div>
+		</div><!-- Page Banner /- -->
+		
+		
+
+			<!-- Container -->
+			<div class="container">
+
+			<% rooms = ['Living Room','Dinging Room', 'Bedroom', 'Bathroom','Home Decor']
+				i=0;  rooms.each do |y|  %>
+			<div class="category-rooms">    
+           	<!---Start Scroller--->
+			    <h1 class="category-header"> 	<%= y %></h1>	                  
+					<div class="scrolling-wrapper">
+							<% options = ['Sofas','Chairs', 'Accent', 'Occasional Tables','Ottomans']
+										i=0;  options.each do |x|  %>
+								<div class="card-slider">
+										<img src="https://picsum.photos/330/420" alt="" class="card__image">
+										<div class="card__content">
+											<div class="card__title">
+											<%= x %>
+											</div>
+										</div>
+								</div>
+							<% end %>
+					</div>
+			<!--End Scroller -->
+				</div>
+				<% end %>
+
+			
+
+
+			</div><!-- Container /- -->
+		

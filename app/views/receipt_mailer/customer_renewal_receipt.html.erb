@@ -1,0 +1,132 @@
+<h1>Renewal <%= "FAILED " if @failed %>for Order <%= @receipt.order_id %></h1>
+<p>
+    Hi<%= " #{@receipt.customer_first_name}" if @receipt.customer_first_name %>,<br><br>
+    <% if @failed %>
+	<span style="color:red"><strong>
+	    <% if @receipt.card_last_four %>
+		We failed to charge your credit card ending in <strong><%= @receipt.card_last_four %></strong>.
+	    <% else %>
+		We failed to charge this order.
+	    <% end %>
+	    Please contact us to resolve this issue.
+	</strong></span>
+    <% else %>
+	Your credit card ending in <strong><%= @receipt.card_last_four %></strong> has been charged for rental order
+	<strong><%= @receipt.order_id %></strong>. Please keep this receipt for your billing records.
+    <% end %><br><br>
+</p>
+    
+<p>
+    <% if @receipt.project_name %>
+	<strong>Project Name:</strong> <%= @receipt.project_name %><br>
+    <% end %>
+    <strong>Project Address:</strong> <%= @receipt.address %><br>
+    <strong>Order Created:</strong> <%= @receipt.ordered_on&.strftime('%D') %><br>
+    <strong>Initially Delivered:</strong> <%= @receipt.delivered_on&.strftime('%D') %><br>
+    <strong>Billing Cycle:</strong> <%= "#{@receipt.cycle_starts_on&.strftime('%D')} - #{@receipt.cycle_ends_on_display&.strftime('%D')}" %><br>
+    <strong>SDN Warehouse:</strong> <%= @receipt.site_name %><br><br>
+</p>
+
+<hr>
+
+<table width="100%">
+    <thead>
+	<tr>
+	    <th align="left" style="white-space:nowrap;">Product #</th>
+	    <th>Product Name</th>
+	    <th>Status</th>
+	    <th align="right">Rent/day</th>
+	    <th>Days</th>
+	    <th align="right">Total</th>
+	</tr>
+    </thead>
+    <tbody>
+	<% @receipt.order_lines.each do |line| %>
+	    <tr valign="top">
+		<td align="left"><%= line[:product_id] %></td>
+		<td align="left">
+		    <%= line[:product_name] %><br>
+		    <small><em>
+			Added to Order: <%= line[:added_to_order].strftime('%D') %><br>  
+			<% if line[:returned_on].present? && line[:returned_on].is_a?(Date) %>
+			    Returned: <%= line[:returned_on].strftime('%D') %><br>
+        	        <% end %>
+			<% if line[:voided_on].present? && line[:voided_on].is_a?(Date) %>
+			    Voided: <%= line[:voided_on].strftime('%D') %><br>
+			<% end %>
+			<% if line[:dates_held].any? && line[:is_first_renewal] %>
+			    Hold Dates: <%= line[:dates_held].count %> (<%= line[:dates_held].map{ |e| e.strftime('%-m/%-d') }.join(', ') %>)<br>
+			<% end %>
+			<% if line[:blackout_dates].any? %>
+			    Blackout Dates: <%= line[:blackout_dates].count %> (<%= line[:blackout_dates].map{ |e| e.strftime('%-m/%-d') }.join(', ') %>)<br>
+			<% end %>
+			<% if line[:rented_by_owner] %>
+			    Your inventory - no rent charged<br>
+			<% end %>
+		    </em></small>
+		</td>
+		<td align="center"><%= line[:status] %></td>		    
+		<td align="right"><%= number_to_currency(line[:daily_rent]) %></td>
+		<td align="center"><%= line[:total_days] %></td>
+		<td align="right"><%= number_to_currency(line[:total]) %></td>
+	    </tr>
+	<% end %>
+	<tr>
+	    <td colspan="5" align="right">Subtotal</td>
+	    <th align="right"><%= number_to_currency(@receipt.subtotal) %></th>
+	</tr>
+	<tr>
+	    <td colspan="5" align="right">Damage Waiver <small><em>(<%= @receipt.damage_waiver_exempt? ? "waived" : "not taxed" %>)</em></small></td>
+	    <th align="right"><%= number_to_currency(@receipt.damage_waiver) %></th>
+	</tr>
+	<tr>
+	    <td colspan="5" align="right">
+		Tax <%= raw("<small><em>(exempt)</em></small>") if @receipt.tax_exempt? %>
+	    </td>
+	    <th align="right"><%= number_to_currency(@receipt.tax) %></th>
+	</tr>
+	<tr>
+	    <th colspan="5" align="right">
+		<% if @failed %>
+		    <span style="color:red">TOTAL OUTSTANDING</span>
+		<% else %>
+		    TOTAL CHARGED
+		<% end %>
+	    </th>
+	    <th align="right">
+		<% if @failed %><span style="color:red"><% end %>
+		<%= number_to_currency(@receipt.total) %>
+		<% if @failed %></span><% end %>
+	    </th>
+	</tr>
+    </tbody>
+</table><br>
+
+<hr>
+
+<p>
+    <strong>Thank you!</strong> We appreciate your business! Please let us know if you have any questions/concerns about your bill.<br><br>
+    (425) 697-3045<br><br>
+</p>
+
+<p>
+    ** For every order, the first 30 days are billed and non-refundable, to meet a 30-day minimum rental. Items are prorated by the day
+    after the first 30 days. The rental will be renewed on Day 37 for 7 days and continue to renew every 7 days after that. If the items
+    are returned before the 7-day renewal, you will only be charged for the days you used.<br><br>
+</p>
+
+<p>
+RETURNING YOUR ORDER: For every day the items are renting, we pay the furniture owner on your behalf. Rental fees continue until the items are scanned back into the fulfillment center and available for the owner or others to use, so please place your destage request a minimum  of 7 days in advance. Destage requests are fulfilled on a first come first served basis. <a href="https://www.r-e-solved.com/account/orders">Click here to view your orders and select request destage on your order.</a> <br><br>
+</p>
+
+<p>
+    We provide a 7 day grace period at the front end of your rental as you are building your order to offset some of the delivery
+    service availability. We also try to minimize your expenses by not requiring a flat two or three-month minimum.<br><br>
+</p>
+
+<small>
+    <p><strong><sup>1</sup> <em>Returned Date</em></strong> is when a product was destaged and returned to SDN.</p>
+    <p><strong><sup>2</sup> <em>Hold Dates</em></strong> are the days that a product was held over its grace period (7 days) before being delivered. This is to prevent customers from holding items for extended periods of time on open orders. How it's calculated: [delivery date] - ([date product added to order] + [7 grace period days])</p>
+    <p><strong><sup>3</sup> <em>Blackout Dates</em></strong> are days that are exempt from billing. They're subtracted from the product's rent.</p>
+</small>
+

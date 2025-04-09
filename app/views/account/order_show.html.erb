@@ -1,0 +1,1370 @@
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<!-- PAGE for JS --><div id="project_detail_page"></div><div id="edit_stage_info"></div>
+
+<!-- ONE PROJECT PAGE - opp -->
+<div class="new_layout one_project_detail_page">
+    <div class="opp_container">
+        <div class="opp_content">
+
+            <!-- BACK TO PROJECTS-->
+            <div class="back_to_proj">
+                <a href="<%= account_orders_path %>" class="lc_header_back_to_projects"><img alt="icon" src="<%= image_path('new_icons/arrow_back_222.svg') %>">Back to Projects</a>
+            </div>
+
+            <!-- LEFT NAVIGATION -->
+            <div class="opp_left">
+                <div>
+                    <div class="separator10"></div>
+                    <div>
+                        <div class="lc_header header_to_click div_show lc_header_details">Details <img class="lc_header_arrow" src="<%= image_path('new_icons/down-arrow.svg') %>" alt="icon"></div>
+                        <div  class="lc_body">
+                            <div class="mobile_menu_container">
+                                <!-- Edit Project Name -->
+                                <a class="edit_order_btn" href="#" data-toggle="modal" data-target="#edit_project_name_modal" project_name = "<%=@order.project_name%>" project_id ="<%=@order.id%>" 
+                                    link_contact ="<%=@order&.shipping_address&.name%>"
+                                    link_phone ="<%=@order&.shipping_address&.phone%>"
+                                    link_email ="<%=@order&.email%>"
+                                    link_address ="<%=@order&.shipping_address&.address1%>"
+                                    link_delivery_call ="<%=@order&.company_service == 'Company' ? 'delivery' : 'pickup' %>"
+                                    link_home_type ="<%=@order&.dwelling%>"
+                                    link_levels ="<%=@order&.levels%>"
+                                    link_instructins ="<%=@order&.delivery_special_considerations%>"
+                                    link_delivery_date ="<%=@order&.due_date.strftime("%Y-%m-%d")%>"
+                                >E<span class="smaller">dit</span></a>
+
+                                <!-- Change Credit Card -->
+                                <% if @order.credit_card %>
+                                    <a href="#" data-toggle="modal" data-target="#update_cc_modal">
+                                        C<span class="smaller">hange</span>
+                                        C<span class="smaller">ard</span>
+                                    </a>
+                                <% end %>
+                              
+                                <!-- Print Receipt -->
+                                <% if @order.created_on >= '2018-05-29'.to_date # NOTE: order_fees table was implemented on this date %>
+                                    <a target="_blank" href="<%= order_receipt_path(@order.id) %>">
+                                        P<span class="smaller">rint</span>
+                                        R<span class="smaller">eceipt</span>
+                                    </a>
+                                    <%if @order_obj.order_lines.any? { |line| line.type == 'rent' } %>
+                                        <a target="_blank" href="<%= order_invoice_path(@order.id) %>">
+                                            P<span class="smaller">rint</span>
+                                            I<span class="smaller">nvoice</span>
+                                        </a>
+                                    <%end%>
+                                    <%#if @order_obj.order_lines.any? { |line| line.type == 'buy' } %>
+                                       <!-- <a target="_blank" href="<%= order_invoice_sale_path(@order.id) %>">
+                                            P<span class="smaller">rint</span>
+                                            S<span class="smaller">ale Invoice</span>
+                                        </a> -->
+                                    <%#end%>
+                                    <% if @order.status == 'Destaged' || @order.destaged? || @order.destaging_at.present?%>
+                                         <a target="_blank" href="<%= order_invoice_path(@order.id, type: :prorate) %>">
+                                                P<span class="smaller">rint</span>
+                                                P<span class="smaller">rorate</span>
+                                                I<span class="smaller">nvoice</span>
+                                            </a>
+                                    <% end %>
+                                <% else %>
+                                    <a target="_blank" href="https://legacy.r-e-solved.com/my_account/print_order_receipt.php?order_id=<%= @order.id %>">
+                                        P<span class="smaller">rint</span>
+                                        R<span class="smaller">eceipt</span>
+                                    </a>
+                                <% end %>
+
+                                <!-- Print Tearsheet By Room -->
+                                <a href="https://legacy.r-e-solved.com/lib/print.php?order=<%=@order.id%>&filter=room" target="_blank">
+                                    P<span class="smaller">rint</span>
+                                    T<span class="smaller">earsheet</span>
+                                </a>
+  
+                                <!-- Cancel Order -->
+                                <% if @order.cancellable? %>
+                                    <a href="<%= cancel_order_path(@order.id) %>" id="cancel_order_btn">
+                                        C<span class="smaller">ancel</span>
+                                        O<span class="smaller">rder</span>
+                                    </a>
+                                <% end %>
+
+                                <!-- Destage -->
+                                <% if @order.destageable? %>
+                                    <a type="button" data-toggle="modal" data-target="#requestDestage" onclick="requestDestage(<%= @order.id %>)">
+                                        R<span class="smaller">equest</span>
+                                        D<span class="smaller">estage</span>
+                                    </a>
+                                <% end %>
+                                                                    
+                                <div class="ios_space height50"></div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="separator20"></div>
+                    <div class="devider_line" style="background-color: rgb(223, 223, 223);"></div>
+                    <div class="separator20"></div>
+
+                    <div>
+                        <div class="lc_header header_to_click lc_header_projects">Projects <img class="lc_header_arrow" src="<%= image_path('new_icons/down-arrow.svg') %>" alt="icon"></div>
+                        <div  class="lc_body">
+                            <%= render partial: 'account/projects_navigation' %>
+                        </div>
+                    </div>
+                    <div class="separator10"></div>
+
+                </div>
+            </div>
+
+            <!-- ORDER NUMBER -->
+            <div class="oop_order_number">
+                <div>
+                   <% pdf_path = Rails.root.join('public', 'pdfs', "project-#{@order.username}-#{@order.id}.pdf")%>    
+                    <h3 class="global_page_section_title d-flex align-items-center justify-content-between">Order #<%= @order.id %> &ndash; <%= @order.status %> 
+                    <span>
+                        <%= link_to "Download  PDF |", project_walk_through_download_path(filename: "project-#{@order.username}-#{@order.id}.pdf"), style: "color: white;"
+                        %>
+                        <%= link_to "Create project walkthrough", "/project_walk_through/step1?order_id=#{@order.id}", style: "color: white;" %>
+                        <%if File.exist?(pdf_path)%>
+                        <%end%>
+                    </span>
+                    </h3>
+                    
+                </div>
+            </div>
+
+            <!-- PROJECT NAME -->
+            <div class="oop_project_name">
+                <div>
+                    <% if @order.project_name.length > 0  %>
+                        <h3 class="global_page_section_title">
+                            <%= @order.project_name %>
+                            <img class="edit_order_btn" alt="icon" src="<%= image_path('new_icons/edit_note.svg') %>" data-toggle="modal" data-target="#edit_project_name_modal" project_name = "<%=@order.project_name%>" project_id ="<%=@order.id%>">
+                        </h3>
+                    <% else %>
+                        <h3 class="global_page_section_title">
+                            No Project Name added
+                            <img class="edit_order_btn" alt="icon" src="<%= image_path('new_icons/add.svg') %>" data-toggle="modal" data-target="#edit_project_name_modal" project_name = "<%=@order.project_name%>" project_id ="<%=@order.id%>">
+                        </h3>
+                    <% end %>
+                    
+                </div>
+            </div>
+
+            <!-- LOCATION INFO -->
+            <div class="oop_order_location">
+                <div>
+                    <div class="location_iframe">
+                        <iframe id="street-view"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ORDER DETAILS -->
+            <div class="oop_order_details">
+                <div>
+
+                    <div class="info_section_container">
+                        <!-- STAGE INFO -->
+                       <div class="card mb-4 shadow-sm col-md-6 p-3" style="height:220px">
+                            <div class="card-body">
+                            
+                                
+
+                                <h3 class="card-title text-center bg-primary p-3 text-white"> <i class="bi bi-shop-window mx-2"></i>Stage Information</h3>
+                                <hr>
+                                <div class="card-text mt-4 d-flex align-items-baseline text-center">
+                                <p class="font-weight-bold text-primary">Full Name:</p>
+                                <p class="ml-3 text-primary"><%= @order.full_name %></p>
+                                <%unless @order.is_frozen?%>
+                                    <a class="edit_stage_info_btn" style="margin-left:50%; margin-bottom:0 " href="#" data-toggle="modal" data-target="#edit_stage_info_modal" project_id ="<%=@order.id%>" 
+                                        stage_first_name ="<%=current_user&.first_name%>"
+                                        stage_last_name ="<%=current_user&.last_name%>"
+                                        stage_phone ="<%=@order&.shipping_address&.phone%>"
+                                        stage_address ="<%=@order&.shipping_address&.address1%>"
+                                        stage_home_type ="<%=@order&.dwelling%>"
+                                        stage_levels ="<%=@order&.levels%>"
+                                        stage_instructins ="<%=@order&.delivery_special_considerations%>"
+                                    >E<span class="smaller">dit</span></a>
+                                <%end%>
+                                </div>
+
+
+                                
+
+
+
+                                <div class="card-text mt-4 d-flex align-items-baseline ">
+                                    <p class="font-weight-bold mt-3 text-primary">Address:</p>
+                                    <p class="ml-3 text-primary">
+                                        <span id="stage-street"><%= @order.shipping_address.address1 %></span>, 
+                                        <span id="stage-city"><%= @order.shipping_address.city %></span>, 
+                                        <span id="stage-state"><%= @order.shipping_address.state %> - <%= @order.shipping_address.zipcode %></span> 
+                                        
+                                    </p>
+                                </div>
+
+                                
+                                
+                            </div>
+                        </div>
+
+
+
+
+                        <!-- BILLING INFO -->
+                        <div class="info_section oop_order_billing p-3">
+                            <h3 class="card-title bg-danger p-3 text-center text-white"><i class="bi bi-receipt mx-2"></i>Billing Information</h3>
+                            <div class="separator5"></div>
+                            <div class="separator5"></div>
+                            <div>
+                                    <p class="text-danger"> <%= @order.full_name %></p>
+                                    <p class="text-danger">  <%=  @order.billing_address.address1 %></p>
+                                    <p class="text-danger">  <%=  @order.billing_address.address2 %></p>
+                                    <p class="text-danger">  <%=  @order.billing_address.city %>
+                                    <%=  @order.billing_address.state%> 
+                                    <%=  @order.billing_address.zipcode%></p>
+                                <br>
+                                <% if @order.credit_card %>
+                                    Card Assigned For Billing: <br>   <em><%= @order.credit_card.display_short %></em>
+                                    <div class="separator5"></div>
+                                    <div class="change_card_btn" >
+                                        <a href="#"  data-toggle="modal" data-target="#update_cc_modal"><i class="far fa-credit-card"></i> Change Card</a>
+                                    </div>
+                                <% end %>
+                            </div>
+                        </div>
+                        </div>
+
+                    <div class="info_section_container">
+                        <!-- PENDING CHARGES -->
+                        <div class="info_section oop_order_pending p-3" style="height:295px">
+            
+                            <h3 class="card-title text-center bg-secondary text-white p-3"><i class="bi bi-wallet mx-2"></i>Pending Charges</h3>
+                            <div class="separator5"></div>
+                            <div class="separator5"></div>
+                            
+                            <div>
+                                <% if @order.type == 'Rental' %>
+                                    <% if (@future_payment && @order.status == 'Open') || (@future_payment && @order.status == 'Renting' && @past_payments[:total]==0)%>
+                                        <p>Charged upon Delivery or Pickup:</p><br>
+                                        <!-- Notification -->
+                                        <p><%= number_to_currency(@future_30_days[:tax])%> - Sales Tax </p>
+                                        <p><%= number_to_currency(@future_30_days[:damage_waiver]) %> - Damage Waiver</p>
+                                        <p>$<%= @order.shipping_type == "Company" ? number_with_precision(Order.default_shipping_fee, precision: 2) : "0.00" %> - Delivery(Estimated)</p>
+                                        <p>$<%= @order.rush_order == true ? number_with_precision(Order.default_rush_order_fee, precision: 2) : "0.00" %> - Rush Order</p>
+                                        <div class="separator5"></div>
+                                        <div class="separator5"></div>
+                                        <p><%= number_to_currency(@future_30_total)%> - First 30 Days</p>
+                                        <%prorate_days =  calculate_prorate_amount(@order)%>
+                                        <%if prorate_days[0] != 0 %>
+                                            <div class="separator5"></div>
+                                            <div class="separator5"></div>
+                                            <p>[<%= prorate_days[1].strftime('%-m-%-e-%y') %> - <%= prorate_days[2].strftime('%-m-%-e-%y') %> ] - <%= number_to_currency(prorate_days[3]) %> - Prorate Amount</p>
+                                        <%end%> 
+                                    <% elsif @future_payment %>
+                                        <p style="font-weight: 600;">Charged on <%= @future_payment.date&.strftime('%b %e, %Y') %></p>
+                                        <p class="card-text">
+                                            <p class="rental_furniture_price"><%= number_to_currency(@future_7_days[:subtotal]) %> - Rental Furniture</p>
+                                            <!-- Notification -->
+                                            <div class="project_notification">
+                                                <p>Rental Furniture over $1000 qualifies for free shipping!</p>
+                                            </div>
+                                            <h6><%=  number_to_currency(@future_7_days[:tax])%> - Sales Tax </h6>
+                                            <h6><%=  number_to_currency( @future_7_days[:damage_waiver]) %> - Damage Waiver</h6>
+                                            <h6><%= @order.rush_order == true ? "$#{Order.default_rush_order_fee}" : "$0.00" %> - Rush Order</h6>
+                                            <hr>
+                                            <h6> <%= number_to_currency(@future_7_total) %> - Total Due</h6>
+                                            <hr>
+                                            <% if @order.credit_card %>
+                                                Card Assigned For Billing: <br>   <em><%= @order.credit_card.display_short %></em>
+                                                <div class="separator5"></div>
+                                                <div class="change_card_btn" >
+                                                    <a href="#" data-toggle="modal" data-target="#update_cc_modal"><i class="far fa-credit-card"></i> Change Card</a>
+                                                </div>
+
+                                            <% end %>  
+                                        </p>
+                                    <% end %>
+                                <% else %>
+                                    <em>No pending charges at this time.</em>
+                                <% end %>
+                            </div>
+                            
+                        </div>
+
+                        <!-- CHARGES TO DATE -->
+                        <div class="info_section oop_order_charges p-3">
+                            <h3 class="card-title text-center bg-success text-white p-3"><i class="bi bi-calendar-check mx-2"></i>Charges to Date</h3>
+                            <div class="separator5"></div>
+                            <div class="separator5"></div>
+                            <div>
+                                <% if @order.type == 'Sales' %>
+                                    <p style="font-weight: 600;">You have been charged <%= number_to_currency(@current_user.tax_exempt? ? @order.products.sum(&:sale_price) : @order.products.sum(&:sale_price)*(1+@order.tax_percent)) %></p>
+                                    <div class="card-text ">
+                                        <h6 class="text-success"><%= number_to_currency(@order.products.sum(&:sale_price))%> - Product</h6>
+                                        <h6 class="text-success"> <%= number_to_currency(@current_user.tax_exempt? ? 0 : (@order.products.sum(&:sale_price)*@order.tax_percent)) %> - Sales Tax </h6>
+                                        <h6 class="text-success"> <%= number_to_currency(@past_payments.shipping) %> - Delivery &amp; Setup </h6>
+                                        <h6 class="text-success"><%= @order.rush_order == true ? "$#{Order.default_rush_order_fee}" : "$0.00" %> - Rush Order</h6>
+                                        <h6 class="text-success"><%= number_to_currency(@past_payments.other) %> - Other </h5>
+                                    </div>
+                                <% else %>
+                                    <p style="font-weight: 600;">You have been charged <%= number_to_currency(@past_payments.total) %></p>
+                                    <div class="card-text">
+                                        <h6 class="text-success"> <%= number_to_currency(@past_payments.products) %> - Rental Furniture</h6>
+                                        <h6 class="text-success"> <%= number_to_currency(@past_payments.tax) %> - Sales Tax </h6>
+                                        <h6 class="text-success"> <%= number_to_currency(@past_payments.damage_waiver) %> - Damage Waiver </h6>
+                                        <h6 class="text-success"><%= @order.rush_order == true ? "$#{Order.default_rush_order_fee}" : "$0.00" %> - Rush Order</h6>
+                                        <h6 class="text-success"> <%= number_to_currency(@past_payments.shipping) %> - Delivery &amp; Setup </h6>
+                                        <h6 class="text-success"> <%= number_to_currency(@past_payments.destage) %> - Destage </h6>
+                                        <h6 class="text-success"><%= number_to_currency(@past_payments.other) %> - Other </h5>
+                                    </div>
+
+                                <% end %>
+                                <% unless @order.type == 'Rental' && @order.status == 'Open' %>
+                                    <hr>
+                                    <% if @order.credit_card && @order.status == 'Complete' && @order.completed_on.present? && @order.completed_on > 30.days.ago %>
+                                        Card Assigned For Billing: <br>   <em><%= @order.credit_card.display_short %></em>
+                                        <div class="separator5"></div>
+                                        <div class="change_card_btn" >
+                                            <a href="#" data-toggle="modal" data-target="#update_cc_modal"><i class="far fa-credit-card"></i> Change Card</a>
+                                        </div>
+                                        <div class="separator5"></div>
+                                        <hr>
+                                    <% end %>                
+                                    <% if @order.created_on >= '2018-05-29'.to_date # NOTE: order_fees table was implemented on this date %>
+                                        <div class="separator5"></div>
+                                        <div class="change_card_btn" >
+                                            <a target="_blank" href="<%= order_receipt_path(@order.id) %>"><i class="fas fa-file-invoice-dollar"></i> Print Receipt</a>
+                                        </div>
+                                    <% else %>
+                                        <div class="separator5"></div>
+                                        <div class="change_card_btn" >
+                                            <a target="_blank" href="https://legacy.r-e-solved.com/my_account/print_order_receipt.php?order_id=<%= @order.id %>" ><i class="fas fa-file-invoice-dollar"></i> Print Receipt</a>
+                                        </div>
+                                    <% end %>		    
+                                <% end %>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+                <div class="card mt-2 p-2">
+                    <h3 class="card-title mt-4 ">Notes</h3>
+                    <br>
+
+                    <div class="card-body">
+                        <% queries = OrderQuery.all(order_id: @order.id) %>
+                        <% queries.each do |query| %>
+                        <div class="query-block mb-3">
+                            <strong><%= query.user.full_name %>:</strong> <%= query.message %>
+                            <% query.update(is_read: 1) %>
+                            <% if query.image_url.present? %>
+                            <p>Attachment: 
+                                <a href='<%= query.image_url %>' target='_blank'>
+                                    <%= query.image_url&.gsub('https://sdn-content.s3.us-west-1.amazonaws.com/', '') %>
+                                </a>
+                            </p>
+                            <% end %>
+                        </div>
+                        <% end %>
+                    </div>
+
+                    <%= form_with url: add_project_query_path(@order.id), method: :post, multipart: true, local: true do |f| %>
+                        <div class="form-group mt-3">
+                            <%= f.text_field :query, class: 'form-control', required: true, placeholder: 'Query' %>
+                        </div>
+
+                        <p class="text-center my-3">or</p>
+                        
+                        <div class="form-group">
+                            <%= f.file_field :file, class: 'form-control' %>
+                        </div>
+
+                        <div class="text-center mb-3 mt-3">
+                            <%= f.submit "Send", class: "btn btn-primary px-5" %>
+                        </div>
+                    <% end %>
+
+                </div>
+            </div>
+
+            <div class="oop_order_items">
+                
+                <div class="new_design">
+                    <h3 class="global_page_section_title">Order Items</h3>
+                    <div class="separator5"></div>
+                    <!-- ROOM FILTERS -->
+                    <div class="form_design_1 room_filters_container">
+                        <div class="form_checkbox">
+                            <input type="checkbox" name="" id="hide_returned_items_checkbox">
+                            <label for="hide_returned_items">Hide Returned Items.</label>
+                        </div>
+                        <!-- <div class="separator10"></div>
+                        <div class="form_checkbox">
+                            <input type="checkbox" name="" id="remove_grouping_checkbox">
+                            <label for="remove_grouping">Remove Room Grouping.</label>
+                        </div> -->
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ROOMS -->
+            <div class="oop_room_details">
+                <div class="small_spinner_container">
+                    <div class="small_spinner"></div>
+                </div>
+                <div id="all_rooms_components">
+                    <%= render partial: 'rooms', locals: { order: @order } %>
+                </div>
+
+                <div id="all_components_without_room">
+                    <div class="room_component">                            
+                        <h3 class="room_name">Room Unassigned</h3>
+                        <div class="separator10"></div>
+                        
+                        <div class="all_ric_components ungrouped_items">
+                    
+                         
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT PROGRESS BAR -->
+            <div class="opp_right">
+                <div>
+                    <div class="progress_preview">
+                        <h3 class="global_page_section_title">Progress</h3>
+                        <div class="separator5"></div>
+                        <div class="separator5"></div>
+                        <div class="default_progress_bar">
+
+                          
+                            <div class="progress_bar_container">
+
+                                  <!-- IMPORTANT! Apply status step_in_progress , step_completed or/and step_billing accordingly to section class="progress_step_container  " -->
+                     
+
+                                <!-- Project Created -->
+                                <!-- <section class="progress_step_container step_completed">
+                                    <div class="progress_step_line" style="height: 10px;">
+                                        <div style="height: 10px;"></div>
+                                    </div>
+                                    <div class="progress_step">
+                                        <div class="progress_icon_container">
+                                            <div class="progress_icon creating_project_bg"></div>
+                                            <img class="billing_icon" alt="close" src="<%= image_path('new_icons/billing.svg') %>" data-toggle="tooltip" data-placement="top" title="Billing starts" >
+                                        </div>
+                                        <div class="progress_status_container">
+                                            <small>12/03/21</small>
+                                            <p class="step_with_explanation">Project Created
+                                                <img class="tooltip_icon" alt="close" src="<%= image_path('new_icons/info.svg') %>" data-toggle="tooltip" data-placement="top" 
+                                                title="You can browse furniture and save it into  project" >
+                                            </p>
+                                        </div>
+                                    </div>
+                                </section> -->
+                                            
+                                <!-- Order Started -->
+                                <section class="progress_step_container step_completed">
+                                    <div class="progress_step_line" style="height: 60px;">
+                                        <div style="height: 60px;"></div>
+                                    </div>
+                                    <div class="progress_step">
+                                        <div class="progress_icon_container">
+                                            <div class="progress_icon order_created_bg"></div>
+                                            <img class="billing_icon" alt="close" src="<%= image_path('new_icons/billing.svg') %>" data-toggle="tooltip" data-placement="top" title="Billing starts" >
+                                        </div>
+                                        <div class="progress_status_container">
+                                            <small><%= @order.created_on&.strftime('%-m/%-e/%y') %></small>
+                                            <p>Order Started</p>
+                                        </div>
+                                    </div>
+                                </section>
+
+
+                                <% if @order.rental? %>
+                                    <!-- Order Frozen -->
+                                    <section class="progress_step_container <%= @order.is_frozen? ? 'step_completed' : 'step_in_progress' %>">
+                                        <div class="progress_step_line" style="height: 40px;">
+                                            <div style="height: 40px;"></div>
+                                        </div>
+                                        <div class="progress_step">
+                                            <div class="progress_icon_container">
+                                                <div class="progress_icon order_locked_bg"></div>
+                                                <img class="billing_icon" alt="close" src="<%= image_path('new_icons/billing.svg') %>" data-toggle="tooltip" data-placement="top" title="Billing starts" >
+                                            </div>
+                                            <div class="progress_status_container">
+                                                <small><%= @order.freezes_at&.strftime('%-m/%-e/%y') %> - <%= @order.freezes_at&.strftime('%l:%M %p') %></small>
+                                                <p class="step_with_explanation">
+                                                    <% if @order.is_frozen? %>
+                                                        Order Frozen
+                                                    <% else %>
+                                                        Order Freezes
+                                                    <% end %>
+                                                    <img class="tooltip_icon" alt="close" src="<%= image_path('new_icons/info.svg') %>" data-toggle="tooltip" data-placement="top" 
+                                                    title="No changes can be made to this order after this time without contacting us." >
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </section>
+                                <% end %>
+
+
+                                <!-- Order Shipping -->
+                                <section class="progress_step_container <%= @order.shipped? ? 'step_completed' : @order.is_frozen? ? 'step_in_progress' : '' %>">
+                                    <div class="progress_step_line" style="height: 40px;">
+                                        <div style="height: 40px;"></div>
+                                    </div>
+                                    <div class="progress_step">
+                                        <div class="progress_icon_container">
+                                            <div class="progress_icon order_delivered_bg" style="background-color: <%= @order.status == 'Pulled' || @order.status == 'Loaded' || @order.status == 'Renting' || @order.status == 'Destage' || @order.status == 'Complete' || @order.status == 'Void'? '#17a2b8' : '' %>"></div>
+                                            <img class="billing_icon" alt="close" src="<%= image_path('new_icons/billing.svg') %>" data-toggle="tooltip" data-placement="top" title="Billing starts" >
+                                        </div>
+                                        <div class="progress_status_container">
+                                            <small>
+                                                <% if @order.shipped? %>
+                                                    <%= @order.shipped_at&.strftime('%-m/%-e/%y') %>
+                                                <% else %>
+                                                    <%= @order.shipping_at&.strftime('%-m/%-e/%y') %>
+                                                    <% if @order.pickup? %>
+                                                        - <%= @order.shipping_at&.strftime('%l:%M %p') %>
+                                                    <% end %>
+                                                <% end %>
+                                            </small>
+                                            <p>
+                                                <% if @order.shipped?%>
+                                                    Order <%= @order.pickup? ? 'Picked Up' : 'Delivered' %>
+                                                <% elsif !@order.shipping_at.present? %>
+                                                    <%= @order.pickup? ? 'Pickup' : 'Delivery' %> Not Scheduled                                
+                                                <% else %>
+                                                    <%= @order.pickup? ? 'Pickup' : 'Delivery' %> Scheduled
+                                                <% end %>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </section>
+
+
+                                <% if @order.rental? %>
+                                    <!-- Order Renting -->
+                                    <section class="progress_step_container ">
+                                        <div class="progress_step_line" style="height: 80px;">
+                                            <div style="height: 80px;"></div>
+                                        </div>
+                                        <div class="progress_step">
+                                            <div class="progress_icon_container">
+                                                <div class="progress_icon <%= 'order_renting_bg' if !@order.destaged? || @order.status == "Void"%>" style="background-color: <%= @order.status == 'Renting' || @order.status == 'Destage' || @order.status == 'Complete' || @order.status == 'Void' ? '#17a2b8' : '' %>"></div>
+                                                <img class="billing_icon" alt="close" src="<%= image_path('new_icons/billing.svg') %>" data-toggle="tooltip" data-placement="top" title="Billing starts" >
+                                            </div>
+                                            <div class="progress_status_container" >
+                                                <small></small>
+                                                <p >
+                                                    <% if @order.status == "Void" %>
+                                                    <span style="color: #17a2b8" >Order Returned</span>
+                                                    <% else %>
+                                                        <%if @order.status == "Renting" || @order.status == "Complete"%>
+                                                            <span style="color: #17a2b8" >Order Renting</span>
+                                                        <%else%>
+                                                            <span style="" >Order Renting</span>
+                                                        <%end%>
+                                                        <% if @order.shipped? && !@order.destaging_at.present? && @order.destageable? %> <br>
+                                                            <a class="request_destage" data-toggle="modal" data-target="#requestDestage" onclick="requestDestage(<%= @order.id %>)">Request Destage</a>
+                                                        <% end %>
+                                                    <% end %>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </section>
+
+
+                                    <!-- Order Destaged -->
+                                    <section class="progress_step_container ">
+                                        <div class="progress_step_line" style="height: 40px;">
+                                            <div style="height: 40px;"></div>
+                                        </div>
+                                        <div class="progress_step">
+                                            <div class="progress_icon_container">
+                                                <div class="progress_icon order_destage_bg" style="background-color: <%= @order.status == 'Destage' ? '#17a2b8' : '' %>"></div>
+                                                <img class="billing_icon" alt="close" src="<%= image_path('new_icons/billing.svg') %>" data-toggle="tooltip" data-placement="top" title="Billing starts" >
+                                            </div>
+                                            <div class="progress_status_container">
+                                                <small>
+                                                    <% if @order.destaged? %>
+                                                        <%= @order.destaged_at&.strftime('%-m/%-e/%y') %>
+                                                    <% else %>
+                                                        <%= @order.destaging_at&.strftime('%-m/%-e/%y') %>
+                                                    <% end %>
+                                                </small>
+                                                <p>
+                                                    <% if @order.destaged? %>
+                                                        Order Destaged
+                                                    <% elsif @order.destaging_at.present? %>
+                                                        Destage Scheduled
+                                                    <% elsif @order.shipped? %>
+                                                        Destage Not Scheduled
+                                                    <% else %>
+                                                        Order Destage
+                                                    <% end %>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </section>
+                                <% end %>
+
+
+                                <!-- Order Completed-->
+                                <section class="progress_step_container <%= @order.completed? && 'step_completed' %>">
+                                    <div class="progress_step_line" style="height: 40px;">
+                                        <div style="height: 40px;"></div>
+                                    </div>
+                                    <div class="progress_step">
+                                        <div class="progress_icon_container">
+                                            <div class="progress_icon order_completed_bg" style="background-color: <%= @order.status == 'Complete' ? '#17a2b8' : '' %>"></div>
+                                            <img class="billing_icon" alt="close" src="<%= image_path('new_icons/billing.svg') %>" data-toggle="tooltip" data-placement="top" title="Billing starts" >
+                                        </div>
+                                        <div class="progress_status_container">
+                                            <small>
+                                                <% if @order.destaged? %>
+                                                    <%= @order.completed_on&.strftime('%-m/%-e/%y')%>
+                                                <% end %>
+                                            </small>
+                                            <%if @order.status == "Complete"%>
+                                              <p style="color: #17a2b8">Order Completed</p>
+                                            <%else%>
+                                              <p >Order Completed</p>
+                                            <%end%>  
+                                        </div>
+                                    </div>
+                                </section>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <%if current_user&.type == "Employee" && (@order.status == "Loaded" || @order.status == "Destage")%>
+        <div class="">
+        <div class="main-div">
+            <!-- First Button -->
+            <div class="col-4 ">
+            <a href="#signaturePadModal" class=" open-signature"  data-toggle="modal">
+                Take signature
+            </a>
+            </div>
+            <!-- Second Button -->
+            <div class="col-4 ">
+            <a href="#signatureUpload" class=" open-signature2" data-toggle="modal">
+                Upload signature
+            </a>
+            </div>
+        </div>
+        </div>
+    <%end%>
+
+    <div class="separator20"></div>
+    <div class="separator20"></div>
+    <div class="separator20"></div>
+    <div class="separator20"></div>
+</div>
+
+<%= render partial: 'products/quickview_modal' %>
+<% if @order.credit_card %>
+<!-- Update CC Modal -->
+<div class="modal fade" id="update_cc_modal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content w-100">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Assign a different card to Order <%= @order.id %></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-body" id="update_cc_body">
+                    <%= form_tag(:update_order_credit_card, id: 'update_cc_form') %>
+                    <div class="form-group">
+                        <div class="form-row">
+                            <%= select_tag(:card_id, options_for_select(
+                                [['-- New Card --', 'new']] +
+                                @credit_cards.map{ |c| [ c.display(label_default: true), c.id ] },
+                                @order.credit_card.id.among?(@credit_cards.pluck(:id)) ? @order.credit_card.id : 'new',
+                                ), class: 'custom-select') %>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-row">
+                            <button type="submit" class="btn btn-outline-secondary btn-lg btn-block" id="assign_card_btn">Assign Card</button>
+                        </div>
+                    </div>
+                    </form>
+                    <%= form_tag(create_credit_card_path, id: 'create_cc_form') %>
+                    <div class="row mt-2">
+                        <div class="col-sm-12 col-md-6">
+                            <h5>Card Information</h5>
+                            <!-- CC Label -->
+                            <div class="form-group">
+                                <%= text_field_tag(:label, params[:label] || nil, class: 'form-control', placeholder: 'Card Label', required: false, maxlength: 50) %>
+                            </div>
+                            <!-- CC Name -->
+                            <div class="form-group">
+                                <%= text_field_tag(:name, params[:name] || nil, class: 'form-control', placeholder: 'Name on Credit Card', required: true) %>
+                            </div>
+                            <!-- CC Number -->
+                            <div class="form-group">
+                                <%= text_field_tag(:number, nil, class: 'form-control', placeholder: 'Credit Card Number', maxlength:'16', required: true) %>
+                            </div>
+                            <!-- CC Verification -->
+                            <div class="form-group">
+                                <div class="form-row">
+                                    <div class="col">
+                                        <%= text_field_tag(:verification, params[:cc_verification] || nil, class: 'form-control', placeholder: 'CCV', minlength:'3', maxlength:'3', required: true) %>
+                                    </div>
+                                    <div class="col">
+                                        <%= select_tag(:exp_month, options_for_select([['-- Month --', nil]] + (1...13).to_a.map!{|e| e = e.to_s.rjust(2, '0') }), class: 'form-control', required: true) %>
+                                    </div>
+                                    <div class="col">
+                                        <%= select_tag(:exp_year, options_for_select([['-- Year --', nil]] + (Time.zone.now.year...10.years.from_now.year).to_a), class: 'form-control', required: true) %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-6">
+                            <h5>Billing Address</h5>
+                            <!-- Address Line 1 -->
+                            <div class="form-group">
+                                <%= text_field_tag(:address1, params[:address1] || @billing_address[:address1], class: 'form-control', placeholder: 'Address Line 1', required: true) %>
+                            </div>
+                            <!-- Address Line 2 -->
+                            <div class="form-group">
+                                <%= text_field_tag(:address2, params[:address2] || @billing_address[:address2], class: 'form-control', placeholder: 'Address Line 2') %>
+                            </div>
+                            <!-- City -->
+                            <div class="form-group">
+                                <%= text_field_tag(:city, params[:city] || @billing_address[:city], class: 'form-control', placeholder: 'City', required: true) %>
+                            </div>
+                            <!-- State -->
+                            <div class="form-group">
+                                <%= select_tag(:state, options_for_select([['-- Select State --', nil]] + states, params[:state] || @billing_address[:state]), class: 'form-control', required: true) %>
+                            </div>
+                            <!-- Zip Code -->
+                            <div class="form-group">
+                                <%= text_field_tag(:zip, params[:zip] || @billing_address[:zipcode], class: 'form-control', placeholder: 'Zip Code', required: true) %>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-outline-secondary btn-lg btn-block">Create &amp; Assign Card</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer  d-sm-none">
+                <button type="button" class="btn btn-outline-secondary w-50 m-auto" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<% end %>
+
+<%= render partial: 'account/destage_modal' %>
+
+<%= render partial: 'account/edit_project_name_modal' %>
+<%= render partial: 'account/edit_stage_info_modal' %>
+<%= render partial: 'reviews_modal' %>
+
+
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="signaturePadModal" tabindex="-1" role="dialog" aria-labelledby="signaturePadModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="signaturePadModalLabel">Signature Pad</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Signature Pad Container -->
+        <div style="border: 1px solid #ccc; padding: 10px;">
+          <canvas id="signature-pad" style="border: 1px solid black; width: 100%; height: 300px;background-color: white;"></canvas>
+          
+          <!-- Options -->
+          <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;">
+            <button id="clear" class="btn btn-secondary btn-sm">Clear</button>
+            <button id="undo" class="btn btn-secondary btn-sm">Undo</button>
+            <button id="redo" class="btn btn-secondary btn-sm">Redo</button>
+            <button id="change-color" class="btn btn-secondary btn-sm">Change Color</button>
+            <button id="change-width" class="btn btn-secondary btn-sm">Change Width</button>
+            <button id="change-bg-color" class="btn btn-secondary btn-sm" style="display: none;">Change Background Color</button>
+            <button id="save-png" class="btn btn-primary btn-sm">Save as PNG</button>
+            <button id="save-jpg" class="btn btn-primary btn-sm">Save as JPG</button>
+            <button id="save-svg" class="btn btn-primary btn-sm">Save as SVG</button>
+            <button id="save-svg-bg" class="btn btn-primary btn-sm">Save as SVG with Background</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="signatureUpload" tabindex="-1" role="dialog" aria-labelledby="productOptionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="productOptionsModalLabel">Upload signature & update order status with product pieces  </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <%= form_with url: order_status_signatures_path, method: :post, multipart: true, local: true do |f| %>
+          <!-- Scrollable Product List -->
+           <div class="form-group">
+                <%= f.label :order_status, "Select Order Status" %>
+                <%= f.select :order_status, options_for_select(["Renting","Complete"], @order.status), { prompt: "Choose a status" }, class: "form-control", required: true %>
+            </div>
+          <div class="form-group" style=" overflow-y: auto;overflow-x: hidden; height: 600px; border: 1px solid #ccc; padding: 10px;">
+            <%= f.hidden_field :product_ids, value: @products_form %>
+            <%= f.hidden_field :order_id, value: @order.id %>
+            
+            <% @order.products_by_room.each do |room, products| %>   
+              
+              <% products.each do |product| %>
+                <div class="product-item d-flex align-items-center mb-3">
+                    <%= image_tag(product.image_url, alt: 'product photo',class: "rounded mr-3" , style: "width: 50px; height: 50px; object-fit: cover;margin-bottom: 225px;") if product.image_url %>
+                    <div>
+                        <%status = product_status(product.id, product.line_id) %>
+                        <p class="mb-1 font-weight-bold"><%= product.name%></p>
+                        <div class="form-check">
+
+                        
+                        <%= radio_button_tag "#{product.id}-#{product.line_id}", "Confirmed", status == "Confirmed", class: "form-check-input", id: "product1Confirmed" %>
+                        <label class="form-check-label" for="product1Confirmed">Confirmed</label>
+                        </div>
+                        <div class="form-check">
+                        <%= radio_button_tag "#{product.id}-#{product.line_id}", "Pulled", status == "Pulled", class: "form-check-input", id: "product1Pulled" %>
+                        <label class="form-check-label" for="product1Pulled">Pulled</label>
+                        </div>
+                        <div class="form-check">
+                        <%= radio_button_tag "#{product.id}-#{product.line_id}", "Loaded", status == "Loaded", class: "form-check-input", id: "product1Loaded" %>
+                        <label class="form-check-label" for="product1Loaded">Loaded</label>
+                        </div>
+                        <div class="form-check">
+                        <%= radio_button_tag "#{product.id}-#{product.line_id}", "Renting", status == "Renting", class: "form-check-input", id: "product1Delivered" %>
+                        <label class="form-check-label" for="product1Delivered">Renting</label>
+                        </div>
+                        <div class="form-check">
+                        <%= radio_button_tag "#{product.id}-#{product.line_id}", "Returned", status == "Returned", class: "form-check-input", id: "product1Returned" %>
+                        <label class="form-check-label" for="product1Returned">Returned</label>
+                        </div>
+
+                        <div class="form-check">
+                        <%= radio_button_tag "#{product.id}-#{product.line_id}", "Transferred", status == "Transferred", class: "form-check-input", id: "product1Transferred" %>
+                        <label class="form-check-label" for="product1Transferred">Transferred</label>
+                        </div>
+                        <div class="form-check">
+                        <%= radio_button_tag "#{product.id}-#{product.line_id}", "Available", status == "Received", class: "form-check-input", id: "product1Received" %>
+                        <label class="form-check-label" for="product1Received">Received</label>
+                        </div>
+                        <div class="form-check">
+                        <%= radio_button_tag "#{product.id}-#{product.line_id}", "Damage", status == "Damage", class: "form-check-input", id: "product1Damage" %>
+                        <label class="form-check-label" for="product1Damage">Damage</label>
+                        </div>
+                        <div class="form-check">
+                        <%= radio_button_tag "#{product.id}-#{product.line_id}", "Missing", status == "Missing", class: "form-check-input", id: "product1Missing" %>
+                        <label class="form-check-label" for="product1Missing">Missing</label>
+                        </div>
+                        <div class="form-check">
+                        <%= radio_button_tag "#{product.id}-#{product.line_id}", "Incomplete", status == "Incomplete", class: "form-check-input", id: "product1Incomplete" %>
+                        <label class="form-check-label" for="product1Incomplete">Incomplete</label>
+                        </div>
+        
+                    </div>
+                </div>
+              <%end%>      
+            <%end%>    
+
+          </div>
+
+          <!-- File Input -->
+          <div class="form-group">
+              <label for="uploadFile">Upload Digital Signature Image</label>
+              <%= f.file_field :signature_url, class: 'form-control', required: true %>
+          </div>
+
+          <!-- Text Input -->
+          <div class="form-group">
+              <label for="additionalNotes">Additional Notes</label>
+              <%= f.text_area :notes, class: 'form-control', rows: 3, placeholder: 'Enter any additional information here...', required: true %>
+
+          </div>
+
+          <!-- Submit and Close Buttons -->
+          <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Submit</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        <%end%>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+<!-- POPUP - CONFIRMATION  DELETE ITEM -->
+<div class="popup_modal">
+    <div class="modal fade" id="remove_item_confirmation" tabindex="-1" role="dialog" aria-hidden="true">
+       <div class="modal-dialog" role="document">
+             <div class="modal-content">
+                <div class="modal-header confirm_header">
+                   <div>
+                      <%=image_tag("new_icons/warning.svg", class:"modal_header_icon", alt:"warning") %>
+                      <h5 style="color:#fff;">CONFIRM</h5>
+                      <%= image_tag('new_icons/close_color_white.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+                   </div>
+                </div>
+ 
+                <div class="modal-body" style="padding: 20px;">
+                   <p class="confirm_question">Are you sure you want to remove this Bin?</p>
+                   <!-- Add Autocomplete Input and Add Button -->
+                   <div style="margin-top: 20px;">
+                       <input type="text" id="autocomplete_input" class="form-control" placeholder="Autocomplete bin by id." />
+                       
+                   </div>
+                   <ul id="autocomplete_results" style="list-style: none; padding: 0; margin-top: 10px;"></ul>
+
+                   <div class="confirm_btns">
+                        <a href="#" class="btn_yes yes_remove" data-dismiss="modal">Yes</a>
+                        <a href="#" class="btn_no close" data-dismiss="modal">No</a>
+                   </div>
+                </div>
+             </div>
+       </div>
+    </div>
+ </div>
+
+<!-- POPUP - CONFIRMATION  CANCEL ORDER -->
+<div class="popup_modal">
+    <div class="modal fade" id="cancel_order_confirmation" tabindex="-1" role="dialog" aria-hidden="true">
+       <div class="modal-dialog" role="document">
+             <div class="modal-content">
+                <div class="modal-header confirm_header">
+                   <div>
+                      <%=image_tag("new_icons/warning.svg", class:"modal_header_icon", alt:"warning") %>
+                      <h5 style="color:#fff;">CONFIRM</h5>
+                      <%= image_tag('new_icons/close_color_white.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+                   </div>
+                </div>
+ 
+                <div class="modal-body" style="padding: 20px;">
+                   <p class="confirm_question">Are you sure you want to cancel this order?</p>
+                   <div class="confirm_btns">
+                        <a href="#" class="btn_yes yes_cancel" data-dismiss="modal">Yes</a>
+                        <a href="#" class="btn_no close" data-dismiss="modal">No</a>
+                   </div>
+                </div>
+             </div>
+       </div>
+    </div>
+ </div>
+
+<%= form_tag(add_items_to_order_path, method: :post, id: 'product-form') do %>
+
+        <!-- app/views/products/index.html.erb -->
+        <div class="container mt-4">
+        <h2>Product Search</h2>
+        <p>Product Rent/Buy:</p>
+        <select id="product-action" class="form-control mt-2">
+            <option value="rent">Rent</option>
+            <option value="buy">Buy</option>
+        </select>
+        <%= hidden_field_tag :order_id, @order.id%>
+        <!-- Dropdown for Quantity selection (1-10) -->
+        
+        <select id="product-quantity" class="form-control mt-2" style="display: none;">
+            <% (1..4).each do |n| %>
+            <option value="<%= n %>"><%= n %></option>
+            <% end %>
+        </select>
+        <p></p>
+        <!-- Autocomplete input field -->
+        <input type="text" id="product-autocomplete" class="form-control" placeholder="Search for a product">
+
+        <!-- Hidden field to store selected product IDs -->
+        <input type="hidden" id="selected-products" name="product_ids">
+
+        <!-- Bootstrap table to display selected products -->
+        <table class="table table-bordered mt-4" id="product-table">
+            <thead>
+            <tr>
+                <th>Type</th>
+                <th>Quantity</th>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Remove</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Selected product rows will be inserted here -->
+            </tbody>
+        </table>
+
+        <!-- Add Item Button -->
+        <button id="add-item" class="btn btn-primary">Add Item</button>
+        </div>
+<% end %>
+
+
+<script>	
+
+     // tooltip
+     $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+
+ // Select/add new card modal
+ // NOTE: When new card is entered, it submits to new card creation, gets response, and then submits update card form with new card ID.
+ $(function(){
+     var create_cc_frm = document.getElementById('create_cc_form');
+
+     if(create_cc_frm) {
+         var card_select = document.getElementById('card_id');
+         var assign_card_btn = document.getElementById('assign_card_btn');
+
+         if (card_select.value != 'new') {
+             create_cc_frm.classList.add('d-none');
+         }
+         
+         card_select.addEventListener('change', function(e) {
+             if (card_select.value == 'new') {
+                 create_cc_frm.classList.remove('d-none');
+                 assign_card_btn.classList.add('d-none');
+             } else {
+                 create_cc_frm.reset();
+                 create_cc_frm.classList.add('d-none');
+                 assign_card_btn.classList.remove('d-none');          
+             }        
+         });
+
+         create_cc_frm.addEventListener('submit', function(e) {
+             e.preventDefault();
+
+             var spinner = document.createElement('div');
+             spinner.classList.add('spinner-border');
+             spinner.classList.add('spinner-border-lg');
+             spinner.setAttribute('role', 'status');
+             var update_cc_body = document.getElementById('update_cc_body');
+             update_cc_body.classList.add('d-none');
+             update_cc_body.insertAdjacentElement('beforebegin', spinner);
+
+             $.ajax({
+                 url: Routes.create_credit_card_path(),
+                 method: 'POST',
+                 data: Object.fromEntries(new FormData(e.target)),
+                 success: function(response) {
+                     if(response.success == false) {
+                         var alert = document.createElement('div');
+                         alert.classList.add('alert', 'alert-dismissible', 'alert-danger');
+                         alert.innerHTML = '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + response.message;
+                         create_cc_frm.insertAdjacentElement('afterbegin', alert);
+                         update_cc_body.classList.remove('d-none');
+                         update_cc_body.parentNode.removeChild(spinner);
+                     } else {                
+                         var option = document.createElement('option');
+                         option.value = response.id;
+                         option.text = response.display;
+                         card_select.add(option);
+                         card_select.selectedIndex = card_select.options.length - 1;
+                         create_cc_frm.classList.add('d-none');
+                         document.getElementById('update_cc_form').submit();
+                     }            
+                 }
+             });
+         });
+     }
+ });
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Modal shown event
+  $('#signaturePadModal').on('shown.bs.modal', () => {
+    const canvas = document.getElementById('signature-pad');
+    const signaturePad = new SignaturePad(canvas);
+
+    resizeCanvas(canvas);
+
+    // Set background color to white
+    setCanvasBackgroundColor(canvas, '#FFFFFF');
+
+    // Buttons
+    const clearButton = document.getElementById('clear');
+    const undoButton = document.getElementById('undo');
+    const redoButton = document.getElementById('redo');
+    const changeColorButton = document.getElementById('change-color');
+    const changeWidthButton = document.getElementById('change-width');
+    const savePngButton = document.getElementById('save-png');
+    const saveJpgButton = document.getElementById('save-jpg');
+    const saveSvgButton = document.getElementById('save-svg');
+    const saveSvgBgButton = document.getElementById('save-svg-bg');
+
+    const undoStack = [];
+
+    // Resize canvas
+    function resizeCanvas(canvas) {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      canvas.getContext('2d').scale(ratio, ratio);
+    }
+
+    // Clear
+    clearButton.addEventListener('click', () => signaturePad.clear());
+
+    // Undo
+    undoButton.addEventListener('click', () => {
+      const data = signaturePad.toData();
+      if (data.length > 0) {
+        undoStack.push(data.pop());
+        signaturePad.fromData(data);
+      }
+    });
+
+    // Redo
+    redoButton.addEventListener('click', () => {
+      if (undoStack.length > 0) {
+        const data = signaturePad.toData();
+        data.push(undoStack.pop());
+        signaturePad.fromData(data);
+      }
+    });
+
+    // Change Color
+    changeColorButton.addEventListener('click', () => {
+      const newColor = prompt('Enter a color (e.g., red, #0000FF):', '#000000');
+      if (newColor) signaturePad.penColor = newColor;
+    });
+
+    // Change Width
+    changeWidthButton.addEventListener('click', () => {
+      const newWidth = parseFloat(prompt('Enter a pen width (e.g., 2, 5):', '2'));
+      if (!isNaN(newWidth)) signaturePad.minWidth = newWidth;
+    });
+
+    // Save as PNG
+    savePngButton.addEventListener('click', () => saveImage('image/png', 'signature.png'));
+
+    // Save as JPG
+    saveJpgButton.addEventListener('click', () => saveImage('image/jpeg', 'signature.jpg'));
+
+    // Save as SVG
+    saveSvgButton.addEventListener('click', () => {
+      const dataURL = signaturePad.toDataURL('image/svg+xml');
+      downloadImage(dataURL, 'signature.svg');
+    });
+
+    // Save as SVG with Background
+    saveSvgBgButton.addEventListener('click', () => {
+      const ctx = canvas.getContext('2d');
+      const background = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const dataURL = signaturePad.toDataURL('image/svg+xml');
+      const svgWithBg = `${background}\n${dataURL}`;
+      downloadImage(svgWithBg, 'signature_with_bg.svg');
+    });
+
+    // Helper: Save image
+    function saveImage(mimeType, filename) {
+      if (signaturePad.isEmpty()) {
+        alert('Please provide a signature first.');
+        return;
+      }
+      const dataURL = signaturePad.toDataURL(mimeType);
+      downloadImage(dataURL, filename);
+    }
+
+    // Helper: Download image
+    function downloadImage(dataURL, filename) {
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  });
+});
+
+// Set canvas background color
+function setCanvasBackgroundColor(canvas, color) {
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+
+
+
+
+// app/assets/javascripts/products.js
+$(document).ready(function() {
+     $("#autocomplete_input").on("input", function() {
+      var query = $(this).val();
+
+      // If input is empty, clear results
+      if (query.length < 1) {
+        $("#autocomplete_results").empty();
+        return;
+      }
+      // Send AJAX request to Rails controller
+      $.ajax({
+        url: '/products/autocomplete_bins', // The route defined earlier
+        type: 'GET',
+        data: { query: query },
+        success: function(data) {
+          // Clear the previous results
+          $("#autocomplete_results").empty();
+
+          // Append new autocomplete results
+          if (data.length > 0) {
+            data.forEach(function(bin) {
+              $("#autocomplete_results").append('<li class="autocomplete-item">' + bin + '</li>');
+            });
+          } else {
+            $("#autocomplete_results").append('<li>No matches found</li>');
+          }
+        }
+      });
+    });
+
+    // Handle selection of autocomplete result
+    $(document).on("click", ".autocomplete-item", function() {
+      var selectedItem = $(this).text();
+      
+      $("#autocomplete_input").val(selectedItem);  // Set input field to selected item
+      $("#autocomplete_results").empty();  // Clear the results
+    });
+
+
+  // Handle autocomplete
+  $('#product-autocomplete').autocomplete({
+    source: function(request, response) {
+      $.ajax({
+        url: '/products/autocomplete',
+        data: {
+          term: request.term
+        },
+        success: function(data) {
+          response(data.map(function(product) {
+            return {
+              label: product.product,
+              product: product.product,
+              id: product.id,
+              price: product.rent_per_month
+            };
+          }));
+        }
+      });
+    },
+    minLength: 2,
+    select: function(event, ui) {
+      var product = ui.item;
+      var action = $('#product-action').val(); // Rent or Buy
+      var quantity = $('#product-quantity').val(); // Quantity
+
+      // Add the selected product to the table
+      var row = `<tr data-product-id="${product.id}">
+        <td>${action}</td>
+        <td>${quantity}</td>
+        <td>${product.product}</td>
+        <td>${product.price}</td>
+        <td><button class="btn btn-danger remove-item">Remove</button></td>
+      </tr>`;
+      
+
+      $('#product-table tbody').append(row);
+
+      // Get the current value of the hidden field and parse it
+      var selectedProducts = $('#selected-products').val() ? JSON.parse($('#selected-products').val()) : [];
+
+      // Add the new product selection to the array
+      selectedProducts.push([action, quantity, product.id]);
+
+      // Debugging: Check what's in the selectedProducts array
+      console.log("Before updating hidden field:", selectedProducts);
+
+      // Ensure proper JSON stringification
+      var selectedProductsJson = JSON.stringify(selectedProducts);
+
+      // Debugging: Check the serialized JSON string
+      console.log("Serialized JSON:", selectedProductsJson);
+
+      // Update the hidden field with the new array as a JSON string
+      $('#selected-products').val(selectedProductsJson);
+
+      // Debugging: Check what's in the hidden field after setting it
+      console.log("After updating hidden field:", $('#selected-products').val());
+
+      setTimeout(function() {
+        $('#product-autocomplete').val('');
+      }, 50);
+    }
+  });
+
+  // Handle removing items from the table
+  $(document).on('click', '.remove-item', function() {
+    var row = $(this).closest('tr');
+    var productId = row.data('product-id');
+    
+    // Remove the row from the table
+    row.remove();
+
+    // Get the current value of the hidden field and parse it
+    var selectedProducts = JSON.parse($('#selected-products').val());
+
+    // Remove the selected product info from the array
+    selectedProducts = selectedProducts.filter(function(item) {
+      return item[2] != productId;
+    });
+
+    // Ensure proper JSON stringification before updating
+    $('#selected-products').val(JSON.stringify(selectedProducts));
+  });
+
+  // Handle Add Item button (optional submission)
+  $('#add-item').click(function() {
+    // Debugging: Check the value of the hidden field when Add Item is clicked
+    console.log('Selected products:', $('#selected-products').val());
+  });
+});
+
+
+
+
+
+
+</script> 
+
+
+<%= javascript_include_tag "project_detail_page.js" %>
+<%= javascript_include_tag "edit_stage_info.js" %>
+<%= javascript_include_tag "add_review.js" %>
+<%= javascript_include_tag "edit_project_name.js" %>

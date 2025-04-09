@@ -1,0 +1,142 @@
+<% %w[main_heading our_vision our_mission heading_1 heading_2 heading_3 description_header_1 description_header_2].each do |title| %>
+    <%= render 'popup', {page: 'about', title: title, value: instance_variable_get("@#{title}")&.description} %>
+<% end %>
+<% %w[signature header_1_image header_2_image].each do |title| %>
+    <%= render 'popup_file', {page: 'about', title: title, file: 'file', value: instance_variable_get("@#{title}")&.description} %>
+<% end %>
+
+<% %w[description_1 description_2 description_3].each do |title| %>
+    <%= render 'popup_text', {page: 'about', title: title, value: instance_variable_get("@#{title}")&.description} %>
+<% end %>
+<div class='d-flex bg-dark pt-2'>
+    <h3 class="bg-dark text-light m-auto text-center p-2 position-relative flex-grow-1">
+        Editing in CMS mode
+        <a class="btn btn-success position-absolute" style="right: 10px; top: -40%;" href="<%= about_path %>" >Exit</a>
+    </h3>
+</div>
+<div class="about-banner shop-banner-1 container-fluid no-padding">
+   <div class="page-banner-content" data-toggle="modal" data-target="#main_heading">
+      <h3><%= @main_heading.description&.html_safe %></h3>
+      <div class="icon-container">
+         <i class="fas fa-pencil-alt text-light"></i>
+      </div>
+   </div>
+</div>
+<section class="marketplace-section">
+   <div class="row">
+      <div class="col-xs-12 col-sm-6" data-toggle="modal" data-target="#our_mission">
+         <div class="home-titles">
+            <h3>Our Mission</h3>
+            <hr class="title-line">
+         </div>
+         <p class="text-center"><%= @our_mission.description&.html_safe %></p>
+         <div class="icon-container text-center">
+            <i class="fas fa-pencil-alt text-center"></i>
+         </div>
+      </div>
+      <div class="col-xs-12 col-sm-6" data-toggle="modal" data-target="#our_vision">
+         <div class="home-titles">
+            <h3>Our Vision</h3>
+            <hr class="title-line">
+         </div>
+         <p class="text-center"><%= @our_vision.description&.html_safe %></p>
+         <div class="icon-container text-center">
+            <i class="fas fa-pencil-alt text-center"></i>
+         </div>
+      </div>
+   </div>
+</section>
+<div class="container">
+   <br><br>
+   <div class="home-titles" data-toggle="modal" data-target="#heading_1">
+      <h3><%= @heading_1.description&.html_safe %></h3>
+      <hr class="title-line">
+      <div class="icon-container text-center">
+            <i class="fas fa-pencil-alt text-center"></i>
+         </div>
+   </div>
+   <div class="row">
+      <div class="col-md-6 col-xs-12 about-content-image" data-toggle="modal" data-target="#header_1_image">
+         <%=image_tag(@header_1_image&.file_url || "stock/handshake.jpg", alt: @header_1_image&.description,id:"handshake") %>
+      </div>
+      <div class="col-md-6 col-xs-12">
+         <div class="about-content">
+            <h5 data-toggle="modal" data-target="#description_header_1">
+               <%= @description_header_1.description&.html_safe %>
+               <div class="icon-container text-center" style="font-size: 8px !important">
+                  <i class="fas fa-pencil-alt text-center"></i>
+               </div>
+            </h5>
+            <p class="larger" data-toggle="modal" data-target="#description_1"><%= @description_1.description&.html_safe%></p>
+            <div class="icon-container text-center text-sm-dark">
+               <i class="fas fa-pencil-alt text-center"></i>
+            </div>
+         </div>
+      </div>
+   </div>
+   <br><br>
+   <div class="home-titles" data-toggle="modal" data-target="#heading_2">
+      <h3><%= @heading_2.description&.html_safe %></h3>
+      <hr class="title-line">
+      <div class="icon-container text-center">
+            <i class="fas fa-pencil-alt text-center"></i>
+         </div>
+   </div>
+   <div class="row">
+      <div class="col-md-6 col-xs-12">
+         <div class="about-content text-sm-right" >
+            <h5 data-toggle="modal" data-target="#description_header_2"><%= @description_header_2.description&.html_safe %>
+               <div class="icon-container text-center text-sm-dark" style="font-size: 8px !important">
+                  <i class="fas fa-pencil-alt text-center"></i>
+               </div>
+            </h5>
+            <p class="larger" data-toggle="modal" data-target="#description_2"><%= @description_2.description&.html_safe%>
+               <div class="icon-container text-center">
+                  <i class="fas fa-pencil-alt text-center"></i>
+               </div>
+            </p>
+         </div>
+      </div>
+      <div class="col-md-6 col-xs-12 about-content-image" data-toggle="modal" data-target="#header_2_image">
+         <%=image_tag(@header_2_image&.file_url || "stock/fern-chair.jpg", alt: @header_2_image&.description,id:"fern-chair") %>
+      </div>
+   </div>
+</div>
+<br><br>
+<div class="container">
+   <div class="home-titles" data-toggle="modal" data-target="#heading_3">
+      <h3><%= @heading_3.description&.html_safe %></h3>
+      <div class="icon-container text-center">
+            <i class="fas fa-pencil-alt text-center"></i>
+         </div>
+   </div>
+   <hr class="title-line">
+   <div class="letter">
+      <div data-toggle="modal" data-target="#description_3">
+         <p class='larger'>
+         <%= @description_3.description&.html_safe%>
+         </p>
+         <div class="icon-container text-center">
+            <i class="fas fa-pencil-alt text-center"></i>
+         </div>
+      </div>
+      <div data-toggle="modal" data-target="#signature">
+         <%=image_tag(@signature&.file_url || "tricia_signature.gif",  class: "t-signature", alt:"CEO SDN Signature",) %>
+         <p class="larger"><%= @signature&.description%></p>
+      </div>
+   </div>
+   <br><br>
+</div>
+<script>
+    $(document).ready(function() {
+        $('[data-toggle="modal"]').hover(
+            function() {
+                $(this).find('.icon-container').show();
+            },
+            function() {
+                $(this).find('.icon-container').hide();
+            }
+        );
+
+    });
+</script>

@@ -1,0 +1,43 @@
+<div class="new_design">
+    <div class="form_design_1 ">
+        <%= form_tag(login_path(redirect_url: defined?(redirect_url) ? redirect_url : '')) %>
+
+            <!-- EMAIL -->
+            <div class="input_w_icon">
+                <%=image_tag("new_icons/email_full.svg", alt:"email") %>
+                <%= email_field_tag(:email, params[:email], placeholder: 'E-mail Address', required: '') %>
+            </div>
+
+            <div class="separator10"></div>
+
+            <!-- PASSWORD -->
+            <div class="input_w_icon">
+                <%=image_tag("new_icons/pass_full.svg", alt:"pass") %>
+                <%= password_field_tag(:password, nil, placeholder: 'Password', required: '') %>
+            </div>
+
+            <div class="separator10"></div>
+            <div class="separator10"></div>
+
+            <!-- BUTTON -->
+            <div class="form_button">
+                <%= button_tag('LOGIN', type: 'submit', class: 'fd_button prime_color') %>
+            </div>
+
+            <%
+            # NOT IN DEMO/MVP
+            #                    <div class="checkbox checkbox-success">
+            #                        <input id="stay-sign" type="checkbox">
+            #                        <label for="stay-sign">Stay signed in</label>
+            #                    </div>
+            %>
+
+            <div class="separator20"></div>
+            
+            <div class="forgot_pass">
+                <label><%= link_to('Forgot your password?', forgot_password_path) %></label>
+            </div>
+
+        </form>
+    </div>
+</div>

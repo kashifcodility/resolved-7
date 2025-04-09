@@ -1,0 +1,326 @@
+@import'./colors';
+
+
+.new_layout{
+
+    .separator5{
+        width: 100%;
+        height: 5px;
+    }
+
+    $ric_font: 'Montserrat', sans-serif;
+    $button_color: rgb(80, 80, 80);
+
+    // ROOM
+    .room_component{
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 5px;
+        margin: 0;
+        width: 100%;
+        min-width: 300px;
+        height: 100%;
+        margin-bottom: 10px;
+        .room_name{
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            font-weight: bold;
+        }
+        .room_section_name{
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+    }
+    .oop_room_details > div:first-child > div:last-child{
+        margin-bottom: 0;
+    }
+
+    // ROOM NOTES
+    .all_room_notes{
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        padding-bottom: 0;
+    }
+    .room_note{
+        padding: 0;
+        margin: 0;
+        min-width: 280px;
+        padding: 10px;
+        border-radius: 5px;
+        // border: 1px solid $light_grey;
+        background-color: $sdn_blue_0;
+        margin-bottom: 10px;
+        position: relative;
+        p{
+            padding: 0;
+            margin: 0;
+            line-height: 1.6;
+            font-size: 14px;
+            color: $font_black_3;
+        }
+        .room_note_title{
+            font-weight: 600;
+            padding-right: 50px;
+        }
+        .note_options_btns{
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        .note_options_btns > div:first-child{
+            display: flex;
+            // background-color: #fff;
+            border-radius: 5px;
+            a{
+                display: inline-block;
+                padding: 5px;
+                img{
+                    width: 16px;
+                    height: 16px;
+                    object-fit: contain;
+                    padding: 2px;
+                }
+            }
+            .remove_note{
+                margin-right: 10px;
+            }
+        }
+    }
+
+    .all_room_notes > div:last-child{
+        margin-bottom: 0px;
+    }
+
+    // ROOM ITEM
+    .all_ric_components{
+        p, a, div{
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            font-family: $ric_font;
+        }
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+
+        .ric{
+            width: 100%;
+            min-width: 280px;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: flex-start;
+            border: 1px solid $light_grey;
+            position: relative;
+        }
+        .ric_image{
+            flex: 2;
+            max-width: 80px;
+            min-width: 80px;
+            img{
+                width: 80px;
+                height: 80px;
+                object-fit: contain;
+                border-radius: 5px;
+                background-color: #fff;
+            }
+        }
+        
+        .ric_description{
+            flex: 9;
+            width: 100%;
+            padding: 0 40px 0 20px;
+            position: relative;
+            small{
+                font-size: 10px;
+                color: $font_black_4;
+            }
+            .ric_description_id{
+                color: $primary;
+            }
+
+            p{
+                font-size: 12px;
+                line-height: 1.6;
+                letter-spacing: -0.2px;
+                color: $font_black_4;
+            }
+            .ric_description_name{
+                line-height: 1.4;
+            }
+            .ric_description_price{
+                font-weight: 600;
+                letter-spacing: 0.4px;
+            }
+            .ric_vertical_line{
+                width: 1px;
+                height: 100%;
+                background-color: $light_grey;
+                position: absolute;
+                top: 0;
+                left: 9px;
+                bottom: 0;
+            }
+            .room_selection{
+                cursor: pointer;
+                padding: 5px 10px;
+            }
+        }
+
+        // RETURNED ITEM
+        .ric.returned_item{
+            background-color: #f3f3f3;
+            position: relative;
+        }
+
+        .ric.returned_item .ric_image img{
+            opacity: 0.6;
+        }
+        .returned_icon_container{
+            display: none;
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            width: 36px;
+            height: 36px;
+            .returned_icon{
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                background-color: $banner_color;
+                border: 3px solid #fff;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                img{
+                    width: 20px;
+                    height: 20px;
+                    object-fit: contain;
+                }
+            }
+        }
+        .ric.returned_item .returned_icon_container{
+            display: block;
+        }
+
+        .ric.returned_item .bodc .dropdown-menu{
+            background-color: #fff;
+        }
+
+   
+            // RETURNED ITEM ENDS
+    }
+
+    // ROOM RETURNED ITEM
+    .recently_returned{
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        a.ric{
+            min-width: 260px;
+            background-color: #fff;
+            &:hover{
+                background-color: #f3f3f3;
+                // background-color: $sdn_blue_1;
+            }
+
+        }
+        .ric_image{
+            flex: 1;
+            max-width: 40px;
+            min-width: 40px;
+            img{
+                width: 40px;
+                height: 40px;
+            }
+        }
+        .ric_description{
+            padding: 0;
+            padding-left: 20px;
+        }
+    }
+
+
+
+
+    @media (max-width: 420px){
+        .all_ric_components{
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+    }
+
+    // BOOTSTRAP BUTTON WITH OPTIONS DROPDOWN
+    .button_with_options_dropdown{
+        button{
+            border: none;
+            outline: none;
+            background: none;
+            border: 1px solid $font_black_4;
+            background-color: #fff;
+            display: inline-block;
+            padding: 6px 9px 5px;
+            line-height: 1.4;
+            cursor: pointer;
+            font-family: $ric_font;
+            font-size: 10px;
+            color: $font_black_4;
+            text-transform: uppercase;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .dropdown-menu{
+            background-color: #fff;
+            border-radius: 5px;
+            border: 1px solid $light_grey;
+            a{
+                line-height: 2;
+                padding: 8px 6px;
+                text-align: center;
+                font-size: 12px;
+            }
+            & > a:last-child{
+                border-top: 1px solid $light_grey;
+            }
+            .destage_requested{
+                background-color: $light_grey;
+            }
+        }
+
+
+    }
+
+    .proj_preview_options{
+        flex: 0.5;
+        max-width: 73px;
+        min-width: 73px;
+    }
+    .choose_room_options{
+        button{
+            padding: 5px 7px 4px;
+            font-size: 9px;
+            color: #fff;
+            border-radius: 4px;
+            background-color: $button_color;
+        }
+        .dropdown-menu{
+            max-height: 220px;
+
+            overflow-y: scroll;
+            a{
+                padding-left: 10px;
+                text-align: left;
+            }
+        }
+    }
+
+}
+
+

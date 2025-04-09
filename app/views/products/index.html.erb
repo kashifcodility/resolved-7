@@ -1,0 +1,820 @@
+<%#= javascript_include_tag('jquery.waypoints.min.js', 'waypoints.infinite.min.js') %>
+<%
+# TODO: Move this to a helper function
+# TODO: Add list of valid query strings and strip out anything else
+def query_params(new_params)
+    #return request.query_parameters.reject{ |k,_| k.among?('page', '_x') }.merge(new_params).to_query_string
+	return "?#{request.query_parameters.reject { |k, _| ['page', '_x'].include?(k) }.merge(new_params).to_query}"
+
+end
+def remove_query_param(keys)
+    keys = Array(keys).map(&:to_sym)
+#    qstring = request.query_parameters.reject{ |k,_| k.to_sym.among?(keys) }
+	  qstring = request.query_parameters.reject { |k, _| keys.include?(k.to_sym) }
+
+
+    # Trigger removal of keys from session filters
+    qstring[:_x] = []
+    keys.each do |key|
+	#qstring[:_x] << key if key.among?(@persistent_filters)
+	    qstring[:_x] << key if @persistent_filters.include?(key)
+
+    end
+    qstring.delete(:_x) unless qstring[:_x].any?
+    
+    #return qstring.to_query_string
+	return qstring.to_query
+end
+
+
+if @in_home
+    banner = @address.address1
+    breadcrumbs = false
+elsif defined? @current_category.parent.parent.name
+    banner = @current_category.parent.parent.name
+    breadcrumbs  = true
+elsif defined? @current_category.parent.name
+    banner = @current_category.parent.name  
+    breadcrumbs = true
+elsif defined? @current_category.name
+    banner = @current_category.name 
+    breadcrumbs = false
+elsif params[:search]
+    banner = "Search"
+    search_input = params[:search]
+    search_results = true
+    breadcrumbs = false
+elsif @active_filters&.any?
+    banner = "Filters"
+    search_input = @active_filters.pluck(:value_label).join(' | ')
+    search_results = true
+    breadcrumbs = false
+else 
+    banner = "Products" 
+end
+
+case banner
+when "Living Room"
+    background = asset_path("stock/livingroom-product-img.jpg")
+when "Dining Room"
+    background = asset_path("stock/dining.jpg")
+when "Home Decor"
+    background = asset_path("stock/homedecor.jpg")
+when "Bedroom"
+    background = asset_path("stock/bedroom.jpg")
+when "Kitchen/Bath"
+    background = asset_path("stock/kitchen.jpg")
+when "Office/Outdoor"
+    background = asset_path("stock/outside.jpg")
+else
+    background = asset_path("stock/livingroom-product-img.jpg")
+end
+
+%>
+<%if @in_home%>
+		 <div class="d-none">
+            <span id="stage-street"><%= @address.address1 %></span><br>
+            <span id="stage-city"><%= @address.city %></span>
+            <span id="stage-state"><%= @address.state%></span>
+          
+        </div>
+  <div class="order-banner">
+    <iframe id="street-view"></iframe>
+    <div class="order-title">
+        <h3><%= banner %> </h3>
+    </div>
+</div>
+<%else%>
+	<style>
+		.page-banner {
+			background-image: url(<%=background%>);
+			background-position: center center;
+			background-repeat: no-repeat;
+			background-size: cover;
+			height: 350px;
+			min-width: 320px;
+			position: relative;
+			z-index: 1;
+			text-align: center;
+		}
+		.page-banner::before {
+			background-color: rgba(0, 0, 0, 0.3);
+			content: "";
+			left: 0;
+			right: 0;
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			display: inline-block;
+			z-index: -1;
+		}
+		span.bread-crumbs {
+			width: 100%;
+			display: inherit;
+			font-size: 20px;
+		}
+	</style>
+
+
+	<!-- Page Banner -->
+	<div class="page-banner  container-fluid no-padding">
+		<div class="page-banner-content">
+			<h3> 
+				<%= banner %>
+				<span class="bread-crumbs">   
+				<%if breadcrumbs%>
+				<%if banner != @current_category.parent.name %>
+				<%= @current_category.parent.name  + "  |  " + @current_category.name  %>
+				<% else %>
+				<%= @current_category.name %>
+				<% end %>
+				<% elsif breadcrumbs == false && search_results == true %>
+				<i class="fa fa-search"></i> <%= search_input == "qhtl" ? "All Inventory" : search_input %>
+				<% end %>
+				</span>
+			</h3>
+		</div>
+	</div>
+<%end%>
+<div class="container-fluid">
+    <div class="latest-product shop-1 container-fluid no-padding woocommerce">
+        <div class="section-padding"></div>
+
+        <!-- FILTERS -->
+        <div class="products-container">
+            <div class="row<%= ' justify-content-center' if @no_filters %>">
+
+				<% unless @no_filters %>
+					<div class="col-md-3 col-sm-3 col-xs-12 widget-area">
+						<form method="get" action="<%= plp_path %>" id="filters">
+							<h3 class="main-widget-title">Filters <span class="hide-filters" data-toggle="collapse" data-target="#filter_menu" >Hide</span></h3>
+							<div id="filter_menu" class="show collapse">
+
+								<% if @active_filters.any? %>
+									<div class="params filter_parameters">
+										<div><small>Filtered by:</small></div>
+										<% @active_filters.each do |filter|%>
+										<% next if filter[:key] == "sort" %>
+											<span class="badge badge-info">
+												<a href="<%= plp_path + '/' + remove_query_param(filter[:key]) %>"><%= "#{filter[:key_label]}: " if filter[:key_label] %> <%= filter[:value_label] %> <i class="ml-1 fas fa-times-circle"></i></a>
+											</span>
+										<% end %>
+									</div>
+								<% end %>
+								
+								<!-- Sites-->
+								<% if current_user&.location_rights&.first == 'ALL'%>
+									<aside class="widget widget-categories widget_section">
+										<h3 class="widget-title" data-toggle="collapse" data-target="#sites">Sites: <span id="expand_marker"><% if params[:site]%>-<%else%>+<%end%></span></h3>
+										<%= hidden_field_tag(:site, params[:site]) if params[:site] %>
+										<ul id="sites" class="<%= params[:site] ? 'show' : 'collapse' %> filter_submenu">
+											<% @sites.each do |site| %>
+											<li class="sites_list">
+												<a href="<%= plp_path + '/' + (params[:site].to_i == site.id ? remove_query_param(:site) : query_params(site: site.id)) %>">
+													<span class="site <%= site.site.downcase %>-bg" data-toggle="tooltip" title="<%= site.site %>"><%= site.site %></span>
+													<% if params[:site].to_i == site.id %>
+														<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' +  remove_query_param(:site)) %>
+													<% end %>
+												</a>
+											</li>
+											<% end%>
+										</ul>
+									</aside>
+								<% end %>
+								<!-- My stuff -->
+								<aside class="widget widget-categories widget_section">
+									<h3 class="widget-title" data-toggle="collapse" data-target="#saved">My Stuff: <span id="expand_marker">-</span></h3>
+									<ul id="saved" class="show filter_submenu">
+										<% if @user_has_inventory %>
+										<li><%= link_to('My Inventory', plp_path + '/' + query_params(owned: 'y')) %>
+											<% if params[:owned] == 'y' %>
+												<%= hidden_field_tag(:owned, 'y') if params[:owned] %>
+												<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' + remove_query_param(:owned))  %>
+											<% end %>
+										</li>
+										<% end %>
+										<li><%= link_to('My Favorites', plp_path + '/' + query_params(favorites: 'y')) %>
+											<% if params[:favorites] == 'y' %>
+												<%= hidden_field_tag(:favorites, 'y') if params[:favorites] %>
+												<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' + remove_query_param(:favorites))  %>
+											<% end %>
+										</li>
+									</ul>
+								</aside>
+
+								<!-- Pricing -->
+								<aside class="widget widget-price-filter widget_section">
+									<h3 class="widget-title" data-toggle="collapse" data-target="#pricing">Pricing  <span id="expand_marker"><% if params[:pmax] || params[:pmin] %>-<%else%>+<%end%></span></h3>
+									<div id="pricing" class="<%= params[:pmin] || params[:pmax] ? 'show' : 'collapse' %> mb-2">
+										<section class="range-slider">
+											<span class="rangeValues"></span>
+											<input value="<%= params[:pmin] || @price_minmax[:min] %>" min="<%= @price_minmax[:min] %>" max="<%= @price_minmax[:max] %>" step="1" type="range" class="price_slider filter_slider slider_min minmax_slider">
+											<input value="<%= params[:pmax] || @price_minmax[:max] %>" min="<%= @price_minmax[:min] %>" max="<%= @price_minmax[:max] %>" step="1" type="range" class="price_slider filter_slider slider_max minmax_slider"">
+											<br>
+											<input type="number" class="rangeValues_min filter_slider slider_min materials_input" id="price_min" name="pmin" value="<%= params[:pmin] || @price_minmax[:min] %>" min="<%= @price_minmax[:min] %>" max="<%= @price_minmax[:max] %>" />
+											<input type="number" class="rangeValues_max filter_slider slider_max materials_input" id="price_max" name="pmax" value="<%= params[:pmax] || @price_minmax[:max] %>" min="<%= @price_minmax[:min] %>" max="<%= @price_minmax[:max] %>" />					
+										</section>
+										<div class="text-center m-0">
+											<input type="submit" value="Apply" class="range_submit btn btn-primary btn-sm">
+											<% if params[:pmin] || params[:pmax] %>
+												<%= link_to('Reset', plp_path + '/' + remove_query_param([:pmin, :pmax]), class: 'range_submit btn btn-primary btn-sm mt-1') %>
+											<% end %>
+										</div>
+									</div>
+								</aside>
+								
+								<!-- Categories -->
+								<aside class="widget widget-categories widget_section">
+									<h3 class="widget-title" data-toggle="collapse" data-target="#categories_filter">Categories: <span id="expand_marker"><% if params[:category]%>-<%else%>+<%end%></span></h3>
+									<%= hidden_field_tag(:category, params[:category]) if params[:category] %>				
+									<ul id="categories_filter" class="<%= params[:category] ? 'show' : 'collapse' %>">
+										<% @categories.each do |parent_category| %>
+											<li class="filter_category_title_container">
+												<%= link_to(parent_category.label, plp_path + '/' + query_params(category: parent_category.id), class:"parent-category-filter filter_category_title") %>
+												<% if @current_category %>
+													<% if @current_category&.id == parent_category&.id %>
+														<%= link_to(raw('<i class="fas fa-times-circle float-right"></i>'), plp_path + '/' + query_params(category: @current_category.parent_id)) %>
+													<% elsif @current_category.id.among?(parent_category.children.pluck(:id)) %>
+														<% if @current_category&.parent&.parent %>
+															<%= link_to(raw('<i class="fas fa-times-circle float-right"></i>'), plp_path + '/' + query_params(category: @current_category.parent.parent.id)) %>
+														<% end %>
+													<% end %>
+												<% end %>
+												<% if parent_category.children.any? %>
+													<ul class="filter_submenu">
+														<% parent_category.children.each do |category| %>
+															<li>
+																<%= link_to(category.label, plp_path + '/' + query_params(category: category.id)) %>
+																<% if @current_category&.id == category.id %>
+																	<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' + query_params(category: parent_category.id)) %>
+																<% end %>
+															</li>
+														<% end %>
+													</ul>
+												<% end %>
+											</li>
+										<% end %>
+									</ul>
+								</aside>
+
+								<!-- Colors -->
+								<aside class="widget widget-categories widget_section">
+									<h3 class="widget-title" data-toggle="collapse" data-target="#colors" aria-expanded="<%= params[:color].to_i > 0 ? 'true' : 'false' %>">Colors: <span id="expand_marker"><% if params[:color]%>-<%else%>+<%end%></span></h3>
+									<%= hidden_field_tag(:color, params[:color]) if params[:color] %>				
+									<ul id="colors" class="<%= params[:color] ? 'show' : 'collapse' %>">
+										<% @colors.in_groups_of(6) do |row| %>
+											<div class="row">
+												<% row.each do |color| next unless color %>
+													<div class="col-2">
+													<%unless params[:color]%>
+														<a href="<%= plp_path + '/' + (params[:color].to_i == color.id ? remove_query_param(:color) : query_params(color: color.id)) %>">
+															<span class="dot <%= color.label.downcase %>-bg<%= ' active' if params[:color].to_i == color.id %>" data-toggle="tooltip" title="<%= color.label %>"></span>
+														</a>
+													<%else%>
+													    <a href="javascript:;">
+															<span class="dot <%= color.label.downcase %>-bg<%= ' active' if params[:color].to_i == color.id %>" data-toggle="tooltip" title="<%= color.label %>"></span>
+														</a>
+													<%end%>	
+													</div>
+												<% end %>
+											</div>
+										<% end %>
+									</ul>
+
+									<div style="font-size: 12px;padding-left: 25px;">
+										<a href="javascipt:;" class="btn1 btn-primary1" id="openModalBtn">
+											select multi colors filter
+										</a> |
+										<a href="javascipt:;" class="btn1 btn-primary1" id="clear">
+											clear color filters
+										</a>
+									</div>
+								</aside>
+
+								<!-- Materials -->
+								<aside class="widget widget-categories widget_section">
+									<h3 class="widget-title" data-toggle="collapse" data-target="#material">Materials: <span id="expand_marker"><% if params[:material]%>-<%else%>+<%end%></span></h3>
+									<%= hidden_field_tag(:material, params[:material]) if params[:material] %>				
+									<ul id="material" class="<%= params[:material] ? 'show' : 'collapse' %> filter_submenu">
+									
+										<% @materials.each do |material| %>
+										<%#binding.pry%>
+										
+										<li class="materials_list">
+										    <%unless params[:material]%>
+												<a href="<%= plp_path + '/' + (params[:material].to_i == material.id ? remove_query_param(:material) : query_params(material: material.id)) %>">
+													<span class="material <%= material.label.downcase %>-bg" data-toggle="tooltip" title="<%= material.label %>"><%= material.label %></span>
+													<%# if params[:material].to_i == material.id %>
+														<%#= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' +  remove_query_param(:material)) %>
+													<%# end %>
+												</a>
+											<%else%>
+												<a href="javascript:;">
+													<span class="material <%= material.label.downcase %>-bg" data-toggle="tooltip" title="<%= material.label %>"><%= material.label %></span>
+													<%# if params[:material].to_i == material.id %>
+														<%#= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' +  remove_query_param(:material)) %>
+													<%# end %>
+												</a>
+											<%end%>
+										</li>
+										<% end%>
+									</ul>
+									<div style="font-size: 12px;padding-left: 25px;">
+										<a href="javascipt:;" class="btn1 btn-primary1" id="openModalMaterial">
+											select multi material filter
+										</a> |
+										<a href="javascipt:;" class="btn1 btn-primary1" id="clear-material">
+											clear material filters
+										</a>
+									</div>
+								</aside>
+
+								<!-- Sizes -->
+								<aside class="widget widget-categories widget_section">
+									<h3 class="widget-title" data-toggle="collapse" data-target="#size">Sizes: <span id="expand_marker"><% if params[:size]%>-<%else%>+<%end%></span></h3>
+									<%= hidden_field_tag(:size, params[:size]) if params[:size] %>				
+									<ul id="size" class="<%= params[:size] ? 'show' : 'collapse' %> filter_submenu">
+										<% @sizes.each do |size| %>
+										
+										<li class="materials_list">
+										<%unless params[:size]%>
+											<a href="<%= plp_path + '/' + (params[:size].to_i == size.id ? remove_query_param(:size) : query_params(size: size.id)) %>">
+												<span class="size <%= size.label.downcase %>-bg" data-toggle="tooltip" title="<%= size.label %>"><%= size.label %></span>
+												<%# if params[:size].to_i == size.id %>
+													<%#= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' +  remove_query_param(:size)) %>
+												<%# end %>
+											</a>
+										<%else%>
+											<a href="javascript:;">
+													<span class="size <%= size.label.downcase %>-bg" data-toggle="tooltip" title="<%= size.label %>"><%= size.label %></span>
+													<%# if params[:size].to_i == size.id %>
+														<%#= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' +  remove_query_param(:size)) %>
+													<%# end %>
+											</a>
+										<%end%>	
+										</li>
+										<% end%>
+									</ul>
+									<div style="font-size: 12px;padding-left: 25px;">
+										<a href="javascipt:;" class="btn1 btn-primary1" id="openModalSize">
+											select multi size filter
+										</a> |
+										<a href="javascipt:;" class="btn1 btn-primary1" id="clear-sizes">
+											clear size filters
+										</a>
+									</div>
+									
+								</aside>
+
+								<!-- Bed Size -->
+								<% if @bed_sizes %>
+								<aside class="widget widget-categories widget_section">
+									<h3 class="widget-title" data-toggle="collapse" data-target="#bed_sizes">Bed Size: <span id="expand_marker">-</span></h3>
+									<ul id="bed_sizes" class="show">
+										<% @bed_sizes.each do |bed| %>
+											<li class="materials_list">
+												<%= link_to(bed.label, plp_path + '/' + query_params(bed: bed.id)) %>
+												<% if params[:bed]&.to_i == bed.id %>
+													<%= hidden_field_tag(:bed, bed.id) %>
+													<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' + remove_query_param(:bed))  %>
+												<% end %>
+											</li>
+										<% end %>
+									</ul>
+								</aside>
+								<% end %>
+
+								<!-- Sofa Size -->
+								<% if @sofa_sizes %>
+								<aside class="widget widget-categories widget_section">
+									<h3 class="widget-title" data-toggle="collapse" data-target="#sofa_sizes">Sofa Size: <span id="expand_marker">-</span></h3>
+									<ul id="sofa_sizes" class="show filter_submenu">
+										<% @sofa_sizes.each do |sofa| %>
+											<li class="materials_list">
+												<%= link_to(raw(sofa.label), plp_path + '/' + query_params(sofa: sofa.id)) %>
+												<% if params[:sofa]&.to_i == sofa.id %>
+													<%= hidden_field_tag(:sofa, sofa.id) %>
+													<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' + remove_query_param(:sofa))  %>
+												<% end %>
+											</li>
+										<% end %>
+									</ul>
+								</aside>
+								<% end %>
+
+								<!-- Dimensions -->
+								<aside class="widget widget-price-filter widget_section">
+									<h3 class="widget-title" data-toggle="collapse" data-target="#dimensions">Dimensions <span id="expand_marker"><% if params[:dmin] || params[:dmax] || params[:wmin] || params[:wmax] || params[:hmin] || params[:hmax] %>-<%else%>+<%end%></span></h3>
+									<div id="dimensions" class="<%= params[:dmin] || params[:dmax] || params[:wmin] || params[:wmax] || params[:hmin] || params[:hmax] ? 'show' : 'collapse' %> mb-2">
+										<strong class="dimensions_text">Width</strong>
+										<section class="range-slider">
+											<span class="rangeValues"></span>
+											<input value="<%= params[:wmin] || @dimensions_minmax[:wmin] %>" min="<%= @dimensions_minmax[:wmin] %>" max="<%= @dimensions_minmax[:wmax] %>" step="1" type="range" class="width_slider filter_slider slider_min minmax_slider">
+											<input value="<%= params[:wmax] || @dimensions_minmax[:wmax] %>" min="<%= @dimensions_minmax[:wmin] %>" max="<%= @dimensions_minmax[:wmax] %>" step="1" type="range" class="width_slider filter_slider slider_max minmax_slider">
+											<br>
+											<input type="number" class="rangeValues_min filter_slider slider_min materials_input" id="width_min" name="wmin" value="<%= params[:wmin] || @dimensions_minmax[:wmin] %>" min="<%= @dimensions_minmax[:wmin] %>" max="<%= @dimensions_minmax[:wmax] %>" />
+											<input type="number" class="rangeValues_max filter_slider slider_max materials_input" id="width_max" name="wmax" value="<%= params[:wmax] || @dimensions_minmax[:wmax] %>" min="<%= @dimensions_minmax[:wmin] %>" max="<%= @dimensions_minmax[:wmax] %>" />										
+										</section>
+										<strong class="dimensions_text">Height</strong>
+										<section class="range-slider">
+											<span class="rangeValues"></span>
+											<input value="<%= params[:hmin] || @dimensions_minmax[:hmin] %>" min="<%= @dimensions_minmax[:hmin] %>" max="<%= @dimensions_minmax[:hmax] %>" step="1" type="range" class="height_slider filter_slider slider_min minmax_slider">
+											<input value="<%= params[:hmax] || @dimensions_minmax[:hmax] %>" min="<%= @dimensions_minmax[:hmin] %>" max="<%= @dimensions_minmax[:hmax] %>" step="1" type="range" class="height_slider filter_slider slider_max minmax_slider">
+											<br>
+											<input type="number" class="rangeValues_min filter_slider slider_min materials_input" id="height_min" name="hmin" value="<%= params[:hmin] || @dimensions_minmax[:hmin] %>" min="<%= @dimensions_minmax[:hmin] %>" max="<%= @dimensions_minmax[:hmax] %>" />
+											<input type="number" class="rangeValues_max filter_slider slider_max materials_input" id="height_max" name="hmax" value="<%= params[:hmax] || @dimensions_minmax[:hmax] %>" min="<%= @dimensions_minmax[:hmin] %>" max="<%= @dimensions_minmax[:hmax] %>" />										
+										</section>
+										<strong class="dimensions_text">Depth</strong>
+										<section class="range-slider">
+											<span class="rangeValues"></span>
+											<input value="<%= params[:dmin] || @dimensions_minmax[:dmin] %>" min="<%= @dimensions_minmax[:dmin] %>" max="<%= @dimensions_minmax[:dmax] %>" step="1" type="range" class="depth_slider filter_slider slider_min minmax_slider">
+											<input value="<%= params[:dmax] || @dimensions_minmax[:dmax] %>" min="<%= @dimensions_minmax[:dmin] %>" max="<%= @dimensions_minmax[:dmax] %>" step="1" type="range" class="depth_slider filter_slider slider_max minmax_slider">
+											<br>
+											<input type="number" class="rangeValues_min filter_slider slider_min materials_input" id="depth_min" name="dmin" value="<%= params[:dmin] || @dimensions_minmax[:dmin] %>" min="<%= @dimensions_minmax[:dmin] %>" max="<%= @dimensions_minmax[:dmax] %>" />
+											<input type="number" class="rangeValues_max filter_slider slider_max materials_input" id="depth_max" name="dmax" value="<%= params[:dmax] || @dimensions_minmax[:dmax] %>" min="<%= @dimensions_minmax[:dmin] %>" max="<%= @dimensions_minmax[:dmax] %>" />										
+										</section>
+										<div class="text-center m-0">
+											<input type="submit" value="Apply" class="range_submit btn btn-primary btn-sm">
+											<% if params[:dmin] || params[:dmax] || params[:wmin] || params[:wmax] || params[:hmin] || params[:hmax] %>
+												<%= link_to('Reset', plp_path + '/' + remove_query_param([:wmin, :wmax, :hmin, :hmax, :dmin, :dmax]), class: 'range_submit btn btn-primary btn-sm mt-1') %>
+											<% end %>
+										</div>
+									</div>
+								</aside>			    
+								
+								<!-- Special Offers -->
+								<aside class="widget widget-categories widget_section">
+									<h3 class="widget-title" data-toggle="collapse" data-target="#saletype">Special Offers: <span id="expand_marker"><%= (params.keys & ['premium', 'sale', 'discount', 'closeout']).any? ? '-' : '+' %></span></h3>
+									<ul id="saletype" class="<%= params[:premium] || params[:sale] || params[:discount] || params[:closeout] ? 'show' : 'collapse' %> filter_submenu">
+										<li class="materials_list special_offer"><%= link_to('Premium', plp_path + '/' + query_params(premium: 'y')) %>
+											<% if params[:premium] == 'y' %>
+												<%= hidden_field_tag(:premium, 'y') if params[:premium] %>
+												<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' + remove_query_param(:premium))  %>
+											<% end %>
+										</li>
+										<li class="materials_list special_offer"><%= link_to('Sales', plp_path + '/' + query_params(sale: 'y')) %>
+											<% if params[:sale] == 'y' %>
+												<%= hidden_field_tag(:sale, 'y') if params[:sale] %>
+												<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' + remove_query_param(:sale))  %>
+											<% end %>
+										</li>
+										<li class="materials_list special_offer"><%= link_to('Rental Discount', plp_path + '/' + query_params(discount: 'y')) %>
+											<% if params[:discount] == 'y' %>
+												<%= hidden_field_tag(:discount, 'y') if params[:discount] %>					    
+												<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' + remove_query_param(:discount))  %>
+											<% end %>
+										</li>
+										<li class="materials_list special_offer"><%= link_to('Closeout', plp_path + '/' + query_params(closeout: 'y')) %>
+											<% if params[:closeout] == 'y' %>
+												<%= hidden_field_tag(:closeout, 'y') if params[:closeout] %>					    
+												<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' + remove_query_param(:closeout))  %>
+											<% end %>
+										</li>
+									</ul>
+								</aside>
+								
+
+								
+							</div>
+						</form>
+					</div>
+				<% end %>
+
+				<div class="col-md-9 col-sm-9 col-xs-12 content-area">
+					<!-- Products -->
+					<% if @products.any? %>
+						<% unless @in_home %>
+				<div class="row">
+								<div class="col-2 col-sm-5 col-md-8">
+					<% if user_signed_in? %> 
+										<% if params[:favorites].nil? %>
+						<a class="btn btn-primary" href="<%= plp_path + '/' + query_params(favorites: 'y') %>">
+							<span class="d-none d-sm-inline-block">Show</span> <i class="far fa-heart"></i>
+						</a></small>
+										<% else %>
+						<a class="btn btn-primary" href="<%= remove_query_param(:favorites) %>">
+							<span class="d-none d-sm-inline-block">Hide</span> <i class="fas fa-heart"></i>
+						</a>
+										<% end %>
+					<% end %>
+								</div>
+								<div class="col-10 col-sm-7 col-md-4 text-right"> <label>Sort: </label>
+									<select class="account-sort" name="sort" id="sort" onchange="location = this.value;">
+										<% if params[:search] %>
+											<option selected>Relevance</option>
+											<option disabled>Not available in search</option>
+										<% else %>
+											<option value="<%= plp_path + '/' + remove_query_param(:sort) %>"
+											<% if params[:sort].nil? %> selected <% end %>>Recently Added</option>
+											<option value="<%= plp_path + '/' + query_params(sort: 'rrp') %>"
+											<% if params[:sort] == 'rrp' %> selected <% end %>>Recently Destaged</option>
+											<option value="<%= plp_path + '/' + query_params(sort: 'plth') %>"
+											<% if params[:sort] == 'plth' %> selected <% end %>>Price: Low to High</option>
+											<option value="<%= plp_path + '/' + query_params(sort: 'phtl') %>"
+											<% if params[:sort] == 'phtl' %> selected <% end %>>Price: High to Low</option>
+											
+											<option value="<%= plp_path + '/' + query_params(sort: 'qlth') %>"
+											<% if params[:sort] == 'qlth' %> selected <% end %>>QTY Pieces: Low to High</option>
+											<option value="<%= plp_path + '/' + query_params(sort: 'qhtl') %>"
+											<% if params[:sort] == 'qhtl' %> selected <% end %>>QTY Pieces: High to Low</option>
+											
+										<% end %>
+									</select>
+
+								</div>
+				</div>
+						<% end %>
+
+			<ul class="products d-flex flex-wrap" id="product_list">
+				<% @products.each do |product| %>
+				  <%if params[:search].blank?%>
+				    <%= render partial: 'item', locals: { product: product, show_favorite: user_signed_in? } if product.pieces_count > 0 && product.product_pieces_order_line.include?(0)%>
+				  <%else%>
+				    <%= render partial: 'item', locals: { product: product, show_favorite: user_signed_in? } %>
+				  <%end%>
+				<% end %>
+			</ul>
+					<% else %>
+			<h2>No Results Found</h2>
+			<p>Click <a href="<%= plp_path(_x: 'favorites') %>">here</a> to clear filters and continue browsing.</p>
+					<% end %>
+
+			<div id="products_list_loader" class="d-none justify-content-center align-items-center">
+			<div class="spinner-border spinner-border-lg"></div>
+			<div class="ml-2">Loading more products...</div>
+			</div>
+
+				</div>
+
+				<% unless @product_count <= @per_page %>
+					<!-- Pagination -->
+					<div class="col-12 pagi-container d-none">
+						<nav aria-label="Page navigation" class="products-pagi">
+							<ul class="pagination">
+								<li class="page-item<%= ' disabled' if @page == 1 %>">
+									<a class="page-link" href="<%= plp_path + query_params(page: (@page - 1).to_s) %>" aria-label="Previous">
+					<span aria-hidden="true">&laquo;</span>
+					<span class="sr-only">Previous</span>
+									</a>
+								</li>
+								<% if @page > 1 %>
+									<li class="page-item"><a class="page-link" href="<%= plp_path + query_params(page: (@page - 1).to_s) %>"><%= (@page - 1).to_s %></a></li>
+								<% end %>
+								<li class="page-item disabled">
+									<a class="page-link" href="#!"><%= @page.to_s %></a>
+								</li>
+								<% unless @products.size < @per_page %>
+									<li class="page-item"><a class="page-link" href="<%= plp_path + query_params(page: (@page + 1).to_s) %>"><%= (@page + 1).to_s %></a></li>
+								<% end %>
+								<% if @page == 1 %>
+									<li class="page-item"><a class="page-link" href="<%= plp_path + query_params(page: (@page + 2)) %>"><%= (@page + 2).to_s %></a></li>
+								<% end %>
+								<% unless @products.size < @per_page %>
+									<li class="page-item">
+										<a class="page-link page_next" href="<%= plp_path + query_params(page: (@page + 1)) %>" aria-label="Next">
+											<span aria-hidden="true">&raquo;</span>
+											<span class="sr-only">Next</span>
+										</a>
+									</li>
+								<% end %>
+							</ul>
+						</nav>
+
+						<div class="text-center"><%= link_to('View All', plp_path + query_params(page: 'all')) %></div>
+					</div>
+				<% end %>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="section-padding"></div>
+<%= render partial: 'quickview_modal' %>
+<%= render partial: 'colors_modal', locals: { title: 'My Modal Title', colors: @all_colors } %>
+<%= render partial: 'materials_modal', locals: { title: 'My Modal Title', materials: @all_materials } %>
+<%= render partial: 'sizes_modal', locals: { title: 'My Modal Title', sizes: @all_sizes } %>
+
+
+
+<script> 
+
+$('#openModalBtn').on('click', function() {
+    $('#exampleModal').modal('show');
+});
+$('#openModalMaterial').on('click', function() {
+    $('#materialModal').modal('show');
+});
+$('#openModalSize').on('click', function() {
+    $('#sizeModal').modal('show');
+});
+
+$(function() {
+    // Removes sliders from filter form that aren't being used
+    $('#filters').on('submit', function(e){
+        e.preventDefault();
+        $('.filter_slider').each(function(i, e) {
+            slider = $(this)
+            if((slider.hasClass('slider_min') && slider.val() == slider.attr('min')) || (slider.hasClass('slider_max') && slider.val() == slider.attr('max'))) {
+                slider.remove();
+            }
+        });
+        this.submit();
+    });
+
+    // Lazy loading/infinite scroll with loading flag to prevent duplicates
+    var isLoading = false;
+
+    var infinite = new Waypoint.Infinite({
+        element: $('.products')[0],
+        items: '.product',
+        more: '.page_next',
+        onBeforePageLoad: function() {
+            if (isLoading) return false;  // Prevent duplicate load
+            isLoading = true;
+            var loader = $('#products_list_loader');
+            loader.addClass('d-flex');
+            loader.removeClass('d-none');
+        },
+        onAfterPageLoad: function(items, more) {
+//			$(function() { bind_quickviews(); });
+
+            bind_quickviews();
+            isLoading = false; // Reset flag after loading
+
+            var loader = $('#products_list_loader');
+            if (more.length < 1) {
+                loader.html('<div class="text-center"><strong><i class="fa fa-check"></i> Finished loading products...</strong><br><a id="finished_loading_scrollup" href="#">Back to top</a></div>');
+                $('#finished_loading_scrollup').click(function(e){
+                    e.preventDefault();
+                    $('html, body').animate({ scrollTop: 0 }, '150');
+                });
+            } else {
+                loader.addClass('d-none');
+                loader.removeClass('d-flex');
+            }
+        }
+    });
+});
+
+
+function initializeColorFilter() {
+  const filterColorButton = document.getElementById('filter-color');
+  
+  // Parse URL to get `color` parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const selectedColors = urlParams.get('color') ? urlParams.get('color').split(',') : [];
+  
+  // Pre-check checkboxes if their IDs are in the URL
+  selectedColors.forEach(colorId => {
+    const checkbox = document.getElementById(`color_${colorId}`);
+    if (checkbox) {
+      checkbox.checked = true;
+    }
+  });
+  
+  // Handle Apply Color Filter button click
+  if (filterColorButton) {
+    filterColorButton.addEventListener('click', function (event) {
+      event.preventDefault(); // Prevent the default link behavior
+      
+      // Collect selected color IDs
+      const checkedColors = Array.from(document.querySelectorAll('#colorFilterForm input[type="checkbox"]:checked'))
+        .map(checkbox => checkbox.value);
+      
+      // If no colors are selected, do nothing or optionally redirect
+      if (checkedColors.length === 0) return;
+      
+      // Build the new URL manually to avoid comma encoding
+      const baseUrl = new URL(window.location.href);
+      const params = new URLSearchParams(baseUrl.search);
+      params.set('color', checkedColors.join(',')); // Join selected colors with unencoded commas
+      
+      // Update the browser URL
+      window.location.href = `${baseUrl.origin}${baseUrl.pathname}?${params.toString()}`;
+    });
+  }
+}
+
+document.getElementById('clear').addEventListener('click', function(event) {
+  event.preventDefault(); // Prevent the default link behavior
+  // Get the current URL
+  const url = new URL(window.location.href);
+
+  // Remove the `color_id` and `clear_color` parameters
+  url.searchParams.delete('color');
+  url.searchParams.delete('clear_color');
+
+  // Redirect to the updated URL without the specified parameters
+  window.location.href = url.toString();
+});
+
+function initializeSizeFilter() {
+	const filterSizeButton = document.getElementById('filter-size');
+	
+	// Parse URL to get `size` parameter
+	const urlParams = new URLSearchParams(window.location.search);
+	const selectedSizes = urlParams.get('size') ? urlParams.get('size').split(',') : [];
+	
+	// Pre-check checkboxes if their IDs are in the URL
+	selectedSizes.forEach(sizeId => {
+		const checkbox = document.getElementById(`size_${sizeId}`);
+		if (checkbox) {
+			checkbox.checked = true;
+		}
+	});
+	
+	// Handle Apply Size Filter button click
+	if (filterSizeButton) {
+		filterSizeButton.addEventListener('click', function (event) {
+			event.preventDefault(); // Prevent the default link behavior
+			
+			// Collect selected size IDs
+			const checkedSizes = Array.from(document.querySelectorAll('#sizeFilterForm input[type="checkbox"]:checked'))
+				.map(checkbox => checkbox.value);
+			
+			// If no sizes are selected, do nothing or optionally redirect
+			if (checkedSizes.length === 0) return;
+			
+			// Build the new URL manually to avoid comma encoding
+			const baseUrl = new URL(window.location.href);
+			const params = new URLSearchParams(baseUrl.search);
+			params.set('size', checkedSizes.join(',')); // Join selected sizes with unencoded commas
+			
+			// Update the browser URL
+			window.location.href = `${baseUrl.origin}${baseUrl.pathname}?${params.toString()}`;
+		});
+	}
+}
+
+document.getElementById('clear-sizes').addEventListener('click', function(event) {
+	event.preventDefault(); // Prevent the default link behavior
+	// Get the current URL
+	const url = new URL(window.location.href);
+
+	// Remove the `size` parameter
+	url.searchParams.delete('size');
+	url.searchParams.delete('clear_size');
+
+	// Redirect to the updated URL without the specified parameters
+	window.location.href = url.toString();
+});
+
+function initializeMaterialFilter() {
+	const filterMaterialButton = document.getElementById('filter-material');
+	
+	// Parse URL to get `material` parameter
+	const urlParams = new URLSearchParams(window.location.search);
+	const selectedMaterials = urlParams.get('material') ? urlParams.get('material').split(',') : [];
+	
+	// Pre-check checkboxes if their IDs are in the URL
+	selectedMaterials.forEach(materialId => {
+		const checkbox = document.getElementById(`material_${materialId}`);
+		if (checkbox) {
+			checkbox.checked = true;
+		}
+	});
+	
+	// Handle Apply Material Filter button click
+	if (filterMaterialButton) {
+		filterMaterialButton.addEventListener('click', function (event) {
+			event.preventDefault(); // Prevent the default link behavior
+			
+			// Collect selected material IDs
+			const checkedMaterials = Array.from(document.querySelectorAll('#materialFilterForm input[type="checkbox"]:checked'))
+				.map(checkbox => checkbox.value);
+			
+			// If no materials are selected, do nothing or optionally redirect
+			if (checkedMaterials.length === 0) return;
+			
+			// Build the new URL manually to avoid comma encoding
+			const baseUrl = new URL(window.location.href);
+			const params = new URLSearchParams(baseUrl.search);
+			params.set('material', checkedMaterials.join(',')); // Join selected materials with unencoded commas
+			
+			// Update the browser URL
+			window.location.href = `${baseUrl.origin}${baseUrl.pathname}?${params.toString()}`;
+		});
+	}
+}
+
+document.getElementById('clear-material').addEventListener('click', function(event) {
+	event.preventDefault(); // Prevent the default link behavior
+	// Get the current URL
+	const url = new URL(window.location.href);
+
+	// Remove the `material` parameter
+	url.searchParams.delete('material');
+	url.searchParams.delete('clear_material');
+
+	// Redirect to the updated URL without the specified parameters
+	window.location.href = url.toString();
+});
+
+
+document.addEventListener('DOMContentLoaded', initializeMaterialFilter);
+document.addEventListener('DOMContentLoaded', initializeSizeFilter);
+document.addEventListener('DOMContentLoaded', initializeColorFilter);
+</script>
+

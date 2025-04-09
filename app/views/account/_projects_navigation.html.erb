@@ -1,0 +1,42 @@
+<style>
+    .notfication-mark {
+        position: absolute;
+    /* justify-content: center; */
+    left: 120px;
+    top: 21px;
+}
+</style>
+<div class="mobile_menu_container">
+    <a href="<%= projects_path %>" style="position: relative" >
+        D<span class="smaller">ashboard</span>
+    </a>
+    <a href="https://legacy.r-e-solved.com/Warehouse2/home.php?page=project&auth_user_id=<%=current_user&.id.to_s%>&auth_code=<%=session[:auth_code].to_s%>" target="_blank">
+        S<span class="smaller">tart</span>
+        N<span class="smaller">ew</span>
+        P<span class="smaller">roject</span>
+    </a>
+    <% if user_signed_in? && current_user.is_admin?%>
+        <a href="<%= cms_path %>">
+            C<span class="smaller">MS</span>
+        </a>
+    <% end%>
+    
+    <div class="mobile_menu_item_container">
+        <div class="menu_item menu_item_to_click active_menu">
+            P<span class="smaller">roject</span>
+            S<span class="smaller">tatus</span>
+        </div>
+        <div style="display: block;">
+           <%statuses = oreder_status_notification %> 
+        <a href="<%= projects_path %>?status=open"><%= statuses.include?("Open") ? "<span>Open</span><span class='menu_notification_dot'></span>".html_safe : 'Open' %> <%= " (#{@filter_counts[:open]})" if @filter_counts %></a>
+        <a href="<%= projects_path %>?status=pulled"> <%= statuses.include?("Pulled") ? "<span>Pulled</span><span class='menu_notification_dot'></span>".html_safe : 'Pulled' %> <%= " (#{@filter_counts[:pulled]})" if @filter_counts %></a>
+        <a href="<%= projects_path %>?status=loaded"><%= statuses.include?("Loaded") ? "<span>Loaded</span><span class='menu_notification_dot'></span>".html_safe : 'Loaded' %> <%= " (#{@filter_counts[:loaded]})" if @filter_counts %></a>
+        <a href="<%= projects_path %>?status=renting"> <%= statuses.include?("Renting") ? "<span>Renting</span><span class='menu_notification_dot'></span>".html_safe : 'Renting' %><%= " (#{@filter_counts[:renting]})" if @filter_counts %></a>
+        <a href="<%= projects_path %>?status=complete"> <%= statuses.include?("Complete") ? "<span>Complete</span><span class='menu_notification_dot'></span>".html_safe : 'Complete' %><%= " (#{@filter_counts[:complete]})" if @filter_counts %></a>
+        <a href="<%= projects_path %>?status=destage"> <%= statuses.include?("Destage") ? "<span>Destage</span><span class='menu_notification_dot'></span>".html_safe : 'Destage' %><%= " (#{@filter_counts[:destage]})" if @filter_counts %></a>
+        <a href="<%= projects_path %>?type=sales">Sales Orders <%= "(#{@filter_counts[:sales]})" if @filter_counts %></a>
+        <a href="<%= projects_path %>?status=void"> <%= statuses.include?("Void") ? "<span>Void</span><span class='menu_notification_dot'></span>".html_safe : 'Void' %><%= " (#{@filter_counts[:void]})" if @filter_counts %></a>
+        </div>
+    </div>
+    <div class="ios_space height50"></div>
+</div>

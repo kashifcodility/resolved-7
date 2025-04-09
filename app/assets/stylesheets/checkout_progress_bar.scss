@@ -1,0 +1,138 @@
+@import'./colors';
+
+.checkout_progress_bar{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    width: 100%;
+    div, a, p, small, h1, h2, h3, h4, h5, h6, hr, ul, li{
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        text-decoration: none;
+        line-height: 1.4;
+        outline: none;
+        border: none;
+        border-radius: none;
+        box-sizing: border-box;
+        color: $dark_grey;
+    }
+
+    .progress_bar_container{
+        width: 100%;
+        max-width: 960px;
+        margin: auto;
+        min-width: 320px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        // background-color: #f3f3f3;
+        padding: 20px 0;
+    }
+    .progress_bar_step{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        &>div{
+            text-align: center;
+        }
+        &>div:nth-child(1), 
+        &>div:nth-child(3){
+            font-size: 14px;
+            font-weight: 300;
+        }
+        &>div:nth-child(1){
+            padding-bottom: 4px;
+        }
+
+        .progress_bar_image{
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            .progress_bar_image_start,
+            .progress_bar_image_end{
+                width: 100%;
+                height: 5px;
+                background-color: $grey;
+            }
+            .progress_bar_image_center{
+                z-index: 2;
+                width: 40px;
+                min-width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                border: 4px solid $grey;
+                // background: image-url('new_icons/process_grey.svg') no-repeat center center/contain #fff;
+                background:#fff;
+                margin-left: -4px;
+                margin-right: -4px;
+            }
+        }
+
+        &>div:nth-child(3){
+            padding-top: 4px;
+        }
+    }
+
+
+    // DEFAULT STEPS ICONS
+    .step_shipping_and_payment > .progress_bar_image > .progress_bar_image_center{
+        border: 4px solid $grey;
+        background: image-url('new_icons/checkout.svg') no-repeat center center/contain #fff;
+    }
+
+    .step_review_and_submit > .progress_bar_image > .progress_bar_image_center{
+        border: 4px solid $grey;
+        background: image-url('new_icons/review.svg') no-repeat center center/contain #fff;
+    }
+    // DEFAULT STEPS ICONS END
+
+
+    .step_in_progress > .progress_bar_image > .progress_bar_image_start{
+        background-color: $primary;
+    }
+    .step_in_progress > .progress_bar_image > .progress_bar_image_center{
+        border: 4px solid $primary;
+        background: image-url('new_icons/process_grey.svg') no-repeat center center/contain #fff;
+    }
+    .step_in_progress > .progress_bar_image > .progress_bar_image_end{
+        background-color: $primary;
+        animation: left_right 2s infinite;
+    }
+
+    .step_done{
+        .progress_bar_image{
+            .progress_bar_image_start,
+            .progress_bar_image_end{
+                background-color: $primary;
+            }
+            .progress_bar_image_center{
+                border: 4px solid $primary;
+                background: image-url('new_icons/done_primary.svg') no-repeat center center/contain #fff;
+            }
+        }
+    }
+
+
+    @media (max-width: 420px){
+        .progress_bar_step{
+            &>div:nth-child(1), 
+            &>div:nth-child(3){
+                font-size: 12px;
+            }
+        }
+    }  
+    //     animation: up_down 2s infinite;
+    @keyframes left_right{
+        0%{
+            transform: translateX(-100%); 
+            opacity: 0;
+        }
+        100%{
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+}

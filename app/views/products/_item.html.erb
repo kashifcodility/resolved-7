@@ -1,0 +1,15 @@
+<%if !session[:product_ids].include?(product.id) && params[:action] == "index"%>
+
+  <%session[:product_ids] <<  product.id %>
+    <% 
+    begin 
+        truncated_name = product.name.titleize.truncate(40)
+        rescue => error
+        $LOG.error "Product item display error - will attempt to fix: %i [%s]" % [product.id, error.inspect]
+        product.name = Product.fix_encoding(product.id)
+        truncated_name = product.name.titleize.truncate(40)
+    end
+    %>
+    <%= render partial: 'products/items', locals: { product: product, show_favorite: true, show_site: true } %>
+
+<%end%>

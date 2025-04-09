@@ -1,0 +1,27 @@
+@import'./colors';
+
+
+.login-container-wrapper{
+    padding: 20px 40px 40px;
+}
+
+@media only screen and (max-width: 420px){
+    .login-container-wrapper{
+        padding: 10px;
+    }
+}
+
+.forgot_pass_container{
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 10px;
+    min-height: 60vh;
+}
+.forgot_pass{
+    text-align: center;
+    a{
+        color: $primary;
+        font-size: 14px;
+    }
+}

@@ -1,0 +1,280 @@
+<div class="back_to_catalog_btn_container">
+    <a href="<%= ihs_plp_path(@catalog_id) %>" class="back_to_catalog_btn"><span class="material-icons-outlined">arrow_back</span>CATALOG</a>
+</div>
+
+
+
+<div class="container-fluid mt-4">
+
+    <div class="latest-product shop-1 container-fluid no-padding woocommerce">
+        <div class="products-container">
+
+            <%= form_tag(ihs_transact_path(@summary.order_id), action: 'post') do %>
+                <input type="hidden" name="calculate_tax" value="false">
+                
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 col-xs-12">
+                        <h1>Delivery</h1>
+
+                        <!-- Name --> 
+                        <div class="form-group">
+                            <%= text_field_tag(:delivery_name, params[:delivery_name], class: 'form-control', placeholder: 'Name', required: true, maxlength: 255) %>
+                        </div>
+
+                        <!-- Mobile -->
+                        <div class="form-group">
+                            <%= text_field_tag(:delivery_mobile, params[:delivery_mobile], class: 'form-control', placeholder: 'Mobile Phone', required: true, maxlength: 255) %>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group">
+                            <%= text_field_tag(:delivery_email, params[:delivery_email], class: 'form-control', placeholder: 'Email', required: true, maxlength: 255) %>
+                        </div>
+
+                        <!-- Delivery Method -->
+                        <div class="form-group">
+                            <%= select_tag(:delivery_method, options_for_select([['Delivery to staging address - I am the home buyer', 'inhome'], ['Delivery to your address for $169 fee', 'delivery'], ['Pickup at Everett warehouse', 'pickup']], params[:delivery_method]), class: 'form-control') %>
+                        </div>
+
+                        <div id="delivery_address_fields" class="<%= 'd-none' unless params[:delivery_method] == 'delivery' %>" style="margin-bottom: 1rem;">
+                            <!-- Delivery Address -->
+                            <div class="form-group">
+                                <%= text_field_tag(:delivery_address1, params[:delivery_address1], class: 'form-control', placeholder: 'Street Address',  maxlength: 255) %>
+                            </div>
+                            <div class="form-row">
+                                <div class="col">
+                                    <%= text_field_tag(:delivery_city, params[:delivery_city], class: 'form-control', placeholder: 'City', maxlength: 255) %>
+                                </div>
+                                <div class="col">
+                                    <%= text_field_tag(:delivery_state, params[:delivery_state], class: 'form-control', placeholder: 'State', maxlength: 2) %>
+                                </div>
+                                <div class="col">
+                                    <%= text_field_tag(:delivery_zip, params[:delivery_zip], class: 'form-control', placeholder: 'Zip', maxlength: 5) %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <small>
+                            <p>
+                                These items are currently staged in a home for sale.  We will contact you to arrange pickup or delivery when the stage is complete.
+                                All sales are final once delivered.
+                            </p>
+                            <p>
+                                If you aren't the home buyer your purchase can be picked up at our warehouse in Everett at no extra charge or delivered within our
+                                delivery radius for a $169 delivery fee.
+                            </p>
+                            <p>
+                                * Our delivery radius is 20 driving miles from the Seattle city center (on the Seattle or Bellevue Peninsulas) and 20 driving
+                                miles from our Everett warehouse.  We can recommend private delivery services for delivery outside of our radius.  For any questions
+                                about delivery, please contact us.
+                            </p>
+                        </small>
+                    </div>
+                    <div class="col-md-4 col-sm-12 col-xs-12 d-none d-md-block offset-md-2">
+                        <%= render 'checkout_summary' %>
+                    </div>
+
+                </div>
+
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 col-xs-12">
+                        <h1 style="display: inline-block;">Payment</h1>
+                        <span class="float-right"><small>We Accept <%= image_tag("icons/visa_mc.png", alt: "Visa Master", class: "m-0 p-1", style: 'width:80px')%></small></span>
+
+                        <!-- CC Name -->
+                        <div class="form-group cc_field">
+                            <%= text_field_tag(:cc_name, params[:cc_name], class: 'form-control', placeholder: 'Name on Credit Card', required: true) %>
+                        </div>
+
+                        <!-- CC Number -->
+                        <div class="form-group cc_field"">
+                            <%= text_field_tag(:cc_number, params[:cc_number], class: 'form-control', placeholder: 'Credit Card Number', maxlength:'16', required: true) %>
+                        </div>
+
+                        <!-- CC Verification -->
+                        <div class="form-group cc_field"">
+                            <div class="form-row">
+                                <div class="col">
+                                    <%= text_field_tag(:cc_verification, params[:cc_verification], class: 'form-control', placeholder: 'CCV', minlength:'3', maxlength:'3', required: true) %>
+                                </div>
+                                <div class="col">
+                                    <%= select_tag(:cc_expiration_month, options_for_select([['-- Month --', nil]] + (1...13).to_a.map!{|e| e = e.to_s.rjust(2, '0') }, params[:cc_expiration_month]), class: 'form-control', required: true) %>
+                                </div>
+                                <div class="col">
+                                    <%= select_tag(:cc_expiration_year, options_for_select([['-- Year --', nil]] + (Time.now.year...10.years.from_now.year).to_a, params[:cc_expiration_year]), class: 'form-control', required: true) %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Purchaser Details -->
+                        <div class="form-group">
+                            <%= select_tag(:purchaser, options_for_select([['-- Purchaser --', nil], 'Real Estate Agent', 'Stager/Designer', 'Home Buyer', 'Other Shopper'], params[:purchaser]), class: 'form-control') %>
+                        </div>
+                        
+                    </div>
+                    <div class="col-md-6 col-sm-12 col-xs-12">
+
+                        <div class="form-group <%= 'd-none' unless params[:delivery_method] == 'delivery' %>" id="delivery_address_as_billing_field">
+                            <%= check_box_tag(:delivery_address_as_billing) %>
+                            <%= label_tag(:delivery_address_as_billing, 'Use Delivery Address as Billing Address') %>
+                        </div>
+                        
+                        <!-- Billing Name -->
+                        <div class="form-group">
+                            <%= text_field_tag(:billing_name, params[:billing_name], class: 'form-control', placeholder: 'Name', maxlength: 255, required: true) %>
+                        </div>
+
+                        <!-- Billing Mobile -->
+                        <div class="form-group">
+                            <%= text_field_tag(:billing_mobile, params[:billing_mobile], class: 'form-control', placeholder: 'Mobile', maxlength: 255, required: true) %>
+                        </div>
+
+                        <!-- Billing Email -->
+                        <div class="form-group">
+                            <%= text_field_tag(:billing_email, params[:billing_email], class: 'form-control', placeholder: 'Email', maxlength: 255, required: true) %>
+                        </div>
+
+                        <!-- Billing Address -->
+                        <div class="form-group">
+                            <%= text_field_tag(:billing_address1, params[:billing_address1], class: 'form-control', placeholder: 'Billing Street Address',  maxlength: 255, required: true) %>
+                        </div>
+                        <div class="form-row">
+                            <div class="col">
+                                <%= text_field_tag(:billing_city, params[:billing_city], class: 'form-control', placeholder: 'City', maxlength: 255, required: true) %>
+                            </div>
+                            <div class="col">
+                                <%= text_field_tag(:billing_state, params[:billing_state], class: 'form-control', placeholder: 'State', maxlength: 2, required: true) %>
+                            </div>
+                            <div class="col">
+                                <%= text_field_tag(:billing_zip, params[:billing_zip], class: 'form-control', placeholder: 'Zip', maxlength: 5, required: true) %>
+                            </div>
+                        </div>                    
+                        
+                    </div>
+                </div>
+
+                <hr>
+                
+                <div class="row">
+                    <div class="col-12 col-md-8">
+
+                        <h1>Review Items</h1>
+                        
+                        <% @products.each do |product| %>
+			    <div class="cart-item">
+			        <div class="row">
+				    <div class="col-3 col-md-2">
+                                        <img src="<%= product[:image] %>" alt="product image">
+				    </div>
+				    <div class="col-8 col-md-6">
+				        <div class="cart-item-name">
+                                            <%= product[:name] %>
+                                        </div>
+				        <div class="cart-item-intent">
+					    <em><small>Purchasing for <%= number_to_currency(product[:price]) %></small></em>
+				        </div>
+				    </div>
+				    <div class="col-1">
+				        <div class="cart-item-remove">
+						<!-- <a href="#"><i class="far fa-times-circle"></i></a> -->
+                                        </div>
+				    </div>
+			        </div>                                                       
+			    </div>
+                        <% end %>
+
+                        <div class="row">
+                            <div class="col-12 col-md-9 text-right">
+                                <strong>Subtotal: <%= number_to_currency(@summary.subtotal) %></strong>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Mobile Order Summary -->
+                <div class="d-block d-md-none">
+                    <hr>                
+                    <div class="row">
+                        <div class="col-12">
+
+                            <%= render 'checkout_summary' %>
+                            
+                        </div>
+                    </div>
+                </div>
+
+            <% end %>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+ $(function() {
+     var delivery_inhome_price = parseFloat(<%= @summary.delivery[:inhome] %>);
+     var delivery_delivery_price = parseFloat(<%= @summary.delivery[:delivery] %>);
+     var delivery_pickup_price = parseFloat(<%= @summary.delivery[:pickup] %>);
+     var tax_delivery = parseFloat(<%= @summary.delivery_address_tax %>);
+     var tax_inhome = parseFloat(<%= @summary.stage_address_tax %>);
+     var tax_pickup = parseFloat(<%= @summary.will_call_tax %>);
+     var order_subtotal = parseFloat(<%= @summary.subtotal %>);     
+     var delivery_fields = $('#delivery_address_fields');
+     var delivery_as_billing_field = $('#delivery_address_as_billing_field');
+     var summary_delivery_el = $('#summary_delivery_total');
+     var summary_tax_el = $('#summary_tax_total');
+     var summary_total_el = $('#summary_total');
+     var calc_tax_trigger_el = $('input[name=calculate_tax]');
+     var submit_btn = $('input[type=submit]');
+     var default_submit_val = submit_btn.val();
+     
+     $('#delivery_method').on('change', function(e) {
+         var method = $(this).val();
+
+         if (method == 'delivery') {
+             delivery_fields.removeClass('d-none');
+             delivery_as_billing_field.removeClass('d-none');
+             summary_delivery_el.text('$' + delivery_delivery_price);
+             summary_tax_el.text('$' + tax_delivery);
+             submit_btn.val('Calculate Tax');
+             calc_tax_trigger_el.val('true');
+             summary_total_el.text('$' + (tax_delivery + delivery_delivery_price + order_subtotal).toFixed(2));
+         } else {
+             delivery_fields.addClass('d-none');
+             delivery_as_billing_field.addClass('d-none');
+             submit_btn.val(default_submit_val);
+             calc_tax_trigger_el.val('false');
+         }
+
+         if (method == 'inhome') {
+             summary_delivery_el.text('$' + delivery_inhome_price);
+             summary_tax_el.text('$' + tax_inhome);
+             summary_total_el.text('$' + (tax_inhome + delivery_inhome_price + order_subtotal).toFixed(2));
+         }
+
+         if (method == 'pickup') {
+             summary_delivery_el.text('$' + delivery_pickup_price);
+             summary_tax_el.text('$' + tax_pickup);
+             summary_total_el.text('$' + (tax_pickup + delivery_pickup_price + order_subtotal).toFixed(2));
+         }
+
+     });
+
+     $('#delivery_address_as_billing').on('change', function(e) {
+         if($(this).is(':checked')) {
+             $('#billing_name').val($('#delivery_name').val());
+             $('#billing_mobile').val($('#delivery_mobile').val());
+             $('#billing_email').val($('#delivery_email').val());
+             $('#billing_address1').val($('#delivery_address1').val());
+             $('#billing_city').val($('#delivery_city').val());
+             $('#billing_state').val($('#delivery_state').val());
+             $('#billing_zip').val($('#delivery_zip').val());
+         }
+     });
+         
+     });
+</script>

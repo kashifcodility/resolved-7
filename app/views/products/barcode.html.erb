@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barcode with Displayed Text</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- jsPDF Library -->
+  <style>
+    #barcode-container {
+      text-align: center;
+      margin-top: 150px;
+      margin-bottom: 250px;  
+    }
+    #barcode-text-top {
+      font-size: 18px;  
+      margin-bottom: 10px;  
+    }
+    #barcode-text-bottom {
+      font-size: 14px; 
+      margin-top: 10px;  
+    }
+  </style>
+</head>
+<body>
+  <div id="barcode-container" >
+    <div id="barcode-text-top"></div>
+    <svg id="barcode"></svg>
+    <div id="barcode-text-bottom"></div>
+  </div>
+
+  <div style="text-align: center; margin-top: 20px;">
+    <button onclick="printBarcode()">Print</button>
+  </div>
+
+  <script>
+    function generateBarcode(id, productPieceId, productName, site_id) {
+      const barcodeData = JSON.stringify({
+        id: id,
+        site_id: site_id,
+      });
+      
+      document.getElementById('barcode-text-top').innerText = `${productPieceId}`;
+      document.getElementById('barcode-text-bottom').innerText = productName;  // Product name at bottom
+      
+      
+      JsBarcode("#barcode", barcodeData, {
+      format: "CODE128",
+      displayValue: false,
+      fontSize: 12,
+      width: 1.5,  
+      height: 80,  
+      margin: 10
+      });
+    }
+
+    const id = `<%=@product.id%>`; 
+    const site_id = `<%=@product.site.id%>`; 
+    const productPieceId = `<%=@pp.id%>`; 
+    const productName = `<%=@product.product%>`; 
+    generateBarcode(id, productPieceId, productName, site_id);
+
+    
+    function printBarcode() {
+      const svg = document.getElementById('barcode');
+      const newWindow = window.open('', '', 'width=600, height=400');
+      newWindow.document.write(`
+        <html>
+          <head><title>Print Barcode</title></head>
+          <body>
+            <div style="text-align:center;">
+              <br><br><br><br>
+              <div>${document.getElementById('barcode-text-top').innerText}</div>
+              ${svg.outerHTML}
+              <div>${document.getElementById('barcode-text-bottom').innerText}</div>
+            </div>
+          </body>
+        </html>
+      `);
+      newWindow.document.close();
+      newWindow.print();
+    }
+  </script>
+</body>
+</html>

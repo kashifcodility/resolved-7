@@ -1,0 +1,79 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ready Set Staging Estimate</title>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 18px;
+            line-height: 1.2;
+            margin: 10px auto; /* Reduced margins */
+            padding: 0; /* Removed padding to save space */
+            max-width: 900px; /* Slightly narrower for better fit */
+        }
+        .logo {
+            width: 200px; /* Reduced logo size */
+            margin: 0 auto 10px; /* Smaller bottom margin */
+            text-align: center;
+        }
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .content {
+            margin-top: 0; /* Remove extra margin at the top */
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <img src="https://www.readysetstaging.com/images/sites/rea/rea-logo.png" alt="Ready Set Staging Logo">
+    </div>
+    <div class="content">
+        <span>Date:</span> <%= @estimation_date %><br><br>
+        Hi ,<%= @name %><br><br>
+        <%= @message %><br><br>
+
+        <span class="bold">Tentative Stage date:</span> <%= @tentative_stage_date %><br><br>
+        <span class="bold">Rooms to stage:</span> <%= @rooms_to_stage %><br><br>
+
+        <span class="bold">Proposed staging fees:</span><br><br>
+        Total Design Fee: $<%= @total_design_fee %><br>
+        <span style="text-decoration: underline;">Total Rental Fee: $<%= @total_rental_fee %> plus tax</span><br>
+        Total: $<%= @total %> (plus tax on rental portion)<br><br>
+
+        <span class="bold">Add On Kids Playroom (3rd floor):</span><br>
+        <span class="bold">$<%= @add_on_kids_playroom %></span> (Plus tax on rental)<br><br>
+
+        <span class="bold">Add On Outdoor Space:</span><br>
+        <span class="bold">$<%= @add_on_outdoor_space %></span> (Plus tax on rental)<br><br>
+
+        <span class="bold">Add On Basement Office:</span><br>
+        <span class="bold">$<%= @add_on_basement_office %></span> (Plus tax on rental)<br><br>
+
+        <span class="bold">Contract terms:</span><br>
+        <%= @contract_terms %><br><br>
+
+        Please let us know if you have any questions.<br><br>
+        Regards,<br>
+        <span>Kelli Giarritiello</span><br>
+        General Manager<br>
+        Ready Set Staging<br><br>
+        
+        <span>Kerri Robledo</span><br>
+        Assistant Manager<br>
+        Ready Set Staging<br><br>
+        
+        <span>Jacquie Miley</span><br>
+        Administrative Assistant<br>
+        Ready Set Staging
+    </div>
+</body>
+</html>

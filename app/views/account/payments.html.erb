@@ -1,0 +1,58 @@
+<div class="separator20"></div>
+<h3 class="section_title_h3">Payments</h3>
+<div class="separator20"></div>
+
+<div class="container">
+    <div class="woocommerce">
+
+        <!---Billing Reciepts -->
+        <div class="">
+            <div class="accounts-table">
+                <table class="table table-hover table-condensed bordered">
+                    <thead>
+                    <tr>
+                    <th>Reference Number</th>
+                    <th>Type</th>
+                    <th>Order</th>
+                    <th>Billing Date</th>
+                    <th>Payment Method</th>
+                    <th>Total</th>
+                    <%
+                    # <th>Action</th>
+                    %>
+                    </tr>
+                    </thead>
+                    <tbody id="users_orders">
+                        <% @payments.each do |payment| %>
+                            <tr>
+                            <td class="align-middle"><%= payment.reference_number %></td>
+                            <td class="align-middle"><%= payment.type %></td>
+                            <td class="align-middle">
+                            <% if payment.order %>
+                                <% if payment.order.project.nil? %> 
+                                    <%= link_to(' #' + payment.order.id.to_s, account_order_path(payment.order.id)) %>
+                                <%else%>
+                                    <%= link_to(' #' + payment.order.id.to_s + " - " + payment.order.project.to_s.truncate(10), account_order_path(payment.order.id)) %>
+                                <%end%>
+                            <% end %>
+                            </td>					    
+                            <td class="align-middle"><%= payment.date.strftime('%D') %></td>
+                            <td class="align-middle">Card Ending in <%= payment.credit_card %></td>
+                            <td class="align-middle"><%= number_to_currency(payment.value) %></td>
+                            <%
+                            # NOT IN MVP
+                            # <td class="align-middle">
+                            # <button type="button" class="btn btn-primary btn-sm edit-order-btn">
+                            # Print Receipt
+                            # </button>
+                            # </td>
+                            %>
+                            </tr>
+                        <% end %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,63 @@
+<h1>Billing Renewal Report</h1>
+<p>
+    <strong>Billing Cycle:</strong> <%= "#{@cycle_start.strftime('%D')} - #{@cycle_end.strftime('%D')}" %><br>
+    <strong>Total Charged:</strong> <%= number_to_currency(@amount_charged) %><br>
+    <strong>Successful Charges:</strong> <%= @orders[:success].count %><br>
+    <strong>Failed Charges:</strong> <%= @orders[:fail].count %><br><br>
+</p>
+
+<hr>
+
+<table width="100%">
+    <thead>
+	<tr>
+	    <th align="left">Order</th>
+	    <th>Customer</th>
+	    <th>Card</th>
+	    <th>Status</th>
+	    <th align="left">Amount</th>
+	</tr>
+    </thead>
+    <tbody>
+	<% @orders.each do |status, orders| %>
+	    <% orders.each do |order| %>
+		<tr>
+		    <td valign="top"><%= order.receipt.order_id %></td>
+		    <td valign="top">
+			<%= "%s %s <%s>" % [ order.receipt.customer_first_name, order.receipt.customer_last_name, order.receipt.customer_email ] %>
+			<% if status == :fail %>
+			    <br><small><em>Reason: <%= order.receipt.failure_reason || 'unknown' %></em></small>
+			<% end %>
+		    </td>
+		    <td align="center" valign="top"><%= order.receipt.card_last_four rescue nil %></td>
+		    <td align="center" valign="top"><%= status[0,1].to_s.upcase %></td>
+		    <td align="left" valign="top"><%= number_to_currency(order.receipt.total) %></td>
+		</tr>
+	    <% end %>
+	<% end %>	    
+    </tbody>
+</table><br>
+
+<hr>
+
+<h3>All Open Orders</h3>
+
+<table width="100%">
+    <thead>
+	<tr>
+	    <th align="center">Order</th>
+            <th align="center">Action</th>
+	    <th align="left">Details</th>
+	</tr>
+    </thead>
+    <tbody>
+	<% @all_order_actions.each do |order| %>
+	    <tr>
+		<td align="center" valign="top"><%= order.id %></td>
+                <td align="center"><%= order.action.to_s.capitalize %>
+		<td><%= order.note %></td>
+	    </tr>
+	<% end %>	    
+    </tbody>
+</table><br>
+

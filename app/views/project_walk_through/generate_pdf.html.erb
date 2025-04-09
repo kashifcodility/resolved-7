@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <style>
+
+@media print {
+  body{
+		margin: 15px auto;
+		padding: 0;
+		width: 24cm;
+		height: 27.7cm;
+    margin:0px auto;
+  }
+  .print-area {
+		position: relative;
+		top: 1cm;
+		left: 1cm;
+		width: 24cm;
+		font-size: 10pt;
+		padding: 12px;
+		margin:auto;
+  }
+}
+.print-area {
+  position: relative;
+  top: 1cm;
+  left: 1cm;
+  width: 24cm;
+  height: 27.7cm;
+  font-size: 10pt;
+  padding: 12px;
+  margin:15px auto;
+}
+*{
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+p{
+  font-size: 14px;
+  color:#000000;
+  margin:0px;
+}
+.w-100{
+  width: 100% !important;
+}
+.w-75{
+  width: 75%;
+}
+.w-50{
+  width: 50%;
+}
+.gap-1{
+  gap: 4px;
+}
+.gap-2{
+  gap: 8px;
+}
+.gap-3{
+  gap: 16px;
+}
+.gap-4{
+  gap: 24px;
+}
+.gap-5{
+  gap: 48px;
+}
+.ml-1{
+  margin-left: 4px;
+}
+.ml-2{
+  margin-left: 8px;
+}
+.ml-3{
+  margin-left: 16px;
+}
+.mt-1{
+  margin-top: 4px;
+}
+.mt-2{
+  margin-top: 8px;
+}
+.mt-3{
+  margin-top: 16px;
+}
+.mt-4{
+  margin-top: 24px;
+}
+.mx-auto{
+  margin: auto 0 ;
+}
+.p-3{
+  padding:16px;
+}
+.d-flex{
+  display: flex;
+}
+.flex-col{
+  flex-direction: column;
+}
+.align-items-center{
+  align-items: center;
+}
+.justify-content-start{
+  justify-content: flex-start;
+}
+.justify-content-end{
+  justify-content: flex-end;
+}
+.justify-content-center{
+  justify-content: center;
+}
+.justify-content-between{
+  justify-content: space-between;
+}
+.no-wrap{
+  white-space: nowrap;
+}
+.input-line{
+  border-bottom: 2px solid black;
+}
+.note-section{
+  border: 2px solid black;
+  height: 100%;
+}
+input{
+  border: none;
+  outline: none;
+}
+
+.image-add-button{
+	padding: 4px 6px;
+	border-radius: 6px;
+	border: 1px solid #2bd6ce;
+	cursor: pointer;
+	background: #2bd6ce;
+	color: #ffffff;
+	font-weight: bold;
+}
+.file-input-container{
+	display: flex;
+	align-items: flex-start;
+	position: relative;
+	margin-top:12px;
+}
+.removeFileInput{
+	position: absolute;
+	top: -20px;
+	right: -13px;
+	padding: 4px 9px;
+	border-radius: 50%;
+	aspect-ratio: 1/1;
+	cursor: pointer;
+	background: #2bd6ce;
+	color: #ffffff;
+	font-weight: bold;
+	border: 1px solid #2bd6ce;
+}
+.preview{
+	height:80px;
+	width:80px;
+}
+.wrapper {
+  margin-bottom: 48px;
+  padding: 10px;
+  background: #16A085;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+}
+.wrapper:active #img-result {
+  margin-top: 2px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.wrapper #img-result {
+  cursor: pointer;
+  margin: 0;
+  position: relative;
+  background: #1ABC9C;
+  background-size: cover;
+  background-position: center;
+  display: block;
+  height: 150px;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+  color: rgba(0,0,0,0);
+  transition: box-shadow .3s, margin .3s, background-image 1.5s;
+}
+.wrapper #img-result.no-image:before {
+  font-family: 'FontAwesome';
+  content: "\f030";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  color: #fff;
+  font-size: 48px;
+  opacity: .8;
+  transform: translate(-50%,-50%);
+  text-shadow: 0 0px 5px rgba(0,0,0,0.4);
+}
+.wrapper button {
+  margin-top: 20px;
+  display: block;
+  font-family: 'Open Sans Condensed', sans-serif;
+  background: #1ABC9C;
+  width: 100%;
+  border: none;
+  color: #fff;
+  padding: 10px;
+  letter-spacing: 1.3px;
+  font-size: 1.05em;
+  border-radius: 5px;
+  box-shadow: 0 4px 5px rgba(0,0,0,0.3);
+  outline: 0;
+  transition: box-shadow .3s, margin-top .3s, padding .3s;
+}
+.wrapper button:active {
+  box-shadow: none;
+  margin-top: 24px;
+  padding: 8px;
+}
+.show-button {
+  background: #264974;
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  float: right;
+  display: none;
+}
+.upload-result {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  overflow-y: auto;
+}
+.upload-result__content {
+  word-break: break-all;
+  font-family: 'Source Code Pro';
+  overflow-wrap: break-word;
+}
+/* Image uploader css */
+.avatar-upload {
+  position: relative;
+  max-width: 350px;
+}
+.avatar-upload .avatar-edit {
+  position: absolute;
+  right: -28px;
+  z-index: 1;
+  top: 10px;
+}
+.avatar-upload .avatar-edit input {
+  display: none;
+}
+.avatar-upload .avatar-edit input + label {
+  display: inline-block;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 0;
+  border-radius: 100%;
+  background: #FFFFFF;
+  border: 1px solid transparent;
+  box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.12);
+  cursor: pointer;
+  font-weight: normal;
+  transition: all .2s ease-in-out;
+}
+.avatar-upload .avatar-edit input + label:hover {
+  background: #F1F1F1;
+  border-color: #D6D6D6;
+}
+.avatar-upload .avatar-edit input + label:after {
+  content: "\f040";
+  font-family: 'FontAwesome';
+  color: #757575;
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  margin: auto;
+}
+.avatar-upload .avatar-preview {
+  width: 400px;
+  height: 225px;
+  position: relative;
+  border: 6px solid #F8F8F8;
+  box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.1);
+}
+.avatar-upload .avatar-preview > div {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.page-break {
+  page-break-before: always;
+}
+.Realtor-Request{
+  margin-left: 220px;
+}
+.Realtor-Request p{
+  color: red;
+}
+.options-inputs{
+  width: 36px;
+}
+.rooms-input{
+  width:100%
+}
+.options-input{
+  width: 28px;
+}
+.step-2-table tr td,
+.step-2-main-table{
+  border: 1px solid black;
+}
+
+  </style>
+</head>
+<body>
+
+<div id="print-area">
+  <!-- step1 -->
+
+  <%= render partial: 'project_walk_through/step1'%>
+
+  <div class="page-break"><!-- step2 --></div>
+
+  <%= render partial: 'project_walk_through/step2'%>
+
+  <div class="page-break"><!-- step3 --></div>
+
+  <%= render partial: 'project_walk_through/step3'%>
+
+  <div class="page-break"><!-- step4 --></div>
+
+  <%= render partial: 'project_walk_through/step4'%>
+
+  <div class="page-break"><!-- step5 --></div>
+
+  <%= render partial: 'project_walk_through/step5'%>
+
+
+  <div class="page-break"><!-- step6 --></div>
+
+  <%= render partial: 'project_walk_through/step6'%>
+
+  <div class="page-break"><!-- step7 --></div>
+
+  <%= render partial: 'project_walk_through/step7'%>
+
+  <div class="page-break"><!-- step8 --></div>
+
+  <%= render partial: 'project_walk_through/step8'%>
+
+
+  <div class="page-break"><!-- step9 --></div>
+
+  <%= render partial: 'project_walk_through/step9'%>
+
+
+  <div class="page-break"><!-- step10 --></div>
+
+  <%= render partial: 'project_walk_through/step10'%>
+  <div class="page-break"><!-- step11 --></div>
+
+  <%= render partial: 'project_walk_through/step11'%>
+
+  <div class="page-break"><!-- step12 --></div>
+
+  <%= render partial: 'project_walk_through/step12'%>
+  <div class="page-break"><!-- step13 --></div>
+  <%= render partial: 'project_walk_through/step13'%>
+  <div class="page-break"><!-- step14 --></div>
+  <%= render partial: 'project_walk_through/step14'%>
+  <div class="page-break"><!-- step15 --></div>
+  <%= render partial: 'project_walk_through/step15'%>
+  <div class="page-break"><!-- step16 --></div>
+  <%= render partial: 'project_walk_through/step16'%>
+  <div class="page-break"><!-- step17 --></div>
+  <%= render partial: 'project_walk_through/step17'%>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,451 @@
+
+<% unless current_user %>
+<!-- Login/Signup Modal -->
+<div class="modal fade" id="user" role="dialog">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <%= render 'layouts/login'%>
+      </div>
+   </div>
+</div>
+
+<div class="modal fade" id="inventory_user" role="dialog">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <%= render 'layouts/login', redirect_url: "inventory" %>
+      </div>
+   </div>
+</div>
+<% end %>
+
+<% if Rails.env&.among?('staging', 'development') %>
+   <div class="test_environment">Demo</div>
+<% end %>
+
+<!-- NAVBAR -->
+<div class="new_layout">
+
+    <div id="navbar">
+      <header>
+
+         <div id="top_header">
+            <div id="searchbar_container">
+                  <div>
+                     <div id="searchbar">
+                           <%= form_tag(plp_path, :method => "get") do %>
+                              <div id="input_field">
+                                 <input type="text" placeholder="Search" name="search" id="search-input" autocomplete="off">
+                              </div>
+                              <button type="submit" value="search-input" id="search_btn"><%=image_tag("new_icons/search.svg", alt:"magnifying") %></button>
+                           <% end %>
+                     </div>
+                     <div id="close_search_container_btn"><%=image_tag("new_icons/close.svg", alt:"close") %></div>
+                  </div>
+            </div>
+            <div id="nav_left">
+                  <div id="burger" data-toggle="modal" data-target="#myModal1">
+                     <div class="burger_lines">
+                        <div class="line1"></div>
+                        <div class="line2"></div>
+                        <div class="line3"></div>
+                     </div>
+                  </div>
+                  <div id="open_search_container_btn"><%=image_tag("new_icons/search.svg", alt:"search") %></div>
+                  <div class="nav_menu_container">
+                     <div><a href="<%= root_path %>">H<span class="smaller">ome</span></a></div>
+                     <!--- show_shop_dropdown clas removed from inventory to show login instead menu -->
+                     <div class="inventory-drop with_arrow_down" data-logged-in=<%= user_signed_in?%> data-toggle="modal" data-target="#user"><a class="with_arrow_down" href="<%=  user_signed_in? ? plp_path(sort: 'qhtl') : 'javascript:void(0)' %>">I<span class="smaller">nventory</span><%=image_tag("new_icons/down-arrow.svg", alt:"down_arrow", class:"shop_dropdown_arrow ") %></a></div>
+                     <!-- <div><a href="<%= services_path%>">S<span class="smaller">ervices</span></a></div> -->
+                  </div>
+            </div>
+            <div id="nav_center">
+                <a href="<%= root_path %>"><%=image_tag("new_icons/logo.svg", height: '40', alt:"logo") %></a>
+            </div>
+            <!-- HEADER ICONS: LOCATION - ACCOUNT - CART-->
+            <div id="nav_right">
+            
+                  <div>
+                        <%if Rails.env == "develop"%>
+                           <div class="header_icon" onclick="location.href='<%= user_signed_in? && current_user&.user_type == 'Employee' ? 'http://localhost/Warehouse2/?auth_user_id=' + current_user&.id.to_s + '&auth_code=' + session[:auth_code].to_s : 'http://localhost/Warehouse2/' %>'">
+
+                              <%= image_tag("new_icons/traditional-barcode.png", alt: "Re|Port") %>
+                              <p>Re|Port</p>
+                           </div>
+                        <%else%>
+                          <div class="header_icon" onclick="location.href='<%= user_signed_in? && current_user&.user_type == 'Employee' ? 'https://legacy.r-e-solved.com/Warehouse2/?auth_user_id=' + current_user&.id.to_s + '&auth_code=' + session[:auth_code].to_s : 'https://legacy.r-e-solved.com/Warehouse2/' %>'">
+
+                           <%= image_tag("new_icons/traditional-barcode.png", alt: "Re|Port") %>
+                           <p>Re|Port</p>
+                        </div>
+                        <%end%>   
+                     <%ids = current_user&.orders&.map(&:id)%>
+                     <div class="header_icon"  data-toggle="modal" data-target="#projects_sidebar">
+                        <% if user_signed_in? && OrderQuery.where(order_id: ids, is_read: false).present? %>
+                           <div class="notification_dot"></div>
+                        <% end%>
+                        <%= image_tag("new_icons/projects.svg", alt:"projects") %>
+                        <p>Projects</p>
+                     </div>
+                     <% if session[:god] && session[:impersonate] %>
+                        <div class="header_icon" data-toggle="modal" data-target="#myModal3">
+                           <%= image_tag( "new_icons/god.svg", alt: 'Impersonated', class: 'user_photo_icon') %>
+                           <p style="color: #e3494f;">Customer</p>
+                        </div>                        
+                     <% elsif current_user %>
+                        <div class="header_icon" data-toggle="modal" data-target="#myModal3">
+                           <%= image_tag( (user_signed_in? && current_user.logo_path.present?) ? current_user.logo_url : "new_icons/header_user.svg", alt: 'Profile Photo', class: 'user_photo_icon') %>
+                           <p>Account</p>
+                        </div>
+                     <% else %>
+                        <div class="header_icon"  data-toggle="modal" data-target="#user">
+                           <%=image_tag("new_icons/header_user.svg", alt:"account") %>
+                           <p>Login</p>
+                        </div>
+                     <% end %>
+                     <div class="header_icon cart_icon" data-toggle="modal" data-target="#myModal2">
+                        <%=image_tag("new_icons/header_shopping_cart.svg", alt:"shopping-cart") %>
+                        <p>Cart (<span id="qty_of_items"><%= cart_items_count(@cart) %></span>)</p>
+                     </div>
+                  </div>
+            </div>
+         </div>
+
+      </header>
+
+
+   </div>
+   
+   <!-- HEADER DROPDOWN -->
+   <div id="dropdown_container">
+
+      <div class="header_dropdown animation1" style="z-index: 999;">
+         <div>
+            <div class="separator20_white safari_space"></div>
+            <div class="separator20_white"></div>
+            <div class="menu_all_items">
+               <% header_categories.each do |category| %>
+                  <div class="menu_item_container">
+                     <div><%= link_to(category.name, plp_path + '?category=' + category.id.to_s, class:"menu_title") %> </div>
+                     <div class="menu_items">
+                     <%#binding.pry%>
+                        <% category.children.order(:order).each do |child| %>
+                           <%= link_to(child.name, plp_path + '?category=' + child.id.to_s, id:'r_'+ category.name.first.downcase) %>
+                        <% end %>
+                     </div>
+                  </div>
+               <% end %>
+            </div>
+            <div class="separator20"></div>
+         </div>
+      </div>
+   </div>
+
+</div>
+<!-- NAVBAR ENDS -->
+
+<!-- SIDEBARS -->
+<div class="new_layout1">
+
+   <!-- MOBILE NAVIGATION  -->
+   <div class="sidebar_modal">
+      <div class="modal left fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1">
+         <div class="modal-dialog" role="document">
+            <div class="modal-content animate_left">
+               <div class="modal-header sidebar_header">
+                  <div>
+                     <%=image_tag("new_icons/dots_menu.svg", class:"modal_header_icon", alt:"dots_menu") %>
+                     <h5>MENU</h5>
+                     <%= image_tag('new_icons/close.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+                  </div>
+               </div>
+      
+               <div class="modal-body" style="padding-top: 10px;">
+                  <div class="mobile_menu_container">
+                     <div class="mobile_company_logo"><%=image_tag("new_icons/logo.svg", alt:"logo") %></div>
+                     <a href="<%= root_path %>">H<span class="smaller">ome</span></a>
+                     <!--- show_shop_dropdown clas removed from inventory to show login instead menu -->
+                     <div class="inventory-drop with_arrow_down" data-logged-in=<%= user_signed_in?%> data-toggle="modal" data-target="#user"><a id="menu-mob" class="with_arrow_down" href="<%=  user_signed_in? ? 'javascript:void(0)' : 'javascript:void(0)' %>">I<span class="smaller">nventory</span></a></div>
+                     <div class="mobile_menu_item_container" data-toggle="modal" data-target="#inventory_user" >
+                        <div>
+                              <% header_categories.each do |category| %>
+                              <div class="submenu_item submenu_item_to_click"><%= category.name%></div>
+                              <div class="submenu_panel submenu_panel_to_open">
+                                    <%= link_to('ALL', plp_path + '?category=' + category.id.to_s) %>
+                                    <% category.children.order(:order).each do |child| %>
+                                       <%= link_to(child.name, plp_path + '?category=' + child.id.to_s, id:'r_'+ category.name.first.downcase) %>
+                                    <% end %>
+                              </div>
+                              <% end %>
+                        </div>
+                     </div>
+                     <a href="<%= about_path %>">A<span class="smaller">bout</span></a>
+                     <!-- <a href="<%= services_path %>">S<span class="smaller">ervices</span></a>
+                     <a href="<%= faq_path %>">FAQ</a>
+                     <a href="https://resources.r-e-solved.com/">R<span class="smaller">esources</span></a> -->
+                  </div>
+               </div>
+            </div><!-- modal-content -->
+         </div><!-- modal-dialog -->
+      </div>	
+   </div>
+
+   <!-- USER ACCOUNT -->
+   <div class="sidebar_modal">
+      <div class="modal right fade" id="myModal3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel3">
+      <div class="modal-dialog" role="document">
+         <div class="modal-content animate_right">
+            <div class="modal-header sidebar_header">
+               <div>
+                  <%=image_tag("new_icons/header_user.svg", class:"modal_header_icon", alt:"header_user") %>
+                  <h5>MY ACCOUNT</h5>
+                  <%= image_tag('new_icons/close.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+               </div>
+            </div>
+
+            <div class="modal-body">
+     
+               <div class="body_content">
+                  <div>
+                     <!-- Notification -->
+                     <% if user_signed_in? && current_user.site_id == 25 %>
+                     <div class="warrning_notification" id="closing_phenix2">
+                        <%=image_tag("new_icons/close_color_white.svg", class:"close_warning", alt:"close") %>
+                        <%=image_tag("new_icons/warning_color_white.svg", class:"img_warning", alt:"warning") %>
+                        <p>Effective Friday, July 30, 2021, the SDN Phoenix location will be closed. We will no longer be accepting rental orders after Friday, June 25th. <br><a href="#" data-toggle="modal" data-target="#closing_phenix">Read More...</a></p>
+                     </div>
+                     <% end %>
+
+                     <% if session[:god] && session[:impersonate] %>
+                     <div class="warrning_notification">
+                        <p>Hi <strong><%= sdn_impersonator.first_name %></strong>, <br> you are impersonating <strong><%= current_user.full_name&.presence || current_user.email %></strong>. <br><%= link_to(raw('Logout &raquo;'), '/admin/users/unimpersonate') %></p>
+                     </div>
+                     <% end %>
+
+                     <div class="separator20"></div>
+
+                     <% if user_signed_in? %>
+                        <div class="account_user">
+                           <%= image_tag( (user_signed_in? && current_user.logo_path.present?) ? current_user.logo_url : "new_icons/account.svg", alt: 'Profile Photo', class: 'user_photo_icon') %>
+                           <div class="separator10"></div>
+                           <p><%= current_user.full_name %></p>
+                           <a href="#" class="edit_account_btn" data-toggle="modal" data-target="#edit_profile"><%=image_tag("new_icons/edit.svg", alt:"edit") %></a>
+                        </div>
+      
+                        <div class="tax_info_container">
+                           <% if current_user.tax_exempt? %>
+                              <div class="tax_exempt"> Tax Exempt until <%= current_user.tax_exemption_expires_on&.strftime('%D') %></div> <br>
+                           <% elsif current_user.tax_exemption_expired_on %>
+                              <div class="tax_exempt flag_expired">Tax Exemption Expired <%= current_user.tax_exemption_expired_on&.strftime('%D') %></div> <br>
+                           <% end %>
+                           <% if current_user.damage_waiver_exempt? %>
+                              <div class="damage_waiver">Damage Waiver Exempt
+                                       <% if current_user.damage_waiver_expires_on %>
+                                          Until <%= current_user.damage_waiver_expires_on&.strftime('%D') %>
+                                       <% else %>
+                                          No Expiration
+                                       <% end %>
+                              </div> <br>
+                           <% elsif current_user.damage_waiver_expired_on %>
+                              <div class="damage_waiver flag_expired">Damage Waiver Exemption Expired <%= current_user.damage_waiver_expired_on&.strftime('%D') %></div>  <br>                                
+                           <% end %>                                
+                        </div>
+                     <% end %>
+      
+                     <!-- ACCOUNT MENU -->
+                     <div class="mobile_menu_container">
+                        <a href="<%= account_path %>">P<span class="smaller">rofile</span></a>
+                        <a href="<%= account_orders_path %>">M<span class="smaller">y</span> O<span class="smaller">rders</span></a>
+                        <a href="<%= delivery_appointments_path %>">M<span class="smaller">y</span> D<span class="smaller">elivery Appointments</span></a>
+
+                        <% if user_signed_in? && current_user.site_id == 25 %>
+                        <a href="" id="user_notification" data-toggle="modal" data-target="#closing_phenix">N<span class="smaller">otification</span> <%=image_tag("new_icons/notifications.svg", alt:"notifications") %></a>
+                        <% end %>
+
+                        <!-- <a href="<%= account_orders_path %>">O<span class="smaller">rders</span></a> -->
+                        <div class="mobile_menu_item_container">
+                           <div class="menu_item menu_item_to_click">A<span class="smaller">ccounting</span></div>
+                           <div>
+                              <a href="<%= account_accounting_income_path %>">Income</a>
+                              <a href="<%= account_accounting_payments_path %>">Payment History</a>
+                           </div>
+                        </div>
+                        <a href="<%= invoices_path %>">I<span class="smaller">nvoices</span></a>
+                        <a href="<%= account_inventory_path %>">I<span class="smaller">nventory</span></a>
+                        <a href="/rooms">P<span class="smaller">rojects rooms</span></a>
+                        <hr class="hr_separator">
+                        <% if session['god'] %>
+                           <a href="/admin/users/unimpersonate">L<span class="smaller">ogout</span></a>
+                        <% else %>
+                           <a href="<%= logout_path %>" id="logout_button">L<span class="smaller">ogout</span></a>
+                        <% end %>
+                        <div class="ios_space height50"></div>
+                     </div>
+                  </div>
+                  <div class="ios_space height50"></div>
+               </div>
+            </div>
+         </div><!-- modal-content -->
+      </div><!-- modal-dialog -->
+      </div>	
+   </div>
+
+   <!-- PROJECTS-->
+   <div class="sidebar_modal">
+      <div class="modal right fade" id="projects_sidebar" tabindex="-1" role="dialog" aria-labelledby="projects_sidebarLabel">
+      <div class="modal-dialog" role="document">
+         <div class="modal-content animate_right">
+            <div class="modal-header sidebar_header">
+               <div>
+                  <%=image_tag("new_icons/projects.svg", class:"modal_header_icon", alt:"projects") %>
+                  <h5>PROJECTS</h5>
+                  <%= image_tag('new_icons/close.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+               </div>
+            </div>
+
+            <div class="modal-body">
+      
+               <div class="body_content">
+                  <div>
+                     <% if user_signed_in? && current_user.site_id == 25 %>
+                     <!-- Notification -->
+                     <div class="warrning_notification" id="closing_phenix2">
+                        <%=image_tag("new_icons/close_color_white.svg", class:"close_warning", alt:"close") %>
+                        <%=image_tag("new_icons/warning_color_white.svg", class:"img_warning", alt:"warning") %>
+                        <p>Effective Friday, July 30, 2021, the SDN Phoenix location will be closed. We will no longer be accepting rental orders after Friday, June 25th. <br><a href="#" data-toggle="modal" data-target="#closing_phenix">Read More...</a></p>
+                     </div>
+                     <% end %>
+
+                     <div class="separator20"></div>
+                     
+                     <!-- PROJECTS MENU -->
+                     <%= render partial: 'account/projects_navigation' %>
+
+                  </div>
+                  <div class="ios_space height50"></div>
+               </div>
+            </div>
+         </div><!-- modal-content -->
+      </div><!-- modal-dialog -->
+      </div>	
+   </div>
+
+   <!-- SHOPPING CART -->
+   <div id="cart_preview">
+      <%=  render partial: "layouts/cart_preview" %>
+   </div>
+
+</div>
+<!-- SIDEBARS ENDS -->
+
+<!-- POPUP - CHOOSE LOCATION  -->
+<div class="popup_modal">
+   <div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <div>
+                     <%=image_tag("new_icons/header_location.svg", class:"modal_header_icon", alt:"header_location") %>
+                     <h5>CHOOSE SHOPPING LOCATION</h5>
+                     <%= image_tag('new_icons/close.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+                  </div>
+               </div>
+
+               <div class="modal-body">
+                  <ul id="select-site">
+                     <div>
+                        <%=image_tag("new_icons/shop_location.svg", class:"shop_location_icon", alt:"shop_location") %>
+                        <%=link_to("Seattle", change_location_path(24), class:"location_link")%>
+                     </div>
+                  </ul>
+               </div>
+            </div>
+      </div>
+   </div>
+</div>
+
+
+<!-- POPUP - CONFIRMATION  EMPTY CART -->
+<div class="popup_modal">
+   <div class="modal fade" id="modal4" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+            <div class="modal-content">
+               <div class="modal-header confirm_header">
+                  <div>
+                     <%=image_tag("new_icons/warning.svg", class:"modal_header_icon", alt:"warning") %>
+                     <h5 style="color:#fff;">CONFIRM</h5>
+                     <%= image_tag('new_icons/close_color_white.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+                  </div>
+               </div>
+
+               <div class="modal-body" style="padding: 20px;">
+                  <p class="confirm_question">Are you sure you want to empty cart?</p>
+                  <div class="confirm_btns">
+                     <%= link_to('Yes', empty_cart_path, class: "btn_yes") %>
+                     <a href="#" class="btn_no close" data-dismiss="modal">No</a>
+                  </div>
+               </div>
+            </div>
+      </div>
+   </div>
+</div>
+
+<!-- POPUP - CLOSING PHENIX LOCATION -->
+<% if user_signed_in? && current_user.site_id == 25 %>
+<div class="popup_modal">
+   <div class="modal fade" id="closing_phenix" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+            <div class="modal-content">
+               <div class="modal-header confirm_header">
+                  <div>
+                     <%=image_tag("new_icons/warning.svg", class:"modal_header_icon", alt:"warning") %>
+                     <h5 style="color:#fff;">ATTENTION</h5>
+                     <%= image_tag('new_icons/close_color_white.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon', id:"close_warning") %>
+                  </div>
+               </div>
+
+               <div class="modal-body" id="warning_for_user">
+                  <h5>Effective Friday, July 30, 2021, the SDN Phoenix location will be closed. </h5>
+                  <p>
+                     
+                        We will no longer be accepting rental orders after Friday, June 25th.
+                        All account information will still be available through “My Account”. If you need assistance or have questions, please email us at  <a href="#">info@sdninc.net</a> <br><br>
+                        Thank you for your continued support throughout the years.<br><br>
+                        SDN
+                  </p>
+               </div>
+            </div>
+      </div>
+   </div>
+</div>
+<% end %>
+
+<!-- POPUP - EDIT PROFILE  -->
+<% if user_signed_in? %>
+   <%=  render partial: "layouts/edit_profile_form" %>
+<% end %>
+
+<div id="home-link" class="d-none"><%= root_url %></div>
+
+<!-- Back to top button -->
+<a id="scrollup"></a>
+<%#= javascript_include_tag "header" %>
+<%#= javascript_include_tag "warning" %>
+
+<script>
+    
+      const menuMobElements = document.querySelectorAll('#menu-mob');
+      console.log('here');
+      menuMobElements.forEach(element => {
+         
+        element.addEventListener('click', () => {
+         console.log('there');
+            const myModal11 = document.getElementById('myModal1');
+            if (myModal11) {
+               myModal1.style.display = 'none';
+               
+            }        
+            
+         });     
+      });
+   
+  </script>

@@ -1,0 +1,442 @@
+@import'./colors';
+
+
+
+$sidecolor: #f3f3f3;
+$back_to_proj_btn_color: rgb(223, 223, 223);
+
+
+
+
+
+
+// ONE PROJECT PAGE - opp
+.one_project_detail_page{
+    width: 100%;
+    background-color: $sidecolor;
+    min-height: 500px;
+}
+
+.small_spinner_container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px !important;
+    display: none;
+}
+.small_spinner{
+    height: 100px;
+    width: 100px;
+    border: 15px solid $primary !important;
+    border-top-color: #fff !important;
+    border-radius: 50% !important;
+    animation: spin_spiner 1.5s infinite linear;
+}
+@keyframes spin_spiner{
+    100%{
+        transform: rotate(360deg);
+    }
+}
+
+.new_layout{
+
+    .opp_container{
+        width: 100%;
+        max-width: 1920px;
+        margin: auto;
+        min-height: calc(80vh - 90px);
+    }
+
+    .opp_content{
+        width: 100%;
+        display: grid;
+        grid-template-columns: 260px 3fr 280px;
+        grid-template-rows: auto;
+        padding: 10px;
+        grid-gap: 10px;
+        grid-template-areas:
+            "back_to_proj  oop_order_number opp_right"
+            "opp_left  oop_project_name opp_right"
+            "opp_left  oop_order_location opp_right"
+            "opp_left  oop_order_details opp_right"
+            "opp_left  oop_order_items opp_right"
+            "opp_left  oop_room_details opp_right"
+            ;
+    }
+
+    .back_to_proj,
+    .opp_left,
+    .oop_order_number,
+    .oop_project_name,
+    .oop_order_location,
+    .oop_order_details,
+    .oop_order_items,
+    .oop_room_details,
+    .opp_right{
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #fff;
+
+    }
+
+
+
+    .back_to_proj{
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        grid-area: back_to_proj;
+        border-radius: 5px;
+        background-color: #d4d4d4;
+        &:hover{
+            background-color: #c5c4c4;
+        }
+        // background-color: #222;
+    }
+    .back_to_proj > .lc_header_back_to_projects{
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 20px;
+        padding-top: 14px;
+        border-radius: 5px;
+        font-weight: 500;
+        font-size: 14px;
+        text-transform: uppercase;
+        line-height: 1;
+        color: #222;
+        img{
+            width: 14px;
+            height: 14px;
+            object-fit: contain;
+            margin-right: 4px;
+        }
+    }
+
+    .opp_left{
+        grid-area: opp_left;
+        background-color: $sidecolor;
+        // border: 1px solid rgb(223, 223, 223);
+    }
+    .oop_order_number{
+        grid-area: oop_order_number;
+        background-color: $banner_color;
+        .global_page_section_title{
+            color: #fff;
+        }
+    }
+    .oop_project_name{
+        grid-area: oop_project_name;
+        .global_page_section_title{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            img{
+                width: 22px;
+                height: 22px;
+                padding: 2px;
+                object-fit: contain;
+                cursor: pointer;
+            }
+
+        }
+    }
+    .oop_order_location{
+        grid-area: oop_order_location;
+    }
+    .oop_room_details{
+        grid-area: oop_room_details;
+        padding: 0;
+        background: none;
+    }
+    .oop_order_items{
+        grid-area: oop_order_items;
+        background-color: $banner_color;
+        .global_page_section_title{
+            color: #fff;
+        }
+    }
+    .opp_right{
+        grid-area: opp_right;
+    }
+    .oop_order_details{
+        grid-area: oop_order_details;
+        padding: 0;
+        background: none;
+    }
+
+    // left content header - lc_header
+    .lc_header{
+        width: 100%;
+        position: relative;
+        cursor: pointer;
+        padding-left: 30px;
+        font-size: 14px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+    .lc_header::before{
+        content: "";
+        width: 16px;
+        height: 16px;
+        position: absolute;
+        top: 53%;
+        left: 0;
+        transform: translateY(-50%);
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: contain;
+    }
+    .lc_header_details::before{
+        background-image: image-url('new_icons/filters.svg') ;
+    }
+    .lc_header_projects::before{
+        background-image: image-url('new_icons/projects.svg') ;
+    }
+    .lc_header_arrow{
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+        position: absolute;
+        top: 53%;
+        right: 10px;
+        transform: translateY(-50%);
+        transition: all 0.3s;
+    }
+    // left content body - lc_body
+    .lc_body{
+        display: none;
+        padding-top: 20px;
+        p{
+            font-size: 14px;
+        }
+    }
+    .header_to_click.div_show + .lc_body{
+        display: block;
+    }
+    .header_to_click.div_show  .lc_header_arrow{
+        transform: rotate(180deg);
+        top: 7%;
+    }
+
+
+
+
+
+
+
+
+
+    .info_section_container{
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+    .info_section{
+        background-color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        flex: 1;
+        min-width: 280px;
+    }
+    .oop_order_staging,
+    .oop_order_pending{
+        margin-right: 10px;
+    }
+    .oop_order_billing, 
+    .oop_order_staging{
+        margin-bottom: 10px;
+    }
+
+
+    .info_section > div:last-child{
+        font-size: 14px;
+        font-weight: 400;
+        color: $font_black_3;
+        line-height: 1.6;
+        border-radius: 5px;
+        border: 1px solid $light_grey;
+        padding: 10px;
+        div, p, span, h4, h6, span{
+            font-size: 14px;
+            color: $font_black_3;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+    }
+
+
+
+    .change_card_btn{
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: 1px solid #222;
+        color: #222;
+        a{
+            color: #222;
+            font-size: 12px;
+        }
+    }
+
+
+
+    // Details
+    .separator5{
+        width: 100%;
+        height: 5px;
+    }
+
+    // LOCATION SECTION
+    .location_iframe{
+        background-color: $light_grey;
+        border-radius: 5px 5px 0 0 ;
+
+    }
+
+    .gm-iv-address{
+        display:none !important;
+    }
+
+    .gm-iv-address-link {
+        display:none !important;
+   }
+   .gm-iv-marker-icon {
+        display:none !important;
+   }
+
+   .rental_furniture_price{
+       font-weight: bold !important;
+    //    background-color: #fef5d4;
+    //    padding: 5px 5px 0;
+   }
+
+   .project_notification{
+    margin-bottom: 5px;
+    padding: 5px;
+    border-radius: 4px;
+    background-color: #fef5d4;
+    & > p{
+        font-size: 12px !important;
+        color: #000 !important;
+        line-height: 1.6 !important;
+    }
+}
+
+
+
+}
+
+// ROOM FILTERS
+.new_design{
+    .room_filters_container{
+        margin: 0 !important;
+        padding: 0 !important;
+        padding-left: 10px !important;
+        .form_checkbox{
+            color: #fff !important;
+            label{
+                color: #fff !important;
+                font-size: 14px !important;
+            }
+            input{
+                cursor: pointer !important;
+            }
+        }
+    }
+}
+
+#all_components_without_room{
+    display: none;
+}
+
+@media only screen and (min-width: 1149px) {
+    .new_layout{
+        .info_section{
+            min-height: 220px;
+        }
+    }
+}
+
+@media only screen and (max-width: 1149px) {
+    .new_layout{
+        .info_section_container{
+            display: flex;
+            flex-direction: column;
+            flex-wrap: nowrap;
+        }
+        .info_section{
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+            margin-bottom: 10px;
+        }
+        .oop_order_charges{
+            margin-bottom: 0;
+        }
+    }
+}
+
+
+
+@media only screen and (max-width: 1020px) {
+    .new_layout{
+        .opp_content{
+            grid-template-columns: 240px 3fr;
+            grid-template-areas:
+                "back_to_proj  oop_order_number "
+                "opp_left  oop_project_name "
+                "opp_left  opp_right "
+                "opp_left  oop_order_location"
+                "opp_left  oop_order_details"
+                "opp_left  oop_order_items"
+                "opp_left  oop_room_details"
+                ;
+        }
+    }
+}
+
+
+@media only screen and (max-width: 700px) {
+    .new_layout{
+        .opp_content{
+            width: 100%;
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                " back_to_proj "
+                " opp_left "
+                " oop_order_number "
+                " oop_project_name "
+                " opp_right "
+                " oop_order_location"
+                " oop_order_details"
+                " oop_order_items"
+                " oop_room_details"
+                ;
+        }
+        .opp_left{
+            border: 1px solid rgb(223, 223, 223);
+        }
+    }
+}
+
+@media (max-width: 420px){
+    .new_layout{
+        .info_section > div:last-child{
+            font-size: 12px;
+            div, p, span, h4, h6, span, a{
+                font-size: 12px;
+            }
+        }
+        .project_notification{
+            & > p{
+                font-size: 10px !important;
+            }
+        }
+    }
+}
+
+

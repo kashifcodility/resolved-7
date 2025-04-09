@@ -1,0 +1,165 @@
+<table>
+<tr>
+  <td>
+    <table style="table-layout: fixed;width: 100%;">
+      <tr>
+        <td>
+          <div class="d-flex gap-2 mt-3">
+            <p class="no-wrap">Order #:</p>
+            <p class="ml-2"><%=@step1[:order_no]%></p>
+          </div>
+        </td>
+        <td>
+          <div class="d-flex gap-2 mt-3 ml-3">
+            <p class="no-wrap">Budget:</p>
+            <p class="ml-2"><%=@step1[:budget]%></p>
+          </div>
+        </td>
+        <td>
+          <div class="d-flex gap-2 mt-3 ml-3">
+            <p class="no-wrap">Design Style:</p>
+            <p class="ml-2"><%=@step1[:design_style]%></p>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>
+    <table style="table-layout: fixed;width: 100%;">
+      <tr>
+        <td>
+          <div class="d-flex gap-2 mt-4">
+            <p class="no-wrap">Designer Staging:</p>
+            <p class="ml-2"><%=@step1[:design_staging]%></p>
+          </div>
+        </td>
+        <td>
+          <div class="d-flex gap-2 mt-4 ml-3">
+            <p class="no-wrap">Stagers Needed:</p>
+            <p class="d-flex ml-2">2 <input type="checkbox" <%='checked' if @step1[:"2"] == "2"%> class="ml-1"></p>
+            <p class="d-flex ml-2">3 <input type="checkbox" <%='checked' if @step1[:"3"] == "3"%> class="ml-1"></p>
+            <p class="d-flex ml-2">4 <input type="checkbox" <%='checked' if @step1[:"4"] == "4"%> class="ml-1"></p>
+            <p class="d-flex ml-2">5 <input type="checkbox" <%='checked' if @step1[:"5"] == "5"%> class="ml-1"></p>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>
+    <table style="width: 100%;">
+      <tr>
+        <td>
+          <div class="d-flex w-75 mt-4 gap-3">
+            <p class="no-wrap">Designer pulling:</p>
+          </div>
+        </td>
+        <td>
+          <div class="d-flex w-75 mt-4 gap-3 ml-3">
+            <p class="d-flex gap-1 ml-2">Start <input type="checkbox" <%='checked' if @step1[:start] == "on"%> class="ml-1"></p>
+            <p class="d-flex gap-1 ml-3">End <input type="checkbox" <%='checked' if @step1[:end] == "on"%> class="ml-1"></p>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>
+    <table style="width: 100%;">
+      <tr>
+        <td>
+          <div class="d-flex mt-4">
+            <div class="d-flex gap-2">
+              <p>Job Name:</p>
+              <p class="ml-2"><%=@step1[:job_name] %></p>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>
+    <table style="width: 100%; table-layout: fixed;">
+      <tr>
+        <td>
+          <div class="d-flex gap-2 mt-4">
+            <p class="no-wrap">Stage date:</p>
+            <p class="ml-2"><%=@step1[:stage_date] %></p>
+          </div>
+        </td>
+        <td>
+          <div class="d-flex gap-2 mt-4 ml-3">
+            <p class="no-wrap">Out of area:</p>
+            <input type="checkbox" <%='checked' if @step1[:out_of_area] == "on" %> class="ml-2"/>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>
+    <table style="width: 100%; table-layout: fixed;">
+      <tr>
+        <td>
+          <div class="d-flex gap-2 mt-4">
+            <p>Occupied :</p>
+            <input type="checkbox" <%='checked' if @step1[:occupied] == "on"%> class="ml-2" />
+          </div>
+        </td>
+        <td>
+          <div class="d-flex gap-2 mt-4 ml-3">
+            <p>Access:</p>
+            <input type="checkbox" <%='checked' if @step1[:access] == "on"%> class="ml-2" />
+          </div>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td valign="top">
+    <table style="table-layout: fixed;width: 100%;">
+      <tr>
+        <td valign="top">
+          <div class="w-100">
+            <h2 style="margin:0px;font-size:32px;">Needs</h2>
+            <div class="note-section mt-1">
+              <p class="w-100 p-3"><%=@step1[:needs] %></p>
+            </div>
+          </div>
+        </td>
+        <td valign="top">
+        <div class="w-100" style="margin-left: 20px;">
+          <div class="d-flex w-100">
+              <%= wicked_pdf_image_tag(@step1[:img], class: "w-100", alt: "pdf image", style:"margin:0px;") %>
+          </div>
+            <div class="d-flex justify-content-center gap-2 input-line  mt-4 gap-2">
+              <p class="no-wrap">Furniture:</p>
+              <p  class="ml-2"><%=@step1[:furniture] %></p>
+            </div>
+            <div class="d-flex justify-content-center gap-2 input-line mt-4 gap-2">
+              <p class="no-wrap">Budgeted pull:</p>
+              <p  class="ml-2"><%=@step1[:budgeted_pull] %></p>
+            </div>
+            <div class="d-flex justify-content-center gap-2 input-line mt-4 gap-2">
+              <p class="no-wrap">Actual pull:</p>
+              <p  class="ml-2"><%=@step1[:actual_pull] %></p>
+            </div>
+            <div class="d-flex justify-content-center gap-2 input-line mt-4 gap-2">
+              <p class="no-wrap">Budgeted Stage:</p>
+              <p  class="ml-2"><%=@step1[:budgeted_stage] %></p>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>

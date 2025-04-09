@@ -1,0 +1,36 @@
+<%
+# TODO: Cleanup/format markup
+%>
+<div class="login">
+    <div class="login-container-wrapper clearfix">
+        <ul class="switcher clearfix">
+            <li class="first logo active" data-tab="login">
+                <a>LOGIN</a>			
+            </li>
+            <li class="second logo" data-tab="sign_up">
+                <a>SIGN UP</a>	
+            </li>
+        </ul>
+
+        <div class="new_layout tab-content">
+
+            <!-- Login Tab -->
+            <div class="tab-pane active" id="login">
+                <div class="form_design_1">
+                <% if defined?(redirect_url) %>
+                    <%= render 'sessions/login_form', redirect_url: redirect_url %>
+                <% else %>
+                    <%= render 'sessions/login_form' %>
+                <% end %>
+                </div>
+            </div>
+
+            <!-- Signup Tab -->
+            <div class="tab-pane" id="sign_up">
+                <div class="form_design_1">
+                    <%= render 'sessions/signup_form' %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,174 @@
+
+		<!-- Page Banner -->
+		<div class="page-banner shop-banner container-fluid no-padding">
+			<div class="page-banner-content">
+				<h3>Dining Room</h3>
+			</div>
+		</div><!-- Page Banner /- -->
+		
+		
+		<!-- Shop 2 -->
+		<div class="latest-product shop-2 container-fluid no-padding woocommerce">
+			<div class="section-padding"></div>
+			<!-- Container -->
+			<div class="container">
+
+            			
+            
+            <!--Start Cetegory Section-->
+            <h1 class="category-header"> Tables</h1>	
+            	<ul class="products animated lightSpeedIn">
+                    <% i=0;  @products.each do |product| 
+                   i += 1
+                   %>
+
+                     <li class="product">							
+							
+								<span class="new-product">Premium</span>
+								<span class="product-image">
+									<img src="https://picsum.photos/330/420" alt="product"/>
+								</span>
+								<div class="product-name"><%= link_to(product.product, pdp_path(product.id)) %></div>
+                                <div class="quick-add">
+                                    <div class="to-cart">
+                                    Rent: $
+                                    <%= link_to(product.rental_value, pdp_path(product.id)) %>/mo</div>
+                                    <div class="to-cart">Buy: $<%= link_to(product.sale_price, pdp_path(product.id)) %></div>
+						
+						</li>
+    <% 
+     break if i == 4
+    end %>
+				
+				
+				</ul>
+                <div class="category-view-all">VIEW ALL</div>
+            <!--/Category Section -->
+
+
+              <!--Start Cetegory Section-->
+            <h1 class="category-header">Chairs</h1>	
+            	<ul class="products animated lightSpeedIn">
+                    <% i=0;  @products.each do |product| 
+                   i += 1
+                   %>
+
+                     <li class="product">							
+							
+								<span class="new-product">Premium</span>
+								<span class="product-image">
+									<img src="https://picsum.photos/330/420" alt="product"/>
+								</span>
+								<div class="product-name"><%= link_to(product.product, pdp_path(product.id)) %></div>
+                                <div class="quick-add">
+                                    <div class="to-cart">
+                                    Rent: $
+                                    <%= link_to(product.rental_value, pdp_path(product.id)) %>/mo</div>
+                                    <div class="to-cart">Buy: $<%= link_to(product.sale_price, pdp_path(product.id)) %></div>
+						
+						</li>
+    <% 
+     break if i == 4
+    end %>
+				
+				
+				</ul>
+                <div class="category-view-all">VIEW ALL</div>
+            <!--/Category Section -->
+
+
+              <!--Start Cetegory Section-->
+            <h1 class="category-header">Bars & Buffets</h1>	
+            	<ul class="products animated lightSpeedIn">
+                    <% i=0;  @products.each do |product| 
+                   i += 1
+                   %>
+
+                     <li class="product">							
+							
+								<span class="new-product">Premium</span>
+								<span class="product-image">
+									<img src="https://picsum.photos/330/420" alt="product"/>
+								</span>
+								<div class="product-name"><%= link_to(product.product, pdp_path(product.id)) %></div>
+                                <div class="quick-add">
+                                    <div class="to-cart">
+                                    Rent: $
+                                    <%= link_to(product.rental_value, pdp_path(product.id)) %>/mo</div>
+                                    <div class="to-cart">Buy: $<%= link_to(product.sale_price, pdp_path(product.id)) %></div>
+						
+						</li>
+    <% 
+     break if i == 4
+    end %>
+				
+				
+				</ul>
+                <div class="category-view-all">VIEW ALL</div>
+            <!--/Category Section -->
+
+
+              <!--Start Cetegory Section-->
+            <h1 class="category-header">Accessories</h1>	
+            	<ul class="products animated lightSpeedIn">
+                    <% i=0;  @products.each do |product| 
+                   i += 1
+                   %>
+
+                     <li class="product">							
+							
+								<span class="new-product">Premium</span>
+								<span class="product-image">
+									<img src="https://picsum.photos/330/420" alt="product"/>
+								</span>
+								<div class="product-name"><%= link_to(product.product, pdp_path(product.id)) %></div>
+                                <div class="quick-add">
+                                    <div class="to-cart">
+                                    Rent: $
+                                    <%= link_to(product.rental_value, pdp_path(product.id)) %>/mo</div>
+                                    <div class="to-cart">Buy: $<%= link_to(product.sale_price, pdp_path(product.id)) %></div>
+						
+						</li>
+    <% 
+     break if i == 4
+    end %>
+				
+				
+				</ul>
+                <div class="category-view-all">VIEW ALL</div>
+            <!--/Category Section -->
+
+              <!--Start Cetegory Section-->
+            <h1 class="category-header">Other</h1>	
+            	<ul class="products animated lightSpeedIn">
+                    <% i=0;  @products.each do |product| 
+                   i += 1
+                   %>
+
+                     <li class="product">							
+							
+								<span class="new-product">Premium</span>
+								<span class="product-image">
+									<img src="https://picsum.photos/330/420" alt="product"/>
+								</span>
+								<div class="product-name"><%= link_to(product.product, pdp_path(product.id)) %></div>
+                                <div class="quick-add">
+                                    <div class="to-cart">
+                                    Rent: $
+                                    <%= link_to(product.rental_value, pdp_path(product.id)) %>/mo</div>
+                                    <div class="to-cart">Buy: $<%= link_to(product.sale_price, pdp_path(product.id)) %></div>
+						
+						</li>
+    <% 
+     break if i == 4
+    end %>
+				
+				
+				</ul>
+                <div class="category-view-all">VIEW ALL</div>
+            <!--/Category Section -->
+
+			
+			</div><!-- Container /- -->
+			<div class="section-padding"></div>
+		</div>

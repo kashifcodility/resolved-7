@@ -1,0 +1,664 @@
+
+<style>
+.custome-modal-header{
+  background-color: #858585;
+  color:#fff !important;
+}
+.custome-modal-text{
+  color:#858585 !important;
+  font-size:16px;
+}
+.btn-custome-golden{
+    border: 1px solid #deba43 !important;
+    color: #deba43 !important;
+    background-color: #fff !important;
+    border-radius: unset;
+    font-family: var(--main-font);
+    font-size: 14px;
+    padding: 10.5px 28px;
+    letter-spacing: 0.56px;
+    text-transform: capitalize;
+}
+.btn-default{
+    background-color: transparent !important;
+    border: 1px solid #efefef !important;
+    color: #858585;
+    border-radius: unset;
+}
+</style>
+<!-- CHECKOUT PROGRESS BAR -->
+<div class="new_design">
+    <div class="checkout_progress_bar wrapper800">
+        <div class="progress_bar_container">
+            <div class="progress_bar_step  step_done">
+                <div>1</div> <!-- first-child -->
+                <div class="progress_bar_image">
+                    <div class="progress_bar_image_start"></div>
+                    <div class="progress_bar_image_center"></div>
+                    <div class="progress_bar_image_end"></div>
+                </div>
+                <div>Review <br>Items</div><!-- last-child -->
+            </div>
+            <div class="progress_bar_step step_in_progress">
+                <div>2</div> <!-- first-child -->
+                <div class="progress_bar_image">
+                    <div class="progress_bar_image_start"></div>
+                    <div class="progress_bar_image_center"></div>
+                    <div class="progress_bar_image_end"></div>
+                </div>
+                <div>Shipping & <br>Payment</div><!-- last-child -->
+            </div>
+            <div class="progress_bar_step step_review_and_submit">
+                <div>3</div> <!-- first-child -->
+                <div class="progress_bar_image">
+                    <div class="progress_bar_image_start"></div>
+                    <div class="progress_bar_image_center"></div>
+                    <div class="progress_bar_image_end"></div>
+                </div>
+                <div>Review Order <br>& Submit</div><!-- last-child -->
+            </div>
+        </div>
+    </div>
+
+    <div class="separator20"></div>
+
+    <!-- SECTION TITLE -->
+    <div class="section_title_container">
+        <div>SHIPPING & PAYMENT</div>
+    </div>
+
+    <div class="separator20"></div>
+</div>
+<!-- CHECKOUT PROGRESS BAR ENDS -->
+
+<div class="new_design">
+    <!-- CHECKOUT FORM -->
+    <%= form_tag(checkout_form_path, id: 'payment-form', method: 'post') do %>
+
+        <div class="outside_wrapper">
+            <div class="wrapper800 form_design_1">
+                <div class="separator10"></div>
+
+                <% if @user_must_fill_profile %>
+                    <!-- COMPANY INFORMATION -->
+                    <div class="form_title ">COMPANY INFORMATION</div><div class="separator10"></div>
+
+                    <!-- Notification -->
+                    <div class="form_notification">
+                        <%=image_tag("new_icons/close_white.svg", class:"img_close", alt:"close") %>
+                        <%=image_tag("new_icons/warning_notification.svg", class:"img_warning", alt:"warning") %>
+                        <p>Fill this form once and it will not occur at the next checkout.</p>
+                    </div>
+                    
+                    <!-- Company Name && Address -->
+                    <div class="inline_elements_30_by_70_w_label">
+                        <div class="input_w_label">
+                            <label for="company_name">Company Name</label>
+                            <%= text_field_tag(:company_name, params[:company_name] || current_user.company_name) %>
+                        </div>
+                        <div class="input_w_label">
+                            <label for="company_address1">Company Address</label>
+                            <%= text_field_tag(:company_address1, params[:company_address1] || current_user.shipping_address&.address1) %>
+                        </div>
+                    </div>
+                    <div class="separator10"></div>
+
+                    <!-- Company City  &&  State  &&  Zip Code -->
+                    <div class="inline_elements_min_width_100px">
+                        <div class="input_w_label">
+                            <label for="company_city">City</label>
+                            <%= text_field_tag(:company_city, params[:company_city] || current_user.shipping_address&.city) %>
+                        </div>
+                        <div class="form_select_w_label">
+                            <label for="company_state">State</label>
+                            <div>
+                                <%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                                <%= select_tag(:company_state, options_for_select([['-- Select State --', nil]] + states, params[:company_state] || current_user.shipping_address&.state)) %>
+                            </div>
+                        </div>
+                        <div class="input_w_label">
+                            <label for="company_zipcode">Zip Code</label>
+                            <%= text_field_tag(:company_zipcode, params[:company_zipcode] || current_user.shipping_address&.zipcode, type: 'number') %>
+                        </div>
+                    </div>
+                    <div class="separator20"></div>
+                    <div class="separator20"></div>
+                    <!-- END COMPANY INFORMATION -->
+                <% end %>
+
+
+                <!-- PROJECT INFORMATION -->
+                <div class="form_title">PROJECT INFORMATION</div>
+                <div class="separator10"></div>
+
+                <!-- Shipping Method  &&  Project Name  -->
+                <div class="inline_elements_min_width_130px">
+                    <div class="input_w_label">
+                        <label for="project_name">Project Name</label>
+                        <%= text_field_tag(:project_name, params[:project_name] || @cart.delivery_data['project_name'], maxlength: 40) %>
+                    </div>
+                </div>
+                <div class="separator10"></div>
+
+                <!-- Shipping Contact Name  &&  Shipping Phone -->
+                <div class="inline_elements_min_width_130px">
+                    <div class="input_w_label">
+                        <label for="shipping_name">Project Contact Name *</label>
+                        <%= text_field_tag(:shipping_contact_name, params[:shipping_contact_name] || @cart.shipping_data['shipping_contact_name'] || current_user.full_name, class: 'required_field', maxlength: 20) %>
+                    </div>
+                    <div class="input_w_label">
+                        <label for="shipping_contact_phone">Project Contact Phone *</label>
+                        <%= text_field_tag(:shipping_contact_phone, params[:shipping_contact_phone] || @cart.shipping_data['shipping_contact_phone'] || current_user.mobile, class: 'required_field', type: 'number') %>
+                    </div>
+                </div>
+                <div class="separator10"></div>
+
+                <!-- Full Autocomplete Address  &&  New Construction Checkbox -->
+                <div class="inline_elements_70_by_30">
+                    <div id="form_to_hide_if_new_construction">
+                        <div class="input_w_label">
+                            <label for="autocomplete" class="hide_if_new_construction">Project Address (Street, Unit, City, State, Zip) *</label>
+                            <% if @cart.shipping_data['shipping_address'].nil? %>
+                                <input id="autocomplete" class="required_field" type="search" autocomplete="nope" />
+                            <% else %>
+                                <input id="autocomplete" class="required_field" value="<%= @cart.shipping_data['shipping_address'] + ", " + @cart.shipping_data['shipping_city'] + ", " + @cart.delivery_data['shipping_state'] %> , USA" type="search" autocomplete="nope" >
+                            <% end %>
+                        </div>                        
+                    </div>
+
+                    <div class="form_checkbox">
+                        <input type="checkbox" name="new_construction" id="new_construction_checkbox" value="1" <%= 'checked' if params[:new_construction] == '1' || @cart.shipping_data['new_construction'] == '1' %>>
+                        <label for="new_construction_checkbox">New Construction?</label>
+                    </div>
+                </div>
+
+                <!-- New Construction/Populated Full Address Form -->
+                <div id="new_construction_form">
+                    <div class="separator10"></div>
+
+                    <!-- Used for Google Validation Only -->
+                    <%= text_field_tag(:street_number, params[:street_number] || @cart.delivery_data['street_number'], id: 'street_number',  placeholder: 'Street Number',  maxlength: 100, class: 'd-none') %>
+                    <%= text_field_tag(:route, params[:route] || @cart.delivery_data['route'], id: 'route',  placeholder: 'Route', maxlength: 100, class: 'd-none') %>
+                    
+                    <!-- Address -->
+                    <div class="input_w_label">
+                        <label for="full_address">New Construction Street Address *</label>
+                        <%= text_field_tag(:shipping_address, params[:shipping_address] || @cart.delivery_data['shipping_address'], id: 'full_address', class:'required_field', maxlength: 100) %>
+                    </div>
+
+                    <div class="separator10"></div>
+
+                    <!-- City && State && Zip -->
+                    <div class="inline_elements_min_width_100px">
+                        <div class="input_w_label">
+                            <label for="locality">City*</label>
+                            <%= text_field_tag(:shipping_city, params[:shipping_city] || @cart.delivery_data['shipping_city'], id: 'locality', class:'required_field') %>
+                        </div>
+                        <div class="form_select_w_label">
+                            <label for="new_card_state">State *</label>
+                            <div>
+                                <%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                                <%= select_tag(:shipping_state, options_for_select([['-- Select State --', nil]] + states, params[:shipping_state] || @cart.delivery_data['shipping_state']),  id: 'administrative_area_level_1', class:'required_field') %> 
+                            </div>
+                        </div>
+                        <!-- <div class="input_w_label">
+                            <label for="administrative_area_level_1">State*</label>
+                            <%= text_field_tag(:shipping_state, params[:shipping_state] || @cart.delivery_data['shipping_state'], id: 'administrative_area_level_1', class:'required_field') %>
+                        </div> -->
+                        <div class="input_w_label">
+                            <label for="postal_code">Zipcode*</label>
+                            <%= text_field_tag(:shipping_zipcode, params[:shipping_zipcode] || @cart.delivery_data['shipping_zipcode'], id: 'postal_code', class:'required_field', type: 'number') %>
+                        </div>
+                    </div>
+                </div>
+                <div class="separator20"></div>
+                <div class="separator20"></div>
+
+
+                <div class="form_title">SHIPPING INFORMATION</div><div class="separator10"></div>
+
+                <div class="form_select_w_label">
+                    <label for="shipping_method">Shipping Options *</label>
+                    <div>
+                        <%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                        <%= select_tag(:shipping_method, options_for_select([ ['Delivery', 'delivery'], ['Pick-up Myself', 'pickup'] ], params[:shipping_method] || @cart.shipping_data['shipping_method'])) %>
+                    </div>
+                </div>
+
+                <div class="container" >
+                
+                    <div class="modal fade" id="largeModal" style="margin:0px;" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" style="margin:160px auto;">
+                            <div class="modal-content" style="margin:0px;">
+                            <div class="modal-header custome-modal-header p-3 ">
+                                <h6 class="modal-title d-flex align-items-center" id="myModalLabel">
+                                    
+                                    <%=image_tag("icons/danger.svg", alt:"danger sign", style: "height:24px; width:30px;margin-right:4px;font-family: 'Montserrat', sans-serif;") %>
+                                    Attention!
+                                </h4>
+                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body p-3" >
+                                <p class="custome-modal-text" style="font-family: 'Montserrat', sans-serif;">You're a go-getter that doesn't get intimidated by a short deadline!?! Us too! However, it does take a little more muscle to pull off a last minute order so you will be subject to a $100 or 10%(whichever is greater) upcharge to your order as a rush fee.</p>
+                            </div>
+                            <div class="modal-footer border-top px-3 py-2" style="font-family: 'Montserrat', sans-serif;">
+                               <button type="button" id="happen" onclick="setAction('1')" class="pop-up-button" data-dismiss="modal">Make it happen</button>
+                               <button type="button" id="wait" onclick="setAction('0')" class="pop-up-button" data-dismiss="modal" >I can wait</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="separator10"></div>
+
+                <!-- DELIVERY Shipping Method Fields -->
+                <div id="delivery_fields">
+                    <!-- Parking Accessibility -->
+                    <div class="form_radio_with_label_inline">
+                        <label for="">Is parking easily accessible near by? *</label>
+                        <div>
+                            <p>
+                                <%= radio_button_tag(:delivery_parking, "y", params[:delivery_parking] == "y" || @cart.shipping_data['delivery_parking'] == "y", class:"required_field") %>
+                                <label for="delivery_parking_y">Yes</label>
+                            </p>
+                            <p>
+                                <%= radio_button_tag(:delivery_parking, "n", params[:delivery_parking] == "n" || @cart.shipping_data['delivery_parking'] == "n", class:"required_field") %>
+                                <label for="delivery_parking_n">No</label>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="separator10"></div>
+
+                    <!-- Home Type  &&  Number of Floors -->
+                    <div class="inline_elements_min_width_130px">
+                        <div class="form_select_w_label">
+                            <label for="delivery_home_type">Home Type *</label>
+                            <div>
+                                <%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                                <%= select_tag(:delivery_home_type, options_for_select([['-- Home Type --', nil], ['House', 'house'], ['Apartment', 'apartment'], ['Condominium', 'condominium'], ['Other', 'other']], params[:delivery_home_type] || @cart.delivery_data['delivery_home_type']), onchange: 'change_delivery_dwelling_type(this)',  class:"required_field") %>
+                            </div>
+                        </div>
+                        <div class="input_w_label">
+                            <label for="delivery_levels">How many levels is the unit? *</label>
+                            <%= number_field_tag(:delivery_levels, params[:delivery_levels] || @cart.shipping_data['delivery_levels'], in: 1..100, step: 1,  class:"required_field") %>
+                        </div>
+                    </div>
+                    <div class="separator10"></div>
+
+                    <!-- Instructions and Special Considerations -->
+                    <div class="form_textarea_w_label">
+                        <label for="delivery_special_considerations">Instructions and Special Considerations</label>
+                        <%= text_area_tag(:delivery_special_considerations, params[:delivery_special_considerations] || @cart.shipping_data['delivery_special_considerations'], placeholder: 'Are there any other special considerations that should be noted, ie: narrow doors, hallways, etc? Please be detailed.', rows: 3) %>
+                    </div>
+                    <div class="separator10"></div>
+                    <input type="hidden" name="rush_order" id="rush_order" >
+                    
+
+                    
+
+                    <!-- Request Delivery Date -->
+
+                    <div class="form_select_w_label">
+                        <label for="delivery_date" class="label_with_info">Request Delivery Date *</label>
+                        <div>
+                            <%= image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                            <%#= text_field_tag(:delivery_date, params[:delivery_date]&.to_date&.strftime('%m-%d-%Y') || @cart.shipping_data['delivery_date']&.to_date&.strftime('%m-%d-%Y'), class: 'datepicker required_field', autocomplete:'off', placeholder: '-- Select Date --', min: @scheduling_date_delivery_min) %>
+                            <%= text_field_tag(:delivery_date, nil, class: 'datepicker required_field', autocomplete:'off', placeholder: '-- Select Date --', min: @scheduling_date_delivery_min) %>
+                        </div>
+                    </div>
+                    <div class="separator10"></div>
+                </div>
+
+                <!-- PICKUP Shipping Method Fields -->
+                <div id="pickup_fields">
+                    <!-- Pick Up Date && Pick Up Time  -->
+                    <div class="inline_elements_min_width_200px">
+                        <!-- Request Pickup Date -->
+                        <div class="form_select_w_label">
+                            <label for="pickup_date">Please let us know the Day of the Pick Up*</label>
+                            <div>
+                                <%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                                <%#= text_field_tag(:pickup_date, params[:pickup_date] || @cart.delivery_data['pickup_date'], class: 'datepicker required_field', autocomplete:'off', placeholder: '-- Select Date --', min: @scheduling_date_pickup_min) %>
+                                <%= text_field_tag(:pickup_date, nil ,class: 'datepicker required_field', autocomplete:'off', placeholder: '-- Select Date --', min: @scheduling_date_pickup_min) %>
+                            </div>
+                        </div>
+
+                        <!-- Select Time  -->
+                        <div class="form_select_w_label">
+                            <label for="pickup_time">Please select Time of the Pick Up*</label>
+                            <div>
+                                <%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                                <%= select_tag(:pickup_time, options_for_select([ ['09:00 AM', '09:00'], ['09:30 AM', '09:30'], ['10:00 AM', '10:00'], ['10:30 AM', '10:30'], ['11:00 AM', '11:00'], ['11:30 AM', '11:30'], ['12:00 PM', '12:00'], ['12:30 PM', '12:30'], ['01:00 PM', '13:00'], ['01:30 PM', '13:30'], ['02:00 PM', '14:00'], ], params[:pickup_time] || @cart.delivery_data['pickup_time']), class:"required_field") %>  
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- SHIPPING INFO ENDS -->
+
+        <!-- PAYMENT INFO -->
+        <div class="outside_wrapper">
+            <div class="wrapper800 form_design_1">
+                <div class="separator10"></div>
+
+                <div class="form_title">PAYMENT</div><div class="separator10"></div>
+
+                <!-- Notification -->
+                <div class="form_notification">
+                    <%=image_tag("new_icons/close_white.svg", class:"img_close", alt:"close") %>
+                    <%=image_tag("new_icons/warning_notification.svg", class:"img_warning", alt:"warning") %>
+                    <p>Card information will be used only to reserve the items. No charges will occur until Delivery/Pick-up or the end of your 7 day grace period, whichever comes first. This card will be assoiciate to your order for future payments.</p>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="form_select_w_label">
+                    <label for="payment_method">Payment Method *</label>
+                    <div>
+                                        
+                        <%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                        <%= select_tag(:payment_method, options_for_select(@credit_cards.map{ |c| [ c.label, c.id ] }  + [['Charge Account', 'charge_account']], params[:payment_method] || @cart.billing_data['payment_method'] || @credit_cards.find{ |c| c.default? }&.id ), id: "payment_method") %>
+                        <!-- <%= select_tag(:payment_method, options_for_select(@credit_cards.map{ |c| [ c.label, c.id ] } + [['Charge Account', 'charge_account']], params[:payment_method] || @cart.billing_data['payment_method'] || @credit_cards.find{ |c| c.default? }&.id ), id: "payment_method") %> -->
+                    </div>
+                    <br>
+                    <%= link_to "Add new card", '/account/new_card', style: 'color: #2bd6ce'%>
+                </div>
+
+                <!-- New Credit Card Fields -->
+                <div id="new_card_fields">
+                    <div class="billing_info_form">
+                        <div class="separator10"></div>
+
+                        <!-- New Card Address -->
+                        <div class="input_w_label">
+                            <label for="new_card_address1">Billing Address *</label>
+                            <%= text_field_tag(:new_card_address1, params[:new_card_address1] || @cart.billing_data['new_card_address1'] || current_user.billing_address&.address1, class:"required_field", maxlength: 40 ) %>
+                        </div>
+                        <div class="separator10"></div>
+
+                        <!-- New Card City  &&  State  &&  Zip Code  &&  Phone -->
+                        <div class="inline_elements_min_width_130px">
+                            <div class="input_w_label">
+                                <label for="new_card_city">City *</label>
+                                <%= text_field_tag(:new_card_city, params[:new_card_city] || @cart.billing_data['new_card_city'] || current_user.billing_address&.city, class:"required_field", maxlength: 40) %>
+                            </div>
+                            <div class="form_select_w_label">
+                                <label for="new_card_state">State *</label>
+                                <div>
+                                    <%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                                    <%= select_tag(:new_card_state, options_for_select([['-- Select State --', nil]] + states, params[:new_card_state] || @cart.billing_data['new_card_state'] || current_user.billing_address&.state), class:"required_field") %> 
+                                </div>
+                            </div>
+                            <div class="input_w_label">
+                                <label for="new_card_zipcode">Zip Code *</label>
+                                <%= text_field_tag(:new_card_zipcode, params[:new_card_zipcode] || @cart.billing_data['new_card_zipcode'] || current_user.billing_address&.zipcode, class:"required_field", type: 'number') %>
+                            </div>
+                        </div>
+                    </div>
+                   
+                    <div class="separator10"></div>
+
+                    <!-- CC Label  &&  CC Name -->
+                    <div class="inline_elements_min_width_130px">
+                        <div class="input_w_label">
+                            <label for="cc_name">Name on Credit Card *</label>
+                            <%= text_field_tag(:cc_name, params[:cc_name] || nil, class:"required_field") %>
+                        </div>
+                        <div class="input_w_label">
+                            <label for="cc_label">Credit Card Nickname</label>
+                            <%= text_field_tag(:cc_label, params[:cc_label] || nil, maxlength: 50) %>
+                        </div>
+                        <div class="input_w_label">
+                            <label for="" class="invisible"></label>
+                            <div class="we_accept_visa">
+                                <p>We Accept </p>
+                                <%= image_tag("icons/visa_mc.png", alt: "Visa Master")%>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="separator10 cc_field"></div>
+
+                    <!-- CC Number 
+                    <div class="input_w_label">
+                        <label for="cc_number">Credit Card Number *</label>
+                        <%= text_field_tag(:cc_number, params[:cc_number] || nil, class:"required_field", maxlength:'16') %>
+                    </div>
+                    
+
+                    <div class="separator10"></div>
+
+                    <!-- CC Verification  &&   CC Expiration Month   &&   CC Expiration Year    -->
+                    <div class="cc_field">
+                        
+                        
+                        
+                    
+                    <!-- CCV
+                        <div class="expiration_elements">
+                            <div class="input_w_label">
+                                <label for="cc_verification">CCV *</label>
+                                <%= text_field_tag(:cc_verification, params[:cc_verification] || nil, minlength:'3', class:"required_field", maxlength:'4') %>
+                            </div>
+                            <div class="form_select_w_label">
+                                <label for="cc_expiration_month">Exp. Month *</label>
+                                <div>
+                                    <%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                                    <%= select_tag(:cc_expiration_month, options_for_select([['-- Month --', nil]] + (1...13).to_a.map!{|e| e = e.to_s.rjust(2, '0') }, params[:cc_expiration_month] ),  class:"required_field") %>
+                                </div>
+                            </div>
+                            <div class="form_select_w_label">
+                                <label for="cc_expiration_year">Exp. Year *</label>
+                                <div>
+                                    <%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                                    <%= select_tag(:cc_expiration_year, options_for_select([['-- Year --', nil]] + (Time.now.year...10.years.from_now.year).to_a, params[:cc_expiration_year]),  class:"required_field") %>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+
+
+
+                        <div class="separator10"></div>
+
+                        <!-- CC Save -->
+                        <div class="form_checkbox">
+                            <% if @user_must_save_card %>
+                                <%= check_box_tag(:cc_save, nil, true, disabled: true) %>
+                                <label for="cc_save">A valid credit card is required to stay on file during your rental.</label>
+                            <% else %>
+                                <%= check_box_tag(:cc_save) %>
+                                <label for="cc_save">Save credit card for future orders.</label>
+                            <% end %>
+                        </div>
+
+                        <div class="separator10"></div>
+                        
+                        <!-- Terms Agreement -->
+                        <div class="form_checkbox">
+                            <%= check_box_tag(:agree_to_terms, 'yes', params[:agree_to_terms] == 'yes' || @cart.checkout_data['billing']['agree_to_terms'] == 'yes') %>
+                            <label for="agree_to_terms">I have read and agree to the <a href="#termsOfService1" data-toggle="modal">Terms of Service</a></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="charge_account_fields">
+                    <!-- Charge Account -->
+                    <div class="input_w_label">
+                        <label for="charge_account">Charge Account Number</label>
+                        <%= text_field_tag(:charge_account, params[:charge_account] || @cart.checkout_data['billing']['charge_account'] || nil, class: 'required_field') %>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- PAYMENT INFO ENDS -->
+
+        <!-- BUTTONS PROCEED AND BACK -->
+        <div class="outside_wrapper ">
+            <div class="wrapper800 form_design_1">
+                <div class="buttons_proceed_and_back">
+                    <div class="back_button">
+                        <a href="<%= cart_path %>">BACK TO REVIEW <%=image_tag("new_icons/back_arrow_grey.svg", alt:"back_arrow_grey") %></a>
+                    </div>
+                    <div class="proceed_button">
+                        <button type="submit">PROCEED TO SUMMARY <%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %></button>
+                    </div>
+                </div>
+                <div class="separator20"></div>
+            </div>
+        </div>
+        <!-- BUTTONS PROCEED AND BACK  ENDS -->
+    <% end %>
+    <!-- CHECKOUT FORM ENDS -->
+</div>
+
+<!-- POPUP - termsOfService  -->
+<div class="popup_modal">
+    <div class="modal fade" id="termsOfService1" tabindex="-1" role="dialog" aria-hidden="true">
+       <div class="modal-dialog" role="document">
+             <div class="modal-content">
+                <div class="modal-header">
+                   <div>
+                        <%=image_tag("new_icons/warning_teal.svg", class:"modal_header_icon", alt:"warning_teal") %>
+                      <h5>Rental Terms of Service</h5>
+                      <%= image_tag('new_icons/close_white.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+                   </div>
+                </div>
+ 
+                <div class="modal-body"  style="padding-bottom: 100px;">
+                    <div>
+                        <%= render 'info/rental_policies' %>
+                    </div>
+                </div>
+             </div>
+       </div>
+    </div>
+</div>
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= Rails.application.credentials.dig(:google_map_api_key)%>&libraries=places&callback=initAutocomplete" async defer></script>
+
+<script>
+
+    var datesPickupMin = '<%= @scheduling_date_pickup_min %>';
+    var datesDeliveryMin = '<%= @scheduling_date_delivery_min %>';
+    var datesDisabled = [ <%= raw(@holidays.map{ |d| "'%s'" % d.strftime('%F') }.join(',')) %> ];
+    var datesEnabled = [];
+    console.log(datesPickupMin,'datesPickupMin')
+    // Documentation can be found here https://developers.google.com/maps/documentation/javascript/places-autocomplete
+    var placeSearch, autocomplete;
+
+    // document.querySelector('#shipping_options').addEventListener('change', function(){
+    //     document.querySelectorAll(".autocomplete")[0].addEventListener('focus', geolocate());
+    // })
+    var componentForm = {
+        street_number: 'short_name', // House Number
+        route: 'long_name', // Street
+        locality: 'long_name', //City
+        administrative_area_level_1: 'short_name', //State
+        postal_code: 'short_name' // Zip
+    };
+
+    function initAutocomplete() {
+        // Charges by data collected 
+        var ac = document.getElementById('autocomplete');
+
+        // Hack that prevents Google from changing autofill attribute on input
+        var observerHack = new MutationObserver(function() {
+            observerHack.disconnect();
+            document.getElementById('autocomplete').setAttribute("autocomplete", "fake-password-hack");
+        });
+        observerHack.observe(ac, {
+            attributes: true,
+            attributeFilter: ['autocomplete']
+        });
+
+        autocomplete = new google.maps.places.Autocomplete(ac, { types: ['geocode'] });
+        autocomplete.setFields(['address_component']);
+        autocomplete.addListener('place_changed', fillInAddress);
+    }
+
+    function fillInAddress() {   
+        // Get the place details from the autocomplete object.
+        var place = autocomplete.getPlace();
+
+        for (var component in componentForm) {
+            document.getElementById(component).value = '';
+            document.getElementById(component).disabled = false;
+        }
+
+        // Get each component of the address from the place details, and then fill-in the corresponding field on the form.
+        for (var i = 0; i < place.address_components.length; i++) {
+            var addressType = place.address_components[i].types[0];
+            if (componentForm[addressType]) {
+                var val = place.address_components[i][componentForm[addressType]];
+                document.getElementById(addressType).value = val;
+            }
+        }
+        setTimeout(fullstreet, 200)
+    }
+
+
+    // Bias the autocomplete object to the user's geographical location,
+    // as supplied by the browser's 'navigator.geolocation' object.
+    function geolocate() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var geolocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                var circle = new google.maps.Circle({center: geolocation, radius: position.coords.accuracy});
+                autocomplete.setBounds(circle.getBounds());
+            });
+        }
+    }
+    $("#autocomplete").blur(function(){
+        setTimeout(fullstreet, 200)
+    });
+
+    // Converts into proper street address field
+    function fullstreet(){
+        var street =  document.getElementById("street_number").value;
+        var route =   document.getElementById("route").value;
+        document.getElementById("full_address").value = street +" "+route;
+        $("autocomplete").css("border", "solid 1px #495057");
+        if (street == "" || route == "") {
+            document.getElementById("autocomplete").value = "";
+            document.getElementById("autocomplete").placeholder = "Please Select Valid Address";
+        }
+    }
+
+
+    function setAction(action) {
+        let selectedDate = document.getElementById("delivery_date").value;   
+        let selectedDatePick = document.getElementById("pickup_date").value;   
+        let today = new Date();
+        let formattedToday = String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0') + '-' + today.getFullYear();
+        let nextDay = new Date(today);
+        nextDay.setDate(today.getDate() + 1);
+        let formattedNextDay = String(nextDay.getMonth() + 1).padStart(2, '0') + '-' + String(nextDay.getDate()).padStart(2, '0') + '-' + nextDay.getFullYear();
+        if ((selectedDate === formattedToday && action == '0') || (selectedDate === formattedNextDay && action == '0')){
+            console.log('ye chezee...',selectedDate)
+            document.getElementById("delivery_date").value = '';
+        }
+        if ((selectedDatePick === formattedToday && action == '0') || (selectedDatePick === formattedNextDay && action == '0')){
+            console.log('ye chezee...',selectedDate)
+            document.getElementById("pickup_date").value = '';
+        }
+        document.getElementById("rush_order").value = action;   
+    }
+
+
+</script>
+
+
+
+
+
+<%= javascript_include_tag "checkout" %>

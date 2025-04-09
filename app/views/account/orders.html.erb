@@ -1,0 +1,293 @@
+<%if params[:status].present?%>
+<%
+case params[:status]
+when "open"
+    filter_label = "Open Projects"
+when "renting"
+    filter_label = "Renting Projects"
+when "pulled"
+    filter_label = "Pulled Projects"
+when "loaded"
+    filter_label = "Loaded Projects"     
+when "destage"
+    filter_label = "Destage Projects"
+when "complete"
+    filter_label = "Complete Projects"
+when "sales"
+    filter_label = "Sales Projects"
+when "pending"
+    filter_label = "Pending Projects"
+else
+    filter_label = "Void Projects"
+end
+
+%>
+
+<%else%>
+    <%filter_label = "Open Projects"%>
+<%end%>
+<div id="project_detail_page"></div>
+<!-- PAGE for JS --><div id="project_listing_page"></div>
+<style>
+   .notification_dot {
+      position: relative;
+      top: 0px;
+      right: 5px;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50% !important;
+   }
+   .menu_notification_dot{
+      display:inline-block;
+      position: relative;
+      top: 0px;
+      right: -30px;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50% !important;
+   }
+</style>
+
+<!-- ALL PROJECTS PAGE - app -->
+
+<div class="new_layout project_listing_page">
+
+    <div class="app_container">
+        <div class="app_content">
+
+            <div class="app_left">
+                <div>
+                    <div class="separator10"></div>
+                    <div class="lc_header header_to_click div_show lc_header_projects">Projects <img class="lc_header_arrow" src="<%= image_path('new_icons/down-arrow.svg') %>" alt="icon"></div>
+                    <div  class="lc_body">
+                        <%= render partial: 'account/projects_navigation' %>
+                    </div>
+                    <div class="separator10"></div>
+                </div>
+            </div>
+
+            <% if @orders.any? %>
+                <div class="app_workspace">
+                    <div>
+                        <h3 class="global_page_section_title"><%= raw(filter_label) %></h3>
+                        <div class="separator5"></div>
+                        <div class="separator5"></div>
+                        <div class="all_projects_preview">
+
+                            <% @orders.each do |order| %>
+
+                                <%
+
+                                if order.model.complete? || order.model.destaged? || order.model.sales?
+                                    status_class = 'order_completed_bg'
+                                elsif order.destaging_at.present?
+                                    status_class = 'order_destage_bg'
+                                elsif order.model.rental? && order.model.renting?
+                                    status_class = 'order_renting_bg'
+                                elsif order.model.rental? && order.is_frozen?
+                                    status_class = 'order_locked_bg'
+                                else
+                                    status_class = 'order_created_bg'
+                                end
+
+                                %>
+
+                                <div class="one_project_preview">
+                                    <div class="proj_status_logo default_progress_bar">
+                                        <!-- Project Status -->
+                                        <section class="progress_step_container step_in_progress">
+                                            <div class="progress_step">
+                                                <div class="progress_icon_container">
+                                                    <div class="progress_icon <%= status_class %>"></div>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </div>
+                                    <div class="proj_quick_view_description">
+                                        <% if OrderQuery.first(order_id: order.id, is_read: false).present? %>
+                                            <div class="notification_dot"></div>
+                                        <% end%>
+                                        <div class="proj_description_container">
+                                            <div class="desc_part1">
+                                                <a href="<%=account_order_path(order.id)%>" class="proj_id">#<%= order.id %></a>
+                                                <a href="<%=account_order_path(order.id)%>" class="proj_name"><%= order.project_name %></a>
+                                                <p>
+                                                    <span><%= order.address&.address1 %></span><br>
+                                                    <span><%= "#{order.address&.city}, #{order.address&.state} #{order.address&.zipcode}" %></span>
+                                                </p>
+                                                <p>
+                                                    Project Subtotal: <%= number_to_currency(order.furniture_subtotal) %>
+                                                </p>
+                                            </div>
+                                            <div class="desc_part2">
+                                                <p>Assigned Card:                          
+                                                    <% if order.cc %>
+                                                        <%= order.cc.display_short %>
+                                                    <% end %>
+                                                </p>
+                                                <p class="proj_status">Current Status: <span><%= order.status %></span></p>
+                                                
+                                                <div class="key_dates_container">
+                                                    <div class="one_key_date">
+                                                        <small><%= order.ordered_on&.strftime('%D') %></small>
+                                                        <div class="date_circle_container">
+                                                            <div class="date_circle"></div>
+                                                        </div>
+                                                        <small>Start</small>
+                                                    </div>                                                    
+                                                    <div class="one_key_date">
+                                                        <small><%= order.first_billed_on.strftime('%D') %></small>
+                                                        <div class="date_circle_container">
+                                                            <div class="date_circle"></div>
+                                                        </div>
+                                                        <small>Rent Start</small>
+                                                    </div>
+                                                    <div class="one_key_date">
+                                                        <small><%= order.first_billing_cycle_ends_on.strftime('%D') %></small>
+                                                        <div class="date_circle_container">
+                                                            <div class="date_circle"></div>
+                                                        </div>
+                                                        <small>Day 30</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+          
+                                    </div>
+                                  
+                                    <!-- BOOTSTRAP OPTIONS DROPDOWN COMPONENT  - bodc -->
+                                    <div class="bodc">
+                                        <div class="btn-group dropleft">
+                                            <img class="bodc_icon" src="<%= image_path('new_icons/options.svg') %>" alt="icon" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="<%=account_order_path(order.id)%>">Details</a>
+                                                <a class="dropdown-item" href="<%=client_estimation_path%>" target="_blank">Project Estimation</a>
+                                                <a class="dropdown-item" href="<%=project_proposal_pdf_path%>.pdf" target="_blank">Project Proposal</a>
+                                                <%if order.is_frozen?%>
+                                                    <a class="dropdown-item edit_order_btn" href="#" data-toggle="modal" data-target="#edit_project_name_modal" 
+                                                        link_contact ="<%=order&.address&.name%>"
+                                                        link_phone ="<%=order&.address&.phone%>"
+                                                        link_email ="<%=order&.email%>"
+                                                        link_address ="<%=order&.address&.address1%>"
+                                                        link_delivery_call ="<%=order&.company_service == 'Company' ? 'delivery' : 'pickup' %>"
+                                                        link_home_type ="<%=order&.dwelling%>"
+                                                        link_levels ="<%=order&.levels%>"
+                                                        link_instructins ="<%=order&.delivery_special_considerations%>"
+                                                        link_delivery_date ="<%=order&.due_date&.strftime("%Y-%m-%d")%>"
+                                                        project_name="<%= order.project_name %>" project_id="<%=order.id%>">Edit
+                                                    </a>
+                                                <%end%>    
+                                                <% if order.cancellable? %>
+                                                    <a class="dropdown-item" href="#" class="btn btn-outline-danger btn-sm btn-block" data-toggle="modal" data-target="#cancelOrder" onclick="cancelOrder(<%=order.id%>)">Cancel Order</a>
+                                                <% elsif order.destageable? %>
+                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#requestDestage"  onclick="requestDestage(<%=order.id%>)">Request Destage</a>
+                                                <% else %>
+                                                    <%= link_to("Call to Change", contact_path, class: "dropdown-item", target: "_blank") %>
+                                                <% end %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- ENDS -->
+                                
+                                </div>
+                            <% end %>
+                        </div>
+                    </div>
+                </div>
+            <% else %>
+                <div class="app_workspace">
+                    <div class="no_projects">
+                        <h3>No Projects Yet</h3>
+                        <div class="separator20"></div>
+                        <p>Would you like to <a href="<%= plp_path %>">Start New Project</a>?</p>
+                    </div>
+                </div>
+            <% end %>
+
+            <div class="app_right">
+                <div>
+                    <h3 class="global_page_section_title">Recently Destaged</h3>
+                    <div class="separator5"></div>
+                    <div class="separator5"></div>
+
+                    <div class="all_ric_components recently_returned">
+
+                        <% @recently_returned.each do |product| %>
+
+                            <a href="<%= pdp_path(product[:id]) %>" data-pid="<%= product[:id] %>" class="ric qv_btn" id="p_<%= product[:id] %>">
+                                <!-- image -->
+                                <div class="ric_image"><%= image_tag(product.main_image.url,  alt: 'image photo') %></div>
+                                <!-- description -->
+                                <div class="ric_description">
+                                    <div class="ric_vertical_line"></div>
+                                    <div>
+                                        <small class="ric_description_id">#<%= product.id %></small>
+                                        <p class="ric_description_name"><%= product.name %></p>
+                                        <p class="ric_description_price"><%= number_to_currency(product.rent_per_month) %></p>
+                                    </div>
+                                </div> 
+                            </a>
+                        <% end %>
+
+                    </div>
+                    <div class="separator20"></div>
+
+                    <div class="side_button_3">
+                        <a href="<%= plp_path %>?sort=rrp">Show More</a>
+                    </div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
+
+<%= render partial: 'account/destage_modal' %>
+<%= render partial: 'account/edit_project_name_modal' %>
+<%= render partial: 'products/quickview_modal' %>
+
+<!-- Cancel Order Modal -->
+<div class="modal" id="cancelOrder" tabindex="-1" role="dialog" aria-labelledby="cancelOrder" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="requestDestage">Cancel Order #<span id="order_cancel_id"> </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">×</span>
+                    </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <h6>Are you sure you want to cancel?</h6>
+                    <div>Once you cancel your order, this action cannot be undone.</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <a href type="button" id="cancel_final" class="btn btn-danger">Yes, Cancel This Order</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<%= javascript_include_tag "user_account" %>
+
+<script>
+    function cancelOrder(order_id){
+        document.getElementById("cancel_final").href = Routes.cancel_order_path(order_id);
+        document.getElementById("order_cancel_id").innerHTML = order_id;
+    }
+
+    // tooltip
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+
+<%= javascript_include_tag "project_detail_page.js" %>
+<%= javascript_include_tag "edit_project_name.js" %>

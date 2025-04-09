@@ -1,0 +1,210 @@
+<%#= javascript_include_tag('jquery.waypoints.min.js', 'waypoints.infinite.min.js') %>
+<div class="woocommerce">
+<div class="product-detail-page">
+    <div class="row">
+        <!-- Main Image -->
+        <div class="type-product col-12 col-lg-6 product d-flex align-items-center justify-content-center">
+            <div class="images d-flex align-items-center flex-column">
+                <a class="woocommerce-main-image zoom"  title="Main image for <%= product.name %>">
+					<% if product.main_image %>
+						<img src="<%= product.main_image.url %>" alt="<%= product.name %>" id="imagechange">
+					<% else%>
+						<img src="<%= "https://sdn-content.s3.us-west-1.amazonaws.com/mdamron_1717742775_Image-Coming-Soon.png"  %>" alt="<%= product.name %>" id="imagechange">
+					<% end %>
+				    <div class="overlay" style="background-color: <%= product.site&.color %>"><%= pluralize(product.quantity, 'item') %> left</div>
+                </a>
+                <% if product.images.count > 1 %>
+					<div class="thumbnails">
+						<% product.images.each_with_index do |image, index| %>
+							<a  title="Product Image <%= index + 1 %>" class="img-card">
+							<img src="<%= image.url %>" class="img-src" alt="<%= product.name + ' Image ' + (index + 1).to_s %>">
+							</a>
+						<% end %>
+					</div>
+                <% end %>
+				
+				<div class="stars-container mt-2">
+				<div class="stars">
+					<div class="stars-inner" id="fto"></div>
+				</div>
+				</div>
+
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 ">
+            <div class="summary entry-summary text-left">
+                <h1 class="product_title entry-title"><%= product.name %></h1>
+                <! -- Prices / Options / Description -->
+                <span class="amount"> 
+                <h4> Item # : <span><%= product.id %></span></h4>
+                <% if product.category %>
+					<h4>
+						Category : 
+						<%
+							category = product.category
+							category_links = []
+							while category
+								category_links << link_to(category.name, plp_path + '/?category=' + category.id.to_s)
+								category = category.parent
+							end
+							%><%= raw(category_links.reverse.join(' &raquo; ')) %>
+					</h4>
+                <% end %>
+				
+                <% if product.options.colors %>
+					<h4>Color : 
+						<%product.options.colors.each do |color|%>
+							| <span><%= link_to(color&.label, plp_path + '/?color=' + color.id.to_s) %></span> | 
+						<%end%>
+					</h4>
+                <% end %>
+				<% if product.options.sizes %>
+					
+					<h4>Size : 
+						<%product.options.sizes.each do |size|%>
+							| <span><%= link_to(size&.label, plp_path + '/?size=' + size.id.to_s) %></span> |
+						<%end%>
+					</h4>
+                <% end %>
+                <% if product.width > 0 || product.height > 0 || product.depth > 0 %>
+					<h4>
+						Dimensions : 
+						<%= product.width.to_i %>" <span>w</span>  <span class="dimmentions">x</span> 
+						<%= product.depth.to_i %>" <span>d</span>  <span class="dimmentions">x</span> 
+						<%= product.height.to_i %>" <span>h</span>
+					</h4>
+                <% end %>
+				
+                <% if product.options.materials %>
+				    <h4>Material : 
+						<%product.options.materials.each do |material|%>
+							| <span><%= link_to(material&.label, plp_path + '/?material=' + material.id.to_s) %></span> |
+						<%end%>
+					</h4>
+                <% end %>
+                <h4>Set of : <span id="popup_<%=product.id%>"><%= pluralize(product.quantity, 'piece') %></span> </h4>
+								<div class="d-flex align-items-center mb-2" style="margin:auto 12px">
+										<button class="btn btn-sm btn-primary change-quantity" id="change-quantity-popup" data-action="decrease" data-id="<%=product.id%>" style="height:24px;width: 20px;display: flex;align-items: center;justify-content: center;">-</button>
+										<p class="mx-2 font-weight-bolder mb-0" id="item_quantity_popup_<%=product.id%>">1</p>
+										<button class="btn btn-sm btn-primary change-quantity" id="change-quantity-popup" data-action="increase" data-id="<%=product.id%>" style="height:24px;width: 20px;display: flex;align-items: center;justify-content: center;">+</button>
+								</div>
+								<h4>Site : <span><%= product.site.site%></span> </h4>
+								<%if current_user&.site&.name == "Readyset Staging"%>
+								  <h4>Bin : <span><%= product&.bin&.bin%></span> </h4>
+								<%end%>  
+				<hr class="hr_dotted">
+                <div class="product-content">
+                    <p><%= raw(product.about) %></p>
+                </div>
+				<p><b><%= "No piece is available for rent." if product.quantity == 0 %></b></p>
+                <% if !@is_available %>
+										<h4>Rental Price: <span><%=number_to_currency(product.rent_per_month)%>/ 30 days</span> </h4>
+										<% if @product.for_sale%>
+											<h4>Purchase Price: <span><%=number_to_currency(product.sale_price)%></span> </h4>
+										<% else %>
+											<h4>Purchase Price: <span>Not For Sale</span> </h4>
+										<% end %>
+                <% end %>
+                <div id="product_ctas">
+                    <% if @is_available %>
+						<% if user_signed_in? %>
+							<div class="separator20"></div>
+							<% if product.site&.region != current_site.region  %>
+								<div class="row">
+									<div class="col-12">
+										<div class="alert alert-secondary">Not available in <%= current_site.name %>. Switch locations to add to cart.</div>
+									</div>
+								</div>
+							<% else %>
+
+              <% if product.quantity > 0 %>
+
+									<div class="row pb-3 mb-3">
+									    <div class="pl-3">
+										  <%if current_user&.user_type == "Employee"%>
+                                              <a href="https://legacy.r-e-solved.com/Warehouse2/home.php?page=save_product&product_id=<%= product.id %>&auth_user_id=<%= current_user&.id.to_s %>&auth_code=<%= session[:auth_code].to_s %>" class="btn btn-primary" target="_blank"> Edit product </a>
+                                          <%end%>
+                                        </div>
+									</div>
+
+								<%= form_tag(add_to_order_path, class: "cart", id: "add_to_order") %>			 
+									<div class="field">
+									<%= select_tag :room_id, options_from_collection_for_select(Room.active_rooms_ordered_by_position(current_user&.id), :id, :name), 
+									prompt: 'Select a Room', 
+									class: 'account-sort mt-3',
+									id: 'room_id' %>
+									</div>
+								</form>
+
+									<!-- Add to Cart Buttons -->
+									<div class="row pb-3 mb-3">
+										<div class="pl-3">
+											<% if product.is_rentable? && @is_available %>
+												<a href="#" data-quantity="<%= product.quantity %>" data-room="0" data-pid="<%= product.id %>" class="single_add_to_cart_button button alt add_to_cart_btn " data-intent="rent"><%=image_tag("rent.svg")%> Rent <%=number_to_currency(product.rating_price_rent)%>/ 30 days</a>
+											<% end %>
+											<br>
+											<% if product.for_sale == true  && @is_available %>
+												<a href="#" data-quantity="<%= product.quantity %>" data-room="0" data-pid="<%= product.id %>" class="single_add_to_cart_button button alt add_to_cart_btn " data-intent="buy"><%=image_tag("rent.svg")%> Buy <%=number_to_currency(product.rating_price_sale)%></a>
+											<% end %>
+										</div>
+									</div>
+							<%end%>	
+
+
+								<% if product.is_rentable? && orders_to_add_to.any? && @is_available %>
+									<!-- Add to Order Buttons 
+									
+									<% if product.quantity > 0 %>
+											<h5>Add to Open <%= product.site.name %> Order</h5>
+											<small><em>By clicking "Add to Order" you're instantly adding this item to the selected order, and you're accepting the rental terms you accepted when you created the order.</em></small>		      
+											<%= form_tag(add_to_order_path, class: "cart", id: "add_to_order") %>			 
+												<div class="row pb-3 mb-3">
+													<div class="col-12 col-sm-12 col-lg-8" id="ato_selector">
+														<%= select_tag(
+															:order_id, 
+															options_for_select([['-- Select Order --', nil]] + @orders_to_add_to.sort_by{ |o| o.id }.map{ |o| [ "##{o.id} - #{o.project || o.address}", o.id ] }), 
+															class: 'account-sort mt-3', 
+															) %>
+													</div>
+													<div class="col-12 col-sm-12 col-lg-4" id="ato_btn">
+														<%= hidden_field_tag('product_id', product.id) %>
+														<%= hidden_field_tag('site_id', product.site_id) %>
+														<%= hidden_field_tag('intent', 'rent') %>
+														<%= submit_tag("Add to Order", class: "single_add_to_cart_button button alt", disabled: true) %>
+													</div>
+												</div>
+											</form>
+									<%end%>	
+                                    -->
+									<div class="row pb-3 mb-3 mt-3 d-none" id="ato_confirm">
+										<div class="col-6 col-sm-6 col-lg-8">
+											<button class="btn btn-outline-secondary btn-sm btn-block"  id="ato_confirm_no">Cancel</button>
+										</div>
+										<div class="col-6 col-sm-6 col-lg-4">
+											<button class="btn btn-primary btn-sm btn-block" id="ato_confirm_yes">Yes, add to order</button>
+										</div>
+									</div>
+									<div class="clear-fix" ></div>
+                   				<% end %>
+                    		<% end # region check %>
+                    	<% else %>
+							<div class="alert alert-link"><%= link_to(raw('Login to add this item to your cart &raquo;'), login_path) %></div>
+            <% end #logged in %>
+                    <% end # availability check %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+	function setStarRating(rating) {
+	const maxRating = 3; // Maximum rating
+	const starsInner = document.querySelector('.stars-inner');
+	const percentage = (rating / maxRating) * 100; // Calculate percentage width for stars
+	starsInner.style.width = `${percentage}%`;
+	}
+	setStarRating(`<%= product.quality_rating%>`); // Call the function when the modal is shown
+
+
+</script>
+

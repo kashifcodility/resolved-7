@@ -1,0 +1,129 @@
+@import'./colors';
+
+.services-banner{
+    min-width: 320px;
+}
+.service_container{
+    p{
+        font-family: var(--main-font);
+        color: $grey;
+    }
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    min-height: 160px;
+    grid-gap: 20px;
+    .service_image img{
+        width: 100%;
+        height: auto;
+        max-height: 400px;
+        object-fit: cover;
+    }
+    .service_desc{
+        display: flex;
+        flex-direction: column;
+        padding-top: 5px;
+        p{
+            font-size: 14px;
+            letter-spacing: 0;
+            margin-bottom: 5px;
+            line-height: 1.6;
+            a{
+                color: $primary;
+                font-weight: bold;
+                text-decoration: underline !important;
+            }
+        }
+
+    }
+
+}
+
+.line_under_title {
+    width: 100px;
+    margin: 10px auto 25px auto;
+    border: solid var(--brand) 1px;
+}
+
+// MEDIA
+@media only screen and (max-width: 1000px) {
+    .service_container{
+        p{
+            font-size: 14px !important;
+        }
+    }
+}
+
+@media only screen and (max-width: 900px) {
+    .service_container{
+        p{
+            font-size: 13px !important;
+        }
+    }
+}
+
+@media only screen and (max-width: 619px) {
+    .service_container{
+        grid-gap: 10px;
+    }
+    .customer-quote{
+        h5{
+            font-size: 18px;
+        }
+        p{
+            font-size: 13px;
+            line-height: 18px;
+        }
+    }
+}
+
+@media only screen and (max-width: 589px) {
+    .service_container{
+        padding: 10px;
+        display: grid;
+        grid-template-columns: 1fr;
+        min-height: 160px;
+        grid-template-areas: 
+            "service_image"
+            "service_desc"
+            ;
+        .service_image{
+            grid-area: service_image;
+        }
+        .service_desc{
+            grid-area: service_desc;
+            p{
+                text-align: left !important;
+            }
+        }
+    }
+}
+
+@media only screen and (max-width: 420px) {
+    .service_container{
+        p{
+            font-size: 12px !important;
+        }
+    }
+    .home-titles{
+        h1{
+            font-size: 22px;
+        }
+        p{
+            font-size: 14px;
+        }
+    }
+
+    .container{
+        min-width: 320px;
+    }
+    .customer-quote{
+        h5{
+            font-size: 15px;
+        }
+        p{
+            font-size: 12px;
+            line-height: 15px;
+        }
+    }
+}

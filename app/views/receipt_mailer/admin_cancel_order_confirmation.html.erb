@@ -1,0 +1,8 @@
+<h1>Order <%= @order.order_id %> Cancelled</h1>
+
+<p>
+    This email is to confirm that order <strong><%= @order.order_id %></strong> was
+    <strong>cancelled</strong> on <strong><%= Date.today.strftime('%B %e, %Y') %></strong> by
+    <strong><%= @voided_by&.email %></strong>.
+    <br><br>
+</p>

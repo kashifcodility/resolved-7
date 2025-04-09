@@ -1,0 +1,128 @@
+
+
+<div class="separator20"></div>
+
+
+
+
+<%= form_tag(ihs_checkout_path) do %>
+<!-- CART -->
+<div id="catalog_cart_container">
+    <div class="full-cart">
+        <h5>MY CART</h5>
+        <p>
+            Items: <span class="cart_count"><%= @summary.product_count %></span><br>
+            Subtotal: <br>
+            <span class="cart_subtotal"><%= number_to_currency(@summary.subtotal) %></span>
+        </p>
+        <div class="text-center submit_btn_container">
+            <input type="submit" value="Checkout" class="btn btn-primary">
+        </div>
+    </div>
+
+</div>
+
+<!-- PRODUCTS -->
+<section class="wrapper100">
+        <% if @products.any? %>
+            <div class="all_product_items">
+
+                <% @products.each do |product| %>
+                    <div class="product_item_container product<%= ' product_for_sale' if product.for_sale? %>" id="p_<%= product.id %>">
+                        <div>
+                            <div> <!-- photo -->
+                                <img src="<%= product.main_image_url %>" alt="<%= product.name %> main image" >
+                            </div>
+                            <div class="catalog_item_description">  <!-- text -->
+                                <small>#<%= product.id%></small>
+                                <div class="item_name"><%= product.name&.titleize&.truncate(40) %></div>
+                                <div>
+                                    <p class="item_price"><%= "#{number_to_currency(product.sale_price)}" %></p>
+                                    <p class="dimensions">Dimensions : <%= product.width %>" w x <%= product.depth %>" d x <%= product.height %>" h</p>
+                                    <p><%= product.description&.truncate(200) %></p>
+                                </div>
+                                <% if product.for_sale? %>
+                                <div class="cart_button_container">
+                                    <div class="add_to_cart_btn quick-add grey">
+                                        <input type="checkbox" class="d-none buy_check" name="products[<%= product.id %>]" data-price="<%= product.sale_price %>" value="<%= product.sale_price %>" id="buy_<%= product.id %>"<%= ' checked="checked"' if product.in_cart? %>>
+                                        <span class="buy_btn<%= ' in_cart' if product.in_cart? %>"><%= product.in_cart? ? 'Remove from Cart' : 'Add to Cart' %></span>
+                                    </div>
+                                </div>
+                                <% else %>   
+                                    <div class="unavailable">
+                                        <div>
+                                            <p>UNAVAILABLE</p>
+                                            <p>FOR SALE</p>
+                                        </div>
+                                    </div>
+                                <% end %>    
+                            </div>
+                        </div>
+                    </div>
+                <% end %>
+
+            </div>
+        <% else %>
+            <h2>No Results Found</h2>
+            <p>Click <a href="<%= plp_path %>">here</a> to clear filters and continue browsing.</p>
+        <% end %>
+</section>
+<% end %>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+ $(function() {
+     // Forces page refresh if back button clicked
+     window.addEventListener( "pageshow", function ( event ) {
+	 var historyTraversal = event.persisted || 
+				( typeof window.performance != "undefined" && 
+				  window.performance.navigation.type === 2 );
+	 if ( historyTraversal ) {
+             window.location.reload();
+	 }
+     });
+
+     var cart_count = <%= @summary.product_count %>;
+     var cart_subtotal = <%= @summary.subtotal %>;
+     
+     var cart_count_els = $('.cart_count');
+     var cart_subtotal_els = $('.cart_subtotal');
+
+     cart_count_els.each(function(){ $(this).text(cart_count); });
+     cart_subtotal_els.each(function(){ $(this).text(cart_subtotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })); });
+
+     $('.product_for_sale .add_to_cart_btn').each(function(e) {
+         $(this).on('click', function(e) {
+             var checkbox = $('.buy_check', this);
+             var buy_btn = $('.buy_btn', this);
+             if(!checkbox.is(':checked')) {
+                 cart_count++;
+                 cart_subtotal += parseFloat(checkbox.data('price'));
+                 checkbox.prop('checked', true);
+                 buy_btn.text('Remove from Cart');
+                 buy_btn.removeClass('grey');
+                 buy_btn.addClass('in_cart');
+             } else {
+                 cart_count--;
+                 cart_subtotal -= parseFloat(checkbox.data('price'));
+                 checkbox.prop('checked', false);
+                 buy_btn.text('Add to Cart');
+                 buy_btn.removeClass('in_cart');
+                 buy_btn.addClass('grey');
+             }
+             cart_count_els.each(function(){ $(this).text(cart_count); });
+             cart_subtotal_els.each(function(){ $(this).text(cart_subtotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })); });
+         });
+     });
+     
+ });
+</script>

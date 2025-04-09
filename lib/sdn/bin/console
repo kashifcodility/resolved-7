@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+#
+# Generic console script for Rails, Sinatra and MCP apps.
+#
+# Author: Jordan Ritter <jpr5@sdninc.co>
+
+require 'pathname'
+this = File.dirname(Pathname.new(__FILE__).realpath)
+
+require File.expand_path(this + "/../framework")
+
+pry

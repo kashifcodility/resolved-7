@@ -1,0 +1,90 @@
+<!--Edit Profile Modal-->
+<div class="popup_modal">
+    <div class="modal fade show" id="edit_project_name_modal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <%=image_tag("new_icons/projects.svg", class:"modal_header_icon", alt:"edit_project") %>
+                        <h5 id="modal_title_with_id">Edit Project</h5>
+                        <%= image_tag('new_icons/close.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="new_design">
+                        <!-- EDIT PROJECT NAME FORM - epnf -->
+                        <div class="form_design_1 epnf_container">
+                            <%# if @order.present? %>
+                            <%= form_tag(nil, method: :post, id: 'edit_proj_name_form') do %>
+                                <!-- USERS CONTACT INFO -->
+                                <div id="form_title_project_id" class="form_title">#</div><div class="separator10"></div>
+
+                                <div class="input_w_label">
+                                    <label for="project_name">Project Name</label>
+                                    <input id="project_name" name="project_name" type="text">
+                                </div>
+                                <br><p class='text-center'>Shipping info</p><br>
+                                <div class="input_w_label">
+                                    <label for="project_name">Project Contact</label>
+                                    <input id="project_contact" name="project_contact"  type="text">
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="project_name">Phone</label>
+                                    <input id="project_phone" name="project_phone"  type="text">
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="project_name">Email</label>
+                                    <input id="project_email" name="project_email"  type="text">
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="project_name">Address</label>
+                                    <input id="project_address" name="project_address"  type="text">
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="project_name">Delivery/Will Call</label>
+                                    <select name="shipping_method" name="project_delivery_call" id="shipping_method">
+                                        <option  value="delivery">Delivery</option>
+                                        <option value="pickup">Pick-up Myself</option>
+                                    </select>
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="project_name">Home Type</label>
+                                    
+                                    <select id="project_home_type" name="project_home_type" required=""><option value="">-- Home Type --</option>
+                                        <option value="house">House</option>
+                                        <option value="apartment">Apartment</option>
+                                        <option value="condominium">Condominium</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="project_name">Levels</label>
+                                    <input id="project_levels" name="project_levels"  type="text">
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="project_name">Instructions</label>
+                                    <textarea id="project_instructions" name="project_instructions" rows="6"></textarea>
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="project_name">Delivery Date</label>
+                                    <%#= text_field_tag(:schedule_date, "", class: 'form-control datepicker-ab',placeholder: 'Date', required: true) %>
+                                    <input id="project_delivery_date" class='form-control datepicker-ab' name="project_delivery_date"  type="text">
+                                </div>                               
+                                
+                                <div class="separator20"></div>
+
+                                <p class="side_button2">
+                                    <button>SAVE CHANGES<%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %></button>
+                                </p>
+                                <% end%>
+                            <%# end %>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

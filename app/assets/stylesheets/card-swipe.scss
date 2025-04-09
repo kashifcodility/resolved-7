@@ -1,0 +1,111 @@
+
+
+
+.scrolling-wrapper {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  max-width: 990px;
+  margin: 10px auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  }
+  .card-slider {
+    position: relative;
+    width: 330px;
+    height: 420px;
+    display: inline-block;
+    overflow: hidden;
+    &__image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 0.3rem;
+    }
+    &__content {
+      position: relative;
+      /* left: 50%; */
+      /* transform: translateX(-50%); */
+      bottom: 50px;
+      height: 50px;
+      width: 100%;
+      background-color: rgba(255,255,255,0.9);
+    }
+    &__title {
+      width: 100%;
+      font-family: var(--main-font);
+      font-size: 2em;
+      font-weight: normal;
+      font-stretch: normal;
+      font-style: normal;
+      line-height: normal;
+      letter-spacing: normal;
+      color: #222;
+      padding: 10px;
+      position: relative;
+    }
+}
+
+
+/* The element to hover over */
+.qs {
+  border-radius: 16px;
+  color: var(--brand);
+  cursor: default;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: bold;
+  height: 20px;
+  border:solid 1px var(--brand);
+  line-height: 20px;
+  position: relative;
+  text-align: center;
+  width: 20px;
+  margin-left: 4px;
+  
+  .popover {
+    background-color:white;
+    box-shadow: 0 0 2px rgba(0,0,0,0.4);
+    color: #222;
+    display: none;
+    padding:10px;
+    left: 30px;
+    width: max-content;
+
+  }
+  
+  &:hover {
+      .popover {
+        display: block;
+        -webkit-animation: fade-in .3s linear 1, move-up .3s linear 1;
+        -moz-animation: fade-in .3s linear 1, move-up .3s linear 1;
+        -ms-animation: fade-in .3s linear 1, move-up .3s linear 1;
+      }
+    }
+}
+
+@-webkit-keyframes fade-in {
+	from   { opacity: 0; }
+	to { opacity: 1; }
+}
+@-moz-keyframes fade-in {
+	from   { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@media (max-width: 480px) {
+
+  
+  .qs .popover {
+      background-color: white;
+      /* box-shadow: 0 0 2px rgba(0,0,0,0.4); */
+      color: var(--brand);
+      display: none;
+      border: 2px solid;
+      left: -250px;
+      top: -50px;
+      padding: 10px;
+      position: absolute;
+      width: 300px;
+  }
+
+}

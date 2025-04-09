@@ -1,0 +1,267 @@
+<!-- CHECKOUT PROGRESS BAR -->
+<div class="new_design">
+    <div class="checkout_progress_bar wrapper800">
+        <div class="progress_bar_container">
+            <div class="progress_bar_step step_done">
+                <div>1</div> <!-- first-child -->
+                <div class="progress_bar_image">
+                    <div class="progress_bar_image_start"></div>
+                    <div class="progress_bar_image_center"></div>
+                    <div class="progress_bar_image_end"></div>
+                </div>
+                <div>Review <br>Items</div><!-- last-child -->
+            </div>
+            <div class="progress_bar_step step_done">
+                <div>2</div> <!-- first-child -->
+                <div class="progress_bar_image">
+                    <div class="progress_bar_image_start"></div>
+                    <div class="progress_bar_image_center"></div>
+                    <div class="progress_bar_image_end"></div>
+                </div>
+                <div>Shipping & <br>Payment</div><!-- last-child -->
+            </div>
+            <div class="progress_bar_step step_in_progress">
+                <div>3</div> <!-- first-child -->
+                <div class="progress_bar_image">
+                    <div class="progress_bar_image_start"></div>
+                    <div class="progress_bar_image_center"></div>
+                    <div class="progress_bar_image_end"></div>
+                </div>
+                <div>Review Order <br>& Submit</div><!-- last-child -->
+            </div>
+        </div>
+    
+        <div class="separator20"></div>
+    
+        <!-- SECTION TITLE -->
+        <div class="section_title_container">
+            <div>REVIEW ORDER</div>
+        </div>
+    
+        <div class="separator20"></div>
+    </div>
+</div>
+<!-- CHECKOUT PROGRESS BAR ENDS -->
+
+<!-- ORDER SUMMARY -->
+<div class="summary_outside_wrapper new_layout">
+    <div class="summary_inside_wrapper">
+        <div class="separator20"></div>
+        <div id="show_all_items_container">
+            <div>
+                <div class="items_row">
+
+                    <!-- ORDER ITEMS  -->
+                    <div class="item_column">
+                        <div class="show_all_items_title">ITEMS</div>
+
+                        <div class="all_cart_items" id="summary_items_container">
+                            <% @cart.items[0...3].each do |cart_item| %>
+                                <%item = cart_item.with_indifferent_access%>
+                                <div class="cart_item">
+                                    <div><%=image_tag( item[:main_image_url] || "https://sdn-content.s3.us-west-1.amazonaws.com/mdamron_1717742775_Image-Coming-Soon.png" , alt:item[:product] ) %></div>
+                                    <div>
+                                        <p>#<%= item[:id] %></p>
+                                        <a href="<%= pdp_path(item[:id]) %>"><%= item[:product] %></a>
+                                        <p><%= number_to_currency(item[:price]) %></p>
+                                        <p>room: <%= item[:room_id] %></p>
+                                    </div>
+                                </div>
+                                <hr class="item_separator">
+                            <% end %>
+                            <% if @cart.items.size > 3 %>
+                                <p class="items_btn" id="show_all_items_btn">Show All <%= @cart.items.size %> Items</p>
+                            <% end %>
+
+                            <div class="separator20"></div>
+                        </div>
+
+                        <div class="all_cart_items" id="summary_all_items_container">
+                            <% @cart.items.each do |cart_item| %>
+                                <%item = cart_item.with_indifferent_access%>
+                                <div class="cart_item">
+                                    <div><%=image_tag( item[:main_image_url] || "https://sdn-content.s3.us-west-1.amazonaws.com/mdamron_1717742775_Image-Coming-Soon.png" , alt:item[:product] ) %></div>
+                                    <div>
+                                        <p>#<%= item[:id] %></p>
+                                        <a href="<%= pdp_path(item[:id]) %>"><%= item[:product] %></a>
+                                        <p><%= number_to_currency(item[:price]) %></p>
+                                        <p>room: <%= item[:room_id] %></p>
+                                    </div>
+                                </div>
+                                <hr class="item_separator">
+                            <% end %>
+                            <p class="items_btn" id="hide_all_items_btn">Show Less Items</p>
+                            <div class="separator20"></div>
+                        </div>
+
+                    </div>
+                    <!-- ORDER ITEMS  ENDS -->
+
+                    <!-- ORDER SUMMARY -->
+                    <div class="item_column address_description">
+                        <div class="show_all_items_title">ORDER SUMMARY</div>
+                        <div>
+                            <div class="separator10"></div>
+                            <div class="total_info_summary_address">
+                                <small>Project Information: </small>
+                                <div>
+                                    <p class="shipping_address_line"><%= @cart.shipping_data['shipping_contact_name'] %></p>
+                                    <p class="shipping_address_line"><%= @cart.shipping_data['shipping_contact_phone'] %></p>
+                                    <p class="shipping_address_line"><%= @cart.shipping_data['shipping_address'] %></p>
+                                    <p class="shipping_address_line"><%= "#{@cart.shipping_data['shipping_city']}, #{@cart.shipping_data['shipping_state']} #{@cart.shipping_data['shipping_zipcode']}" %></p>
+                                </div>
+                            </div>
+                            <div class="separator10"></div>
+
+                            <div class="total_info_summary_address">
+                                <small>Appointment Type: </small>
+                                <div>
+                                    <p class="shipping_address_line"><%= @cart.shipping_data['shipping_method']&.capitalize %></p>
+                                </div>
+                            </div>
+                            <div class="separator10"></div>
+                            <div class="total_info_summary_address">
+                                <small>Requested Date: </small>
+                                <div>
+                                    <p>
+                                        <% if @cart.shipping_data['shipping_method'] == 'delivery' %>
+                                            <%#= @cart.shipping_data['delivery_date']&.to_date&.strftime('%A, %b. %-d') %>
+                                            <%= @cart.shipping_data['delivery_date']&.to_date.strftime('%m/%d/%Y') %>
+                                        <% else %>
+                                        <%= @cart.shipping_data['pickup_date']&.to_date.strftime('%m/%d/%Y') %>
+                                            <%#= "#{@cart.shipping_data['pickup_date']} #{@cart.shipping_data['pickup_time']}"&.to_time&.strftime('%A, %b. %-d at %-l:%M') %>
+                                        <% end %>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="separator10"></div>
+
+
+                            <div class="total_info_summary_address">
+                                <small>Assigned Card: </small>
+                                <div>
+                                    <% if @cart.billing_data['payment_method'] != 'charge_account' %>
+                                        <p class="shipping_address_line">Card ending in <%= @cart.billing_data['last_four'] %></p>
+                                    <% end %>
+                                </div>
+                            </div>
+     
+                            <div class="separator20"></div>
+
+
+                            <div class="separator5"></div>
+
+                            <div class="total_info_summary">
+                                <small>Product Subtotal: </small>
+                                <p>$<%= number_with_precision(@cart&.items_sub_total_and_quantity[0], precision: 2) %></p>
+                            </div>
+                            <div class="separator5"></div>
+
+                            <div class="total_info_summary">
+                                <small>Tax: </small>
+                                <p>$<%= number_with_precision(@cart.tax, precision: 2) %></p>
+                            </div>
+                            <div class="total_info_summary">
+                                <small>Rush Order: </small>
+                                <p>$<%= @cart.shipping_data['rush_order']  == "1" ? number_with_precision(Order.default_rush_order_fee, precision: 2) : "0.00" %></p>
+                            </div>
+
+                            
+                            <div class="separator5"></div>
+
+                            <div class="total_info_summary">
+                                <small>
+                                    Damage Waiver: 
+                                    <span class="qs">? 
+                                        <span class="popover above">(If you do not provide proof of your own current " in force" business staging insurance, you will be subject to incurring the Damage Waiver Fee.  See Rental Terms and Conditions for details.)</span>
+                                    </span>
+                                </small>
+                                <p>$<%= number_with_precision(@cart.damage_waiver, precision: 2) %></p>
+                            </div>
+                            <div class="separator5"></div>
+
+                            <% if @cart.shipping_data['shipping_method'] == "delivery" %>
+                                <div class="total_info_summary">
+                                    <small>
+                                        Shipping Estimate: 
+                                        <span class="qs">? 
+                                            <span class="popover above">(Delivery + Destage <%= "+ Tax" unless current_user.tax_exempt? %>)</span>
+                                        </span>
+                                    </small>
+                                    <p>$100 per Hr<%#= number_with_precision(Order.default_shipping_fee, precision: 2) %></p>
+                                </div>
+                                <div class="separator5"></div>
+                                <div class="horizontal_line"></div>
+                                <div class="separator5"></div>
+
+                                <div class="total_info_summary">
+                                    <small>
+                                        Due Upon Delivery: 
+                                        <span class="qs">? 
+                                            <span class="popover above">(with estimated delivery. Delivery final total may include extra fees.)</span>
+                                        </span>
+                                    </small>
+                    
+                                    <p>$<%= number_with_precision(@cart.damage_waiver + (@cart.shipping_data['rush_order']  == "1" ? 100.00 : 0.00) + (Order.default_shipping_fee) + @cart&.items_sub_total_and_quantity[0] + @cart.tax , precision: 2) %></p>
+                                </div>
+                            <% else %>
+       
+                            <div class="horizontal_line"></div>
+                            <div class="separator5"></div>
+                                <div class="total_info_summary">
+                                    <small>
+                                        Due Upon Pickup: 
+                                        <span class="qs">? 
+                                            <span class="popover above">(self-load: $0 | Re|Furnish-load: $25)</span>
+                                        </span>
+                                    </small>
+                                    <p>$0 - $25.00</p>
+                                </div>
+                            <% end %>
+                            <div class="separator5"></div>
+
+                            <div class="total_info_summary gold" style="padding: 10px;">
+                                <small>
+                                    Due Today: 
+                                    <span class="qs">? 
+                                        <span class="popover above">(No charges will occur until Delivery/Pick-up or the end of your 7 day grace period, whichever comes first.)</span>
+                                    </span>
+                                </small>
+                                <p>$<%= @cart.shipping_data['rush_order']  == "1" ? number_with_precision(Order.default_rush_order_fee, precision: 2) : "0.00" %></p>
+                            </div>
+
+                        </div>
+                    </div>
+                    <!-- ORDER SUMMARY ENDS -->
+        
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<!-- ORDER SUMMARY ENDS -->
+
+<!-- BUTTONS PROCEED AND BACK -->
+<div class="outside_wrapper ">
+    <div class="wrapper800 form_design_1">
+        <div class="buttons_proceed_and_back">
+            <div class="back_button">
+                <a href="<%= checkout_form_path %>">BACK <%=image_tag("new_icons/back_arrow_grey.svg", alt:"back_arrow_grey") %></a>
+            </div>
+            <div class="proceed_button">
+                <%= form_tag(checkout_process_path, id: "checkout_process") do %>
+                    <button type="submit">
+                        SUBMIT ORDER <%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %>
+                    </button>
+                <% end %>
+            </div>
+        </div>
+        <div class="separator20"></div>
+    </div>
+</div>
+<!-- BUTTONS PROCEED AND BACK  ENDS -->
+
+<%= javascript_include_tag "checkout_review.js" %>

@@ -1,0 +1,33 @@
+
+
+// EDIT USERS ACCOUNT
+
+
+.users_photo {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    img{
+        border-radius: 50%;
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+    }
+    & > input{
+        border: none !important;
+        display: inline-block !important;
+        max-width: 222px !important;
+        height: 40px !important;
+    }
+}
+
+@media only screen and (max-width: 420px) {
+    .users_photo {
+        & > input{
+            max-width: 180px !important;
+        }
+    }
+    
+}

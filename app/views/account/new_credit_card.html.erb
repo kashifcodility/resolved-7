@@ -1,0 +1,60 @@
+<div class="container">
+    <div class="woocommerce">
+
+        <h1 class="category-header">My Account</h1>
+        <%= render 'navigation' %>
+
+        <div class="member-info">
+
+            <!-- Add Credit Card Form -->
+            <div class="add-card">
+
+                <h4>Add Credit Card</h4>
+                <hr>
+                <%= form_tag(create_credit_card_path,id: 'payment-form') %>
+                
+                   <%= render partial: 'cart/stripe'%>
+
+                   <div class="col-sm-12 col-md-6">
+                   <h5>Billing Address</h5>
+
+                   <div class="form-group">
+                      <%= text_field_tag(:label, nil, class: 'form-control',placeholder: 'Card label name', required: true) %>
+                   </div>
+
+                   <!-- Address Line 1 -->
+                   <div class="form-group">
+                       <%= text_field_tag(:line1, params[:address1] , class: 'form-control', placeholder: 'Address Line 1', required: true) %>
+                   </div>
+
+                   <!-- Address Line 2 -->
+                   <div class="form-group">
+                       <%= text_field_tag(:line2, params[:address2] , class: 'form-control', placeholder: 'Address Line 2') %>
+                   </div>
+
+                   <!-- City -->
+                   <div class="form-group">
+                       <%= text_field_tag(:city, params[:city] , class: 'form-control', placeholder: 'City', required: true) %>
+                   </div>
+
+                   <!-- State -->
+                   <div class="form-group">
+                       <%= select_tag(:state, options_for_select([['-- Select State --', nil]] + states, params[:state] || @billing_address[:state]), class: 'form-control', required: true) %>
+                   </div>
+
+                   
+                   <div class="form-group">
+                       <%= text_field_tag(:postal_code, nil, class: 'form-control',placeholder: 'Postal code', required: true) %>
+                   </div>
+
+               </div>
+
+                   <button type="submit" class="btn btn-outline-secondary btn-lg btn-block">Add Card</button>
+                </form>   
+
+
+            </div>
+
+        </div>
+    </div>
+</div>

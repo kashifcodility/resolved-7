@@ -1,0 +1,58 @@
+                    <!-- Dimensions -->
+                    <aside class="widget widget-price-filter">
+                        <h3 class="widget-title" data-toggle="collapse" data-target="#dimensions">
+                            Dimensions <% if params[:pmax]%>-<%else%>+<%end%></span>
+                        </h3>
+
+                        <div id="dimensions" class="<%= params[:wmax] ? 'show' : 'collapse' %> mb-2">
+                            <h6 class="mb-3 mt-3"> Width </h6>
+                            <!--Width-->
+                            <section class="range-slider">
+
+                                <input step="1" type="range" class="minmax_slider"    value="<%= params[:wmin] || @width_minmax[:min] %>" min="<%= @width_minmax[:min] %>" max="<%= @width_minmax[:max] %>">
+
+                                <input step="1" type="range" class="minmax_slider"  value="<%= params[:wmax] || @width_minmax[:max] %>" min="<%= @width_minmax[:min] %>" max="<%= @width_minmax[:max] %>">
+
+                                <br>
+
+                                <input type="number" class="rangeValues_min" id="width_min" name="wmin" value="<%= params[:wmin] || @width_minmax[:min] %>" min="<%= @width_minmax[:min] %>" max="<%= @width_minmax[:max] %>" />
+
+                                <input type="number" class="rangeValues_max" id="width_max" name="wmax" value="<%= params[:wmax] || @width_minmax[:max] %>" min="<%= @width_minmax[:min] %>" max="<%= @width_minmax[:max] %>" />
+                                
+                            </section>
+                            <h6 class="mb-3 mt-3">Depth</h6>
+                                <!--depth-->
+                            <section class="range-slider">
+                            
+                                <input step="1" type="range" class="minmax_slider"    value="<%= params[:dmin] || @depth_minmax[:min] %>" min="<%= @depth_minmax[:min] %>" max="<%= @depth_minmax[:max] %>">
+
+                                <input step="1" type="range" class="minmax_slider"  value="<%= params[:dmax] || @depth_minmax[:max] %>" min="<%= @depth_minmax[:min] %>" max="<%= @depth_minmax[:max] %>">
+
+                                <br>
+
+                                <input type="number" class="rangeValues_min" id="depth_min" name="dmin" value="<%= params[:dmin] || @depth_minmax[:min] %>" min="<%= @depth_minmax[:min] %>" max="<%= @depth_minmax[:max] %>" />
+
+                                <input type="number" class="rangeValues_max" id="depth_max" name="dmax" value="<%= params[:dmax] || @depth_minmax[:max] %>" min="<%= @depth_minmax[:min] %>" max="<%= @depth_minmax[:max] %>" />
+                                
+                            </section>
+                            <h6 class="mb-3 mt-3">Height</h6>
+                            <!--height-->
+                            <section class="range-slider">
+                            
+                                <input step="1" type="range" class="minmax_slider"    value="<%= params[:hmin] || @height_minmax[:min] %>" min="<%= @height_minmax[:min] %>" max="<%= @height_minmax[:max] %>">
+
+                                <input step="1" type="range" class="minmax_slider"  value="<%= params[:pmax] || @height_minmax[:max] %>" min="<%= @height_minmax[:min] %>" max="<%= @height_minmax[:max] %>">
+
+                                <br>
+
+                                <input type="number" class="rangeValues_min" id="height_min" name="hmin" value="<%= params[:hmin] || @height_minmax[:min] %>" min="<%= @height_minmax[:min] %>" max="<%= @height_minmax[:max] %>" />
+
+                                <input type="number" class="rangeValues_max" id="height_max" name="hmax" value="<%= params[:hmax] || @height_minmax[:max] %>" min="<%= @height_minmax[:min] %>" max="<%= @height_minmax[:max] %>" />
+                                
+                            </section>
+
+                            <div class="text-center m-0">
+                                <input type="submit" value="Apply" class="range_submit btn btn-primary btn-sm">
+                            </div>
+                        </div>
+                    </aside>

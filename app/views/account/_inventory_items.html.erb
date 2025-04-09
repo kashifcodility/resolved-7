@@ -1,0 +1,74 @@
+<ul id="owned_products12">
+  <% inventory_items.each do |item| %>
+    <%# if !item.status.nil? %>
+      <li class="moi_container">
+        <div class="row">
+          <div class="col-12 col-md-4">
+            <img class="moi-image qv_btn" data-pid="<%= item.id %>" src="<%= item.image_url %>">
+          </div>
+
+          <div class="col-12 col-md-8">
+            <h5>
+              <a href="<%= pdp_path(item.id)%>"  target="_blank">
+                Item#: <%= item.id %> - <%= item.name %>
+              </a>
+            </h5>
+            <hr>
+            <div class="row">
+              <% if item.status == "Purchased" %>
+                <div class="col-12">
+                  <div>Status: <%= item.status %> for $<%= number_with_precision(item.sale_price * 0.6, precision: 2) %> </div>
+                  <div>Last Stored in: <%= item.location %></div>
+                </div>
+              <% else %>
+                <div class="col-12 col-sm-4">
+                  <div>Status:
+                    <span class="<%= 'brand-text' if item.status == 'Rented' %>"><%= item.status %></span>
+                  </div>
+                  <div>Stored in: <%= item.location %></div>
+                  <div class="<%= 'd-none' if item.storage_status != 'Private' %>">
+                    Storage Rate: $<span id="storage_rate_<%= item.id %>"><%= number_with_precision(item.daily_storage_price, precision: 2) %></span>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-8">
+                  <small>
+                    <table class="table table-sm text-center">
+                      <thead>
+                        <tr>
+                          <th></th>
+                          <th>Rent <br>30 Day</th>
+                          <th>Rent <br>Daily</th>
+                          <th>Sell</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th scope="row"><p>Member Price</p></th>
+                          <td><p>$<%= number_with_precision(item.price_per_month, precision: 2) %></p></td>
+                          <td><p>$<%= number_with_precision(item.price_per_day, precision: 2) %></p></td>
+                          <td><p>$<%= number_with_precision(item.sale_price, precision: 2) %></p></td>
+                        </tr>
+                        <tr>
+                          <th scope="row"><p>Your Price</p></th>
+                          <td><p>$<%= number_with_precision(item.price_per_month - item.earned_per_month, precision: 2) %></p></td>
+                          <td><p>$<%= number_with_precision(item.price_per_day - item.earned_per_day, precision: 2) %></p></td>
+                          <td><p>$<%= number_with_precision(item.price_per_month - item.earned_per_month, precision: 2) %></p></td>
+                        </tr>
+                        <tr>
+                          <th scope="row"><p>Your Commission</p></th>
+                          <td><p>$<%= number_with_precision(item.earned_per_month, precision: 2) %></p></td>
+                          <td><p>$<%= number_with_precision(item.earned_per_day, precision: 2) %></p></td>
+                          <td><p>$<%= number_with_precision(item.sale_price * 0.6, precision: 2) %></p></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </li>
+    <%# end %>
+  <% end %>
+</ul>

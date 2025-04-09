@@ -1,0 +1,243 @@
+<table style="table-layout: fixed; width: 100%;">
+  <tr>
+    <td>
+      <div class="d-flex">
+        <div class="d-flex">
+          <p>Standard</p>
+          <p class="input-line ml-1 options-inputs">&nbsp;&nbsp;<%= '&#10003;'.html_safe if @step8[:standard].present? %> </p>
+        </div>
+    
+        <div class="d-flex ml-2">
+          <p>Luxury</p>
+          <p class="input-line ml-1 options-inputs">&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:luxury].present? %></p>
+        </div>
+      
+        <div class="d-flex ml-2">
+          <p class="no-wrap">Owner's Fee</p>
+          <p class="input-line ml-1 options-inputs">&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:owner].present? %></p>
+        </div>
+      
+        <div class="d-flex ml-2">
+          <p class="no-wrap">Built-in</p>
+          <p class="input-line ml-1 options-inputs">&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:built_in].present? %></p>
+        </div>
+      </div>
+    </td>
+    <td>
+      <div class="d-flex Realtor-Request">
+        <p class="no-wrap">Realtor Request</p>
+        <p class="input-line ml-1 options-inputs"><%=@step8[:realtor_request] %></p>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table style="border-collapse: collapse;" class="step-2-main-table">
+  <tr>
+    <td>
+      <table style="table-layout: fixed; width: 100%;">
+        <tr>
+          <td valign="top">
+            <table style="width: 100%; table-layout: fixed;">
+              <tr>
+                <td>
+                  <div class="d-flex">
+                    <div class="d-flex">
+                      <p>Floor</p>
+                      <p class="input-line ml-1 options-inputs">
+                      <%=@step8[:floor] %>
+                      </p>
+                    </div>
+                    <div class="d-flex ml-2">
+                      <p>Room</p>
+                      <p class="input-line ml-1 options-inputs">
+                      <%=@step8[:room] %>
+                      </p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex mt-3">
+                    <p>Mirror</p>
+                    <p class="input-line ml-2 options-inputs"><%=@step8[:mirror] %></p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex w-50 mt-3">
+                    <div class="d-flex">
+                      <p class="mr-2">Art</p>
+                      <p class="ml-3">S</p>
+                      <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:s].present? %></p>
+                      <p class="ml-2">M</p>
+                      <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:m].present? %></p>
+                      <p class="ml-2">L</p>
+                      <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:l].present? %></p>
+                      <p class="ml-2">XL</p>
+                      <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:xl].present? %></p>
+                      <p class="ml-2">XXL</p>
+                      <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:xxl].present? %></p>
+                      <p class="ml-2">XXXL</p>
+                      <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:xxxl].present? %></p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex mt-3">
+                    <p class="mr-2">Rug</p>
+                    <p class="ml-2">5&#215;7</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:'5_by_7'].present? %></p>
+                    <p class="ml-2">6&#215;8</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:'6_by_8'].present? %></p>
+                    <p class="ml-2">7&#215;9</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:'7_by_9'].present? %></p>
+                    <p class="ml-2">8&#215;10</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:'8_by_10'].present? %></p>
+                    <p class="ml-2">other</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:other].present? %></p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex mt-3">
+                    <p class="no-wrap">Wall color</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;<%=@step8[:wall_color] %></p>
+                    <p class="ml-2 no-wrap">Floor color</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;<%=@step8[:floor_color] %></p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+									<td>
+										<div class="d-flex mt-3">
+											<p>Cabinets</p>
+											<p class="input-line ml-2"><%=@step8[:cabinets] %></p>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="d-flex mt-3">
+											<p>Counterops</p>
+											<p class="input-line ml-2"><%=@step8[:Counterops] %></p>
+										</div>
+									</td>
+								</tr>
+
+                <tr>
+									<td>
+										<div class="d-flex w-50 mt-3">
+											<div class="d-flex">
+												<p class="mr-2">Shower Curtain</p>
+												<p class="ml-3">Yes</p>
+												<p class="input-line">&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:curtain_yes].present? %></p>
+												<p class="ml-2">No</p>
+												<p class="input-line">&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:curtain_no].present? %></p>
+												
+											</div>
+										</div>
+									</td>
+								</tr>
+
+								<tr>
+									<td>
+										<div class="d-flex w-50 mt-3">
+											<div class="d-flex">
+												<p class="mr-2">Shower Rod</p>
+												<p class="ml-3">Yes</p>
+												<p class="input-line">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:rod_yes].present? %></p>
+												<p class="ml-2">No</p>
+												<p class="input-line">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step8[:rod_no].present? %></p>
+												
+											</div>
+										</div>
+									</td>
+								</tr>
+
+
+
+								<tr>
+									<td>
+										<div class="d-flex mt-3">
+											<p class="">Lighting</p>
+											<p class="ml-1 no-wrap">Skins</p>
+											<p class="input-line"><%= @step8[:skins] %></p>
+											<p class="ml-1 no-wrap">Bath Towels</p>
+											<p class="input-line"><%= @step8[:bath_towels] %></p>
+											<p class="ml-1 no-wrap">Hand Towels</p>
+											<p class="input-line"><%= @step8[:hand_towels] %></p>
+										</div>
+									</td>
+								</tr>
+            </table>
+
+            <table >
+              <tr>
+                <td valign="bottom">
+                  <div class="w-100 mt-4">
+                    <table style="table-layout: fixed; width: 100%;border-collapse:collapse;margin-top: 620px;" class="step-2-table">
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td>S</td>
+                        <td>M</td>
+                        <td>L</td>
+                        <td>Lux</td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td>Stool</td>
+                        <td><input <%='checked' if @step8[:stool_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step8[:stool_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step8[:stool_large] == "on"%> type="checkbox" /></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td>Bench</td>
+                        <td><input <%='checked' if @step8[:bench_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step8[:bench_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step8[:bench_large] == "on"%> type="checkbox" /></td>
+                        <td></td>
+                      </tr>
+												
+                      
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td valign="top">
+            <table style="width: 100%; table-layout: fixed;border-left: 1px solid black;">
+              <tr>
+                <td>
+                  <div class="w-100">
+                    <p>Notes:</p>
+                    <p><%=@step8[:notes] %> </p>
+                  </div>
+                </td>
+              </tr>
+              <%@step8[:images].each do |img|%>
+              <tr>
+                
+                <td>
+                  
+                  <%= wicked_pdf_image_tag(img,alt: "pdf image", style:"margin:0px;height:160px;width:100%;") %>
+                </td>
+              </tr>
+              <%end if @step8[:images]%>
+              
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

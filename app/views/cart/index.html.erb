@@ -1,0 +1,297 @@
+
+<div class="new_design">
+
+	<!-- CHECKOUT PROGRESS BAR -->
+	<div class="checkout_progress_bar wrapper800">
+		<div class="progress_bar_container">
+			<div class="progress_bar_step step_in_progress">
+				<div>1</div> <!-- first-child -->
+				<div class="progress_bar_image">
+					<div class="progress_bar_image_start"></div>
+					<div class="progress_bar_image_center"></div>
+					<div class="progress_bar_image_end"></div>
+				</div>
+				<div>Review <br>Items</div><!-- last-child -->
+			</div>
+			<div class="progress_bar_step  step_shipping_and_payment">
+				<div>2</div> <!-- first-child -->
+				<div class="progress_bar_image">
+					<div class="progress_bar_image_start"></div>
+					<div class="progress_bar_image_center"></div>
+					<div class="progress_bar_image_end"></div>
+				</div>
+				<div>Shipping & <br>Payment</div><!-- last-child -->
+			</div>
+			<div class="progress_bar_step step_review_and_submit">
+				<div>3</div> <!-- first-child -->
+				<div class="progress_bar_image">
+					<div class="progress_bar_image_start"></div>
+					<div class="progress_bar_image_center"></div>
+					<div class="progress_bar_image_end"></div>
+				</div>
+				<div>Review Order <br>& Submit</div><!-- last-child -->
+			</div>
+		</div>
+
+		<div class="separator20"></div>
+
+		<!-- SECTION TITLE -->
+		<div class="section_title_container">
+			<div>REVIEW ITEMS</div>
+		</div>
+	
+		<div class="separator20"></div>
+	</div>
+	<!-- CHECKOUT PROGRESS BAR ENDS -->
+
+
+	<% if @items_by_site %>
+	<div class="outside_wrapper">
+		<div class="my_cart_wrapper wrapper800 form_design_1">
+			<% @items_by_site.each do |site| %>
+				<%if site.open_orders.flatten.any? %>
+					<%= form_tag(add_to_order_path, id: "add_to_order") do %>
+					<div class="form_select_w_label">
+						<label for="company_state">Add the following rental items to an existing order:</label>
+						<div>
+							<%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+							<%= select_tag( :order_id, options_for_select([['-- Select Order --', nil,]] + site.open_orders.sort_by{ |o| o.id }.map{ |o| [ "##{o.id} - #{o.project || o.address}", o.id ] }),{class: "custom-select form-control-sm", required: true}		 	     )%>
+							<%= hidden_field_tag(:site_id, site.id) %>
+						</div>
+					</div>
+					<div class="separator5"></div>
+					<div class="add_to_order_btn">
+						<%= submit_tag("Add to Order") %>
+					</div>
+					<%end%>
+				<%end%>
+			<%end%>
+		</div>
+	</div>
+       <% end %>
+
+
+
+
+
+	<!-- MY CART SUMMARY -->
+	<div class="outside_wrapper">
+		<div class="my_cart_wrapper wrapper800">
+
+			<% if @cart&.items.blank? %>
+				<div class="empty_cart">
+					<div class="separator20"></div>
+					<div class="separator20"></div>
+					<p > Your Cart is Empty </p>
+					<div class="separator20"></div>
+					<div class="separator20"></div>
+
+					<!-- BUTTON -->
+					<div class="separator20"></div>
+					<div class="banner_button">
+						<a href="<%= plp_path %>" class="style1" >GET STARTED <%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %></a>
+					</div>
+
+				</div>
+			<%else%>
+				<div class="location_details"></div>
+				<!-- CART ITEMS -->
+				<div class="my_cart_information">
+					<% @cart.items.each do |cart_item| %>
+					  <%item = cart_item.with_indifferent_access%>
+						<div class="cart_item" id="cart_page_item_<%=item[:uniq_id]%>">
+							<div><%=image_tag( item[:main_image_url] || "https://sdn-content.s3.us-west-1.amazonaws.com/mdamron_1717742775_Image-Coming-Soon.png", alt:item[:product] ) %></div>
+							<div>
+								<a href="<%= pdp_path(item[:id]) %>" data-pid="<%= item[:id] %>" class="qv_btn"><%= item[:product] %></a>
+								<p><% if item[:intent]=="buy" %>Purchasing<% else %>Renting<% end %> for $<%= number_with_precision(item[:price], precision: 2) %> <% if item[:intent]=="rent" %>/ 30 days <% end %> </p>
+
+								<p>#<%= item[:id] %></p>
+							</div>
+							<div class="d-flex align-items-center" style="margin:auto 12px">
+									<button class="btn btn-sm btn-primary change-quantity" id="cart-quantity" data-action="decrease" data-id="<%= item[:id] %>" data-uid="<%= item[:uniq_id] %>" style="height:24px;width: 20px;display: flex;align-items: center;justify-content: center;">-</button>
+									<p class="mx-2 font-weight-bolder" id="cart_item_quantity_<%=item[:uniq_id]%>"><%=item[:quantity]%></p>
+									<button class="btn btn-sm btn-primary change-quantity" id="cart-quantity" data-action="increase" data-id="<%= item[:id] %>" data-uid="<%= item[:uniq_id] %>" style="height:24px;width: 20px;display: flex;align-items: center;justify-content: center;">+</button>
+							</div>
+							<a href="<%= remove_from_cart_path(item[:id], uniq_id: item[:uniq_id]) %>" class="trash_item" title="Remove this item"><%=image_tag("new_icons/trash.svg", alt:"trash") %></a>
+ 
+							<!-- FAVORITE ITEM  -->
+							<% if item[:is_favorite] %>
+								<a class="favorite_btn summary_favorite_item" aria-role="switch" data-pid="<%= item[:id] %>" data-action="unfavorite" href="/products/<%= item[:id] %>">
+									<i class="fas fa-heart " aria-hidden="true" aria-label="Unfavorite"></i>
+								</a>                                        
+							<% else %>
+								<a class="favorite_btn summary_favorite_item" aria-role="switch" data-pid="<%= item[:id] %>" data-action="favorite" href="/products/<%= item[:id] %>">
+									<i class="far fa-heart " aria-hidden="true" aria-label="Favorite"></i>
+								</a>  
+							<% end %>
+
+						</div>
+						<%= form_tag(add_to_order_path, class: "cart", id: "add_to_order") %>			 
+                                    <div class="field">
+                                        <%= select_tag :room_id, options_from_collection_for_select(Room.active_rooms_ordered_by_position(current_user&.id), :id, :name, item[:room_id]), 
+                                        prompt: 'Select a Room', 
+                                        class: 'account-sort mt-3 dummy',
+                                        id: "select_cart_#{item[:uniq_id]}" %>
+                                    </div>
+                                </form>
+						<hr class="item_separator">
+					<%end%>
+				</div>
+
+				<div class="form_design_1" style="margin: 0; padding: 0; margin-top: -2px;">
+					<!-- Notification -->
+					<div class="form_notification">
+						<%=image_tag("new_icons/close_white.svg", class:"img_close", alt:"close") %>
+						<%=image_tag("new_icons/warning_notification.svg", class:"img_warning", alt:"warning") %>
+						<p>No charges will occur until Delivery/Pick-up or the end of your 7 day grace period, whichever comes first.</p>
+					</div>
+				</div>
+
+
+				<div class="total_info_container">
+
+
+
+					<div class="total_info">
+						<div class="formatted_text_and_price">
+							<div class="formatted_element">
+								<div class="el_text">Item Subtotal:</div>
+								<div class="el_price">$<span class="main-color-text" id="cart-page-subtotal"><%= number_with_precision(@cart&.items_sub_total_and_quantity[0]|| 0, precision: 2) %></span></div>
+							</div>
+						</div>
+
+						<% unless @only_for_sale %>
+							<div class="formatted_text_and_price">
+								<div class="formatted_element">
+									<div class="el_text">Damage Waiver:</div>
+									<div class="el_price">$<span class="main-color-text" id="damage"><%= number_with_precision(@cart.damage_waiver, precision: 2) %></span></div>
+								</div>
+							</div>
+            <% end %>
+						
+
+						<div class="separator5"></div>
+						<div class="horizontal_line"></div>
+						<div class="separator5"></div>
+
+						<div class="formatted_text_and_price">
+							<div class="formatted_element">
+								<div class="el_text">Item Total:</div>
+								<div class="el_price">$<span class="main-color-text" id="cart-page-total"><%= number_with_precision(@cart&.items_sub_total_and_quantity[0] + @cart.damage_waiver, precision: 2) %></span></div>
+							</div>
+						</div>
+
+
+						<small>
+							<div class="summary-text" data-toggle="tooltip" data-html="true" data-placement="right" ></div>
+							<div class="summary-text" data-toggle="tooltip" data-html="true" data-placement="right" ><span class="cart-numbers">  </span></div>
+	
+							<% if @cart.subtotal < 1000 && @cart.subtotal > 500%>
+								<hr>
+								<div class="alert alert-warning  cart_warning display_none" role="alert">You are $<%= number_with_precision(1000-@cart.subtotal, precision:2) %> from free shipping.
+									<span class="cart-numbers keep_shop"><a href='<%= plp_path%>'>Keep Shopping?</a></span>
+								</div>
+							<%end%>
+						</small>
+					</div>
+					<a href="" class="clear_cart" data-toggle="modal" data-target="#modal4">
+						<div>
+							<%=image_tag("new_icons/refresh.svg", alt:"empty cart") %>
+							<p>Empty Cart</p>
+						</div>
+					</a>
+				</div>
+			<%end%>
+
+			<div class="separator20"></div>
+			<div class="separator20"></div>
+			<% if @cart&.items.blank? %>
+				<div class="separator20"></div>
+			<%else%>
+				<% unless @checkout_disabled %>
+					<div class="side_button2">
+						<a href="<%= checkout_form_path %>" style="background-color: #2bd6ce;">PROCEED <%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %></a>
+					</div>
+					<div class="separator20"></div>
+				<% end %>
+			<% end %>
+
+		</div>
+	</div>
+
+
+
+
+</div>
+
+
+
+<div class="separator20"></div>
+
+<%= render 'info/delivery_rates'%>
+<%= render partial: 'products/quickview_modal' %>
+
+<%= javascript_include_tag "checkout.js" %>
+<script>
+
+	$(document).on('click', '#cart-quantity', function() {
+			let itemId = $(this).data('id');
+			let action = $(this).data('action');
+			let itemUid = $(this).data('uid');
+			let quantity_cart_page = $('#cart_item_quantity_' + itemUid).text();
+			let cart_items = $('#qty_of_items').text();
+			let cart_page_subtotal = $('#cart-page-subtotal').text();
+			let cart_page_total = $('#cart-page-total').text();
+			let damage = $('#damage').text();
+
+			$.ajax({
+					url: '/update_items_quantity',
+					method: 'POST',
+					data: {
+							id: itemId,
+							action_type: action,
+							uid: itemUid,
+							quantity: quantity_cart_page,
+							subtotal: cart_page_subtotal,
+							total: cart_page_total,
+							items: cart_items,
+							authenticity_token: '<%= form_authenticity_token %>'
+					},
+					success: function(response) {
+							// Update the quantity on success
+							let amount = parseFloat(response.price_total);
+							let damage_amount = parseFloat(damage);
+							let total = (amount + damage_amount) - 500.00;
+							let total_amount = total.toFixed(2);
+							console.log(response,'res.......')
+							if (response.message === "Product can't be added due to low quantity"){
+									alert(response.message)
+							}  
+									if (response.message === "Removed."){
+											$('#qty_of_items').text(response.cart_items);
+											$('#cart-page-total').text(total_amount);
+											$('#cart-page-subtotal').text(response.sub_total);
+											$('#cart_page_item_' + itemUid).remove(); 
+											$('#select_cart_'+itemUid).remove(); 
+							}
+							else{
+									$('#cart_item_quantity_' + itemUid).text(response.new_quantity);
+
+									// Optionally refresh the cart total or other UI elements
+									$('#cart-page-total').text(total_amount);
+									$('#cart-page-subtotal').text(response.sub_total);
+									$('#qty_of_items').text(response.cart_items);
+							}      
+					},
+					error: function() {
+							alert('There was an error updating the cart. Please try again.');
+					}
+			});
+			
+
+
+			
+	});
+
+</script>
+

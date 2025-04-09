@@ -1,0 +1,6 @@
+
+// Replace the list of items with the new set of items
+$('#owned_products12').html('<%= j(render partial: "inventory_items", locals: { inventory_items: @inventory_items }) %>');
+
+// Update pagination
+$('#pagination').html('<%= j(render partial: "pagination", locals: { total_pages: @total_pages, current_page: @current_page }) %>');

@@ -1,0 +1,283 @@
+@import'./colors';
+
+
+
+// MOVING IMAGE BANNER
+.moving_image_container{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+    width: 100%;
+    height: 94vh;
+    min-height: 700px;
+    position: relative;
+    overflow: hidden;
+    .moving_image{
+        width: 100%;
+        height: 94vh;
+        min-height: 700px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        animation: imageMove 8s linear;
+    }
+    .banner_text_container{
+        width: 100%;
+        height: 94vh;
+        min-height: 700px;
+        z-index: 2;
+        position: relative;
+        & > div:first-child{
+            display: inline-block;
+            width: 80%;
+            max-width: 700px;
+
+            padding: 30px;
+            border-radius: 10px;
+            position: absolute;
+            left: 50%;
+            top:50%;
+            transform: translate(-50%, -50%);
+            // background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            .for_mobile_company_logo{
+                width: 80%;
+                max-width: 200px;
+                margin: auto;
+                display: none;
+                img{
+                    width: 100%;
+                    max-width: 200px;
+                    object-fit: contain;
+                }
+            }
+            h1{
+                text-align: center;
+                color: $font_black_4;
+                font-size: 3vw;
+                font-weight: 700;
+                letter-spacing: -0.6px;
+                animation: imageDown 1.5s ease-in-out;
+            }
+            p{
+                font-family: $main_font;
+                text-align: center;
+            }
+            .for_mobile{
+                display: none;
+            }
+        }
+    }
+    .underline{
+        width: 70%;
+        // max-width: 400px;
+        margin: auto;
+        height: 4px;
+        background-color:  $sdn_blue_4;
+        margin: 20px auto;
+        opacity: 0;
+        animation: grow 1s forwards;
+        animation-delay: 1s;
+    }
+    .button_w_icon_from_the_right{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        line-height: 1;
+        text-decoration: none;
+
+        display: inline-block;
+        position: relative;
+        text-transform: uppercase;
+        font-size: 16px;
+        line-height: 1;
+        background-color: $sdn_blue_4;
+        color: #fff;
+        // border-radius: 25px;
+        padding: 15px 50px 15px 25px;
+        cursor: pointer;
+
+        opacity: 0;
+        animation: imageUp 1.5s forwards;
+        animation-delay: 1.5s;
+        img{
+            height: 17px;
+            width: auto;
+            position: absolute;
+            top:50%;
+            right: 23px;
+            transform: translateY(-50%);
+        }
+    }
+    
+}
+
+
+@keyframes imageMove {
+    from{ transform: translate(-50%, -50%) scale(1.2);}
+    to {transform: translate(-50%, -50%) scale(1);}
+}
+
+@keyframes imageDown{
+    from{
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    to{
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+
+@keyframes imageUp{
+    from{
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to{
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+
+
+
+@keyframes grow{
+    0%{
+        width: 0;
+    }
+    100%{
+        opacity: 1;
+        width: 70%;
+    }
+}
+
+
+@media only screen and (min-width: 1600px) {
+    .moving_image_container  .banner_text_container > div:first-child h1{
+        font-size: 50px;
+    }
+}
+
+@media only screen and (max-width: 1600px) {
+    .moving_image_container  .banner_text_container > div:first-child h1{
+        font-size: 3vw;
+    }
+}
+
+@media only screen and (max-width: 1300px) {
+    .moving_image_container  .banner_text_container > div:first-child h1{
+        font-size: 4vw;
+    }
+}
+
+@media only screen and (max-width: 1200px) {
+    .moving_image_container{
+        .banner_text_container > div:first-child{
+            padding: 20px;
+        }
+    }
+}
+
+@media only screen and (max-width: 1100px) {
+    .moving_image_container  .banner_text_container > div:first-child h1{
+        font-size: 4vw;
+    }
+}
+
+@media only screen and (max-width: 900px) {
+    .moving_image_container{
+        .banner_text_container > div:first-child{
+            padding: 10px;
+        }
+    }
+
+}
+
+@media only screen and (max-width: 800px) {
+    .moving_image_container  .banner_text_container > div:first-child{
+        top: 32%;
+    }
+    .moving_image_container{
+        .banner_text_container > div:first-child{
+            .for_mobile{
+                display: inline-block;
+            }
+        }
+    }
+
+}
+
+
+
+
+@media only screen and (max-width: 630px) {
+    .moving_image_container{
+        .banner_text_container > div:first-child{
+            .for_mobile_company_logo{
+                display: block;
+            }
+        }
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .moving_image_container .banner_text_container > div:first-child{
+        width: 90%;
+    }
+ 
+    .moving_image_container  .banner_text_container > div:first-child h1{
+        font-size: 6vw;
+    }
+    .moving_image_container  .underline{
+        margin: 10px 0;
+    }
+    .moving_image_container .button_w_icon_from_the_right {
+        font-size: 14px;
+        padding: 10px 40px 10px 20px;
+        img{
+            height: 14px;
+            right: 14px;
+        }
+    }
+}
+
+@media only screen and (max-width: 500px) {
+    .moving_image_container .banner_text_container > div:first-child{
+        width: 94%;
+    }
+}
+
+@media only screen and (max-width: 420px) {
+
+        .moving_image_container{
+            height: 90vh;
+            min-height: 600px;
+            .moving_image{
+                height: 90vh;
+                min-height: 600px;
+            }
+            .banner_text_container{
+                height: 90vh;
+                min-height: 600px;
+            }
+            .banner_text_container > div:first-child{
+                padding: 30px 16px;
+                .for_mobile{
+                    display: inline-block;
+                }
+            }
+
+        }
+
+
+}
+// MOVING IMAGE BANNER ENDS

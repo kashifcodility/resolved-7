@@ -1,0 +1,133 @@
+<% status_classes = { 
+    'Open' => 'open',
+    'Pulled' => 'pulled', 
+    'Available' => 'received', 
+    'Received' => 'received', 
+    'Loaded' => 'loaded', 
+    'Renting' => 'renting',
+    'Returned' => 'returned',
+    'Delivered' => 'delivered',
+    'Missing' => 'missing',
+    'Damage' => 'damage',
+    'Sold'   => 'sold',
+    'Complete' => 'complete',
+    'Transferred' => 'transferred',
+    'Incomplete' => 'incomplete',
+    'Confirmed' => 'confiemed'
+} %>
+                    
+
+<% complete_order = get_status(@order.id) if @order.status == "Complete"%>
+<% order.products_by_room.each do |room, products| %>                                   
+    <div class="room_component">                            
+        <% if room == 'Unassigned' %>
+            <h3 class="room_name">Room Unassigned</h3>
+        <% else %>
+            <h3 class="room_name"><%= room %></h3>
+        <% end %>
+
+        <div class="separator10"></div>
+        <!-- ROOM ITEM COMPONENT - ric -->
+        <div class="all_ric_components grouped_items">
+            <% products.each do |product| %>
+                <div class="ric <%= 'returned_item' if product.returned? %>">
+                    <div class="returned_icon_container">
+                        <div class="returned_icon">
+                            <img src="<%= image_path('progress_bar_icons/order_destage.svg') %>" alt="item returned">
+                        </div>
+                    </div>
+                    <!-- image -->
+                    <div class="ric_image"><%= image_tag(product.image_url, alt: 'product photo') if product.image_url %></div>
+                    <!-- description -->
+                    <div class="ric_description">
+                        <div class="ric_vertical_line"></div>
+                        <div>
+                            <small class="ric_description_id" style='font-size: 15px; color: #17a2b8'>SKU: <%= product.sku %></small>
+                            <%if order.status != 'Open' && order.status != 'Complete'%>
+                                <span style= "margin-left: 2px;" class="status <%= status_classes[product_status(product.id, product.line_id)] %>"><%= product_status(product.id, product.line_id) %></span>
+                            <%elsif order.status == 'Complete'%>   
+                                <span style= "margin-left: 2px;" class="status <%= status_classes[complete_order[product.id]] %>"><%= complete_order[product.id] %></span>
+                            <% end %>
+                            <br>
+                            <small class="ric_description_id" style='font-size: 15px; color: #17a2b8'>Quantity: <%= product.quantity %></small><br>
+                            <small class="ric_description_id" style='font-size: 15px; color: #17a2b8'>Item type: <b><%= product&.type&.capitalize %></b></small><br>
+                            <small class="ric_description_id" style='font-size: 15px; color: #17a2b8'>Bin Location: <b><%= product&.bin %> 
+                             <%#= link_to " Add new bin", new_bin_path(order_id: order&.id, line: product.line_id) if current_user&.roles&.include?(Role.first(role: "Site Manager")) || 
+                                                                   current_user&.type == 'Employee' %>
+                             </b></small>
+                             <%if !(reviewed?(order&.id, product&.id)) && order.status == "Complete"%>
+                                <a class="add_review_btn" href="#" data-toggle="modal" data-target="#review_modal" product_id = "<%=product.id%>" product_name ="<%=product.name%>" url="<%= product.image_url %>"
+                                    
+                                >|<b> Add review</b></a>
+                             <%end%>
+                             <br>
+                            <small><em>Added: <%= product.added_at&.strftime('%-m/%-d/%y %-I:%M%p') %></em></small>
+                            <% if product.returned? %>
+                                <small>|</small>
+                                <small><em>Returned: <%= product.returned_at&.strftime('%-m/%-d/%y %-I:%M%p') %></em></small>                                                    
+                            <% end %>
+                            <p class="ric_description_name"><%= product.name %></p>
+                            <p class="ric_description_price"><%= number_to_currency(product.total_price_per_month)  %></p>
+                            <div class="separator5"></div>
+                            <div class="button_with_options_dropdown choose_room_options">
+                                <button class="dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <% if room == 'Unassigned' %> 
+                                        Select Room
+                                    <% else %>
+                                        <%= room %>
+                                    <% end %>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <% @rooms.each do |r| %>
+                                        <p class="dropdown-item room_selection" product_line_id="<%= product.line_id %>" room_id="<%= r.id %>" order_id="<%= @order.id %>"><%= r.name %></p>
+                                    <% end %>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+
+
+
+                    
+
+
+
+
+
+                    
+                    <!-- BOOTSTRAP OPTIONS DROPDOWN COMPONENT  - bodc -->
+                    <% if product.active? || product.voidable? %>
+                        <div class="bodc">
+                            <div class="btn-group dropleft">
+                                <img class="bodc_icon" src="<%= image_path('new_icons/options.svg') %>" alt="icon" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <div class="dropdown-menu">
+                                    <% if product.active? %>
+                                        <a href="<%= pdp_path(product[:id]) %>" data-pid="<%= product[:id] %>" data-rating="<%= product[:rating] %>" class="dropdown-item qv_btn" id="p_<%= product[:id] %>">Details</a>
+                                        <a href="<%= barcode_path(line: product.line_id ) %>" class="dropdown-item" id="p_<%= product[:id] %>" target="_blank">Print barcode</a>
+
+                                    <% end %>
+
+                                    <% if product.voidable? %>
+                                        <div class="remove_item_btn_container">
+                                            <p class="dropdown-item remove_item_button">Remove</p>
+                                            <%= form_tag(order_void_line_path, method: :post) do %>
+                                                <%= hidden_field_tag('line_id', product.line_id) %>
+                                                <input type="hidden" id="bin_name_<%=product.line_id%>" name="bin_name_<%=product.line_id%>" />
+                                            <% end %>
+                                        </div>
+                                    <% end %>
+                                </div>
+                            </div>
+                        </div>
+                    <% end %>
+                    <!-- ENDS -->
+                </div>
+            <% end %>
+           
+        </div>
+
+    </div>
+     
+<% end %>
+
+<%#= render partial: 'reviews_modal', locals: { title: 'My Modal Title', colors: @all_colors } %>

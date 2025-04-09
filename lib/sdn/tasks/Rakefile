@@ -1,0 +1,14 @@
+##
+## SDN Application Rakefile
+##
+
+ROOT = File.dirname(__FILE__)
+$:.unshift ROOT + '/lib'
+
+# Load the goods.
+load 'tasks/_sdn.rake'
+
+##
+## Custom (local) rake tasks follow.  General (common) tasks belong in
+## common:lib/tasks/_sdn.rake.
+##

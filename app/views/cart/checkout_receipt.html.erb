@@ -1,0 +1,163 @@
+<div class="container">
+
+
+    <% if @receipt.orders.failed.any? %>
+        <div class="row mb-2">
+            <div class="col-md-12">
+                <div class="alert alert-danger d-block" role="alert">
+		    <div class="mb-1">There was an error processing your order: <strong><em><%= @receipt.orders.failed.first[:reason] %></em></strong></div>
+                </div>
+            </div>
+        </div>
+
+	<div class="row">
+	    <div class="col-md-12">
+		<div class="mb-1">
+                    <div class="alert alert-danger d-block" role="alert">
+			These products were not ordered, but are still in your cart:
+			<%= @receipt.orders.failed.pluck(:items).flatten.pluck(:name).join(', ') %>
+		    </div>
+		</div>
+	    </div>
+	</div>	  
+    <% end %>
+
+    <div class="row">
+        <div class="home-titles">
+            <h2 class="order_conf_title">Order Confirmation</h2><br>
+            <% if @receipt.orders.processed.any? %>
+                <p class="order_conf_number">Order Number: <%=  @receipt.orders.processed.pluck(:id).join(', ') %></p>
+            <% end %>
+
+            <% if 'sales'.among?(@receipt.order_types) %>
+                <a href="<%= order_receipt_path(@receipt.orders.processed.find{ |o| o.type == 'Sales' }&.id) %>" class="btn btn-primary">View Sales Receipt</i></a>                
+            <% end %>
+
+            <% if 'rental'.among?(@receipt.order_types) %>
+                <a href="<%= account_order_path(@receipt.orders.processed.find{ |o| o.type == 'Rental' }&.id) %>" class="btn btn-primary">View Rental Order</i></a>
+            <% end %>
+            
+        </div>
+    </div>
+
+    <p class="the_freeze_info">
+        <img src="https://sdn-content.s3.us-west-1.amazonaws.com/common/freeze_table_w_border.svg" alt="THE FREEZE" title="THE FREEZE">
+    </p>
+
+    <div class="row">
+        <div class="col-12">
+            <hr>
+            <h3>Transaction Information</h3>
+
+            <% if @payment['payment_method'] == 'charge_account' %>
+                <div><strong>Charge Account:</strong> <%= @payment['charge_account'] %></div>
+            <% else %>
+                <div><strong>Card:</strong> <%= @receipt.card.card_type.upcase %> ****<%= @receipt.card.last_four %></div>
+            <% end %>
+            <div><strong>Authorized For:</strong> <%= number_to_currency(@receipt.totals.total) %></div>
+
+            <hr>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Billing Address</h3>
+            <div class="checkout-form-holder">
+                <div><%= "#{@cart.billing_data['first_name']} #{@cart.billing_data['last_name']}" %></div>
+                <div><%= @cart.billing_data['company'] %></div>
+                <div><%= @cart.billing_data['address1'] %></div>
+                <div><%= @cart.billing_data['address2'] %></div>
+                <div><%= "#{@cart.billing_data['city']}, #{@cart.billing_data['state']}. #{@cart.billing_data['zipcode']}" %></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+        <% if @buying && !@renting && @cart.delivery_data['delivery_method'] == 'pickup'%>
+            <h3>Pickup Address</h3>
+         <%else %>
+            <h3>Stage Address</h3>
+        <%end%>
+            <div class="checkout-form-holder">
+                <div><%= "#{@cart.delivery_data['first_name']} #{@cart.delivery_data['last_name']}" %></div>
+                <div><%= @cart.delivery_data['company'] %></div>
+                <div><%= @cart.delivery_data['address'] %></div>
+                <div><%= @cart.delivery_data['address2'] %></div>
+                <div><%= "#{@cart.delivery_data['city']}, #{@cart.delivery_data['state']}. #{@cart.delivery_data['zipcode']}" %></div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+        
+        <% if 'rental'.among?(@receipt.order_types) %>
+            <!-- Rent -->
+            <div class="col-md-6">
+                <h3>Rental Summary</h3>
+                <div><strong>Subtotal: <%= number_to_currency(@receipt.totals.subtotal_rent) %></strong></div>
+                <div><strong>Tax: <%= number_to_currency(@receipt.totals.tax_rent) %></strong></div>
+                <div><strong>Damage Waiver: <%= number_to_currency(@receipt.totals.damage_waiver) %></strong></div>
+                <div><strong>Total: <%= number_to_currency(@receipt.totals.total_rent) %></strong></div>
+                <hr>
+            </div>
+           <div class="col-md-6">
+
+                <% if @cart.delivery_data['delivery_method'] == 'delivery' %>
+                    <h3>Rental Delivery</h3>
+                    <div><strong>Delivery: <%= number_to_currency( @receipt.totals.shipping[:total]) %></strong></div>
+                    <div><strong>Destage: <%= number_to_currency( @receipt.totals.shipping[:total]) %></strong></div>
+                    <div><strong>Shipping Total: <%= number_to_currency( @receipt.totals.shipping[:total] * 2) %></strong></div>
+                    <hr>
+                    <%else%>
+                    <h3>Will Call</h3>
+                    <div><strong>Self-Service: FREE</strong></div>
+                    <div><strong>Load-Assist : $25.00</strong></div>
+                    <div><strong>Shipping Total: $0.00-$25.00</strong></div>
+                    <hr>
+                <% end %>
+            </div>
+                <div class="col-12 alert alert-primary">
+                    <strong>Rental Notes:</strong><br>
+                    <ul>
+                        <li><strong>Due Today: $0.00 <small>(You will see a $1.00 authorization hold)</small></strong></li>
+                        <li><strong>Due Upon Delivery: <%= number_to_currency(@receipt.totals.total_rent + (@cart.delivery_data['delivery_method'] == 'delivery' ?  @receipt.totals.shipping[:total] : 0)) %></strong> <small>(with estimated delivery)</small></li>
+                        <li><strong>Items renew daily after the first 30 days and are charged every 7 days until returned.</strong></li>
+                    </ul>
+                </div>
+            </div> 
+        <% end %>
+
+        <% if 'sales'.among?(@receipt.order_types) %>
+            <!-- Buy -->
+            <div class="col-md-6">
+                <h3>Purchase Summary</h3>
+                <div><strong>Subtotal: <%= number_to_currency(@receipt.totals.subtotal_buy) %></strong></div>
+                <div><strong>Tax: <%= number_to_currency(@receipt.totals.tax_buy) %></strong></div>
+                <div><strong>Total: <%= number_to_currency(@receipt.totals.total_buy) %></strong></div>
+                <hr>
+            </div>
+                <% if @cart.delivery_data['delivery_method'] == 'delivery' %>
+                  <div class="col-md-6">
+                    <h3>Delivery</h3>
+                    <div> Due Upon Delivery </div>
+                    <div><strong>Delivery: <%= number_to_currency(@receipt.totals.shipping[:total]) %></strong></div>
+                    <div><strong>Shipping Total: </strong> <%= number_to_currency(@receipt.totals.shipping[:total]) %></div>
+                    <hr>
+                 </div>
+                <% end %>
+           
+        <% end %>
+    </div>
+
+</div>
+<% if  @receipt.orders.processed.any? %>
+<script>
+gtag('event', 'purchase', {
+  "transaction_id": "<%=@receipt.orders.processed.pluck(:id).join(', ')%>",
+  "affiliation": "SDN Checkout",
+  "value": "<%= number_with_precision(@receipt.totals.total, precision: 2) %>",
+  "currency": "USD"
+});
+</script>
+<% end %>

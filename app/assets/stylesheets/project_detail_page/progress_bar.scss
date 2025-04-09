@@ -1,0 +1,231 @@
+@import'./colors';
+
+$circle_color: $banner_blue;
+$line_color: #dddddd;
+$progress_text_color: $banner_blue;
+$completed_text_color: $banner_blue;
+
+
+.tooltip-inner{
+    padding: .5rem .75rem;
+    color: #000;
+    background-color: #f3f3f3;
+    font-size: 13px;
+    font-weight: 300;
+    opacity: 1;
+}
+.bs-tooltip-auto[x-placement^=top] .arrow::before, .bs-tooltip-top .arrow::before{
+    border-top-color: #f3f3f3;
+}
+
+
+.new_layout{
+.default_progress_bar{
+    width: 100%;
+
+    .progress_bar_container{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .progress_step_container{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .progress_step{
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        .progress_icon_container{
+            width: 51px;
+            height: 51px;
+            z-index: 2;
+            position: relative;
+            .progress_icon{
+                z-index: 2;
+                width: 51px;
+                height: 51px;
+                border-radius: 50%;
+                border: 5px solid $line_color;
+                background-size: 27px 27px;
+                background-repeat: no-repeat;
+                background-position: center;
+                background-color: $line_color;
+            }
+            .billing_icon{
+                position: absolute;
+                top: -2px;
+                right: -2px;
+                width: 18px;
+                height: 18px;
+                object-fit: contain;
+                border-radius: 50%;
+                opacity:0;
+                pointer-events: none;
+            }
+        }
+        .progress_status_container{
+            margin-left: 10px;
+            font-size: 14px;
+            font-weight: 300;
+            line-height: 1.4;
+            height: 51px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            p{
+                margin: 0;
+                padding: 0;
+                font-size: 14px;
+                font-weight: 300;
+                line-height: 1;
+                padding: 4px 0;
+                color: $font_black_1;
+            }
+            small{
+                color: $font_black_1;
+            }
+            .step_with_explanation{
+                display: flex;
+                align-items: center;
+                .tooltip_icon{
+                    width: 16px;
+                    height: 16px;
+                    object-fit: contain;
+                    margin-left: 10px;
+                }
+            }
+        }
+    }
+
+
+    // ICONS depending on classname
+    .creating_project_bg{
+        background-image: image-url('progress_bar_icons/creating_project.svg') ;
+        
+    }
+    .order_created_bg{
+        background-image: image-url('progress_bar_icons/creating_order.svg') ;
+    }
+
+    .order_locked_bg{
+        background-image: image-url("progress_bar_icons/order_freeze.svg") ;
+    }
+
+    .order_delivered_bg{
+        background-image: image-url("progress_bar_icons/order_delivery.svg") ;
+    }
+    .order_renting_bg{
+        background-image: image-url("progress_bar_icons/order_renting.svg") ;
+    }
+
+    .billing_starts_bg{
+        background-image: image-url("progress_bar_icons/dollar_white.svg") ;
+    }
+
+    .renewal_starts_bg{
+        background-image: image-url("progress_bar_icons/renew_white.svg") ;
+
+    }
+    .order_destage_bg{
+        background-image: image-url("progress_bar_icons/order_destage.svg") ;
+    }
+
+    .order_completed_bg{
+        background-image: image-url("progress_bar_icons/order_completed.svg") ;
+    }
+
+    // LINK REQUEST DESTAGE
+    a.request_destage{
+        color: $font_black_1;
+        text-decoration: underline !important; 
+        cursor: pointer;
+        line-height: 1.6;
+        &:hover{
+            color: $primary;
+        }
+    }
+        
+
+    // LINE - progress beteween steps
+    .progress_step_line{
+        width: 5px;
+        height: 100%;
+        margin-top: -4px;
+        margin-bottom: -4px;
+        margin-left: 23px;
+        overflow-y: hidden;
+    }
+    .progress_step_line > div:first-child{
+        width: 5px;
+        height: 100%;
+        background-color:$line_color;
+    }
+
+    // STEP COMPLETED
+   .step_completed .progress_step .progress_icon_container > .progress_icon{
+        background-color: $completed_text_color;
+        background-image: image-url('progress_bar_icons/step_completed.svg') !important;
+    }
+    .step_completed > .progress_step > div:last-child{
+        p, a, div{
+            color: $completed_text_color;
+        }
+        small{
+            color: $completed_text_color;
+        }
+    }
+
+
+    // STEP IN PROGRESS
+    .step_in_progress > .progress_step > div:last-child{
+        p, a, div{
+            color: $progress_text_color;
+        }
+        small{
+            color: $progress_text_color;
+        }
+    }
+    .step_in_progress .progress_step .progress_icon_container > .progress_icon{
+        background-color: $completed_text_color;
+   }
+
+    .step_in_progress > .progress_step_line > div:first-child{
+        animation: up_down 2s infinite;
+    }
+
+    // STEP BILLING
+   .step_billing .progress_step .progress_icon_container > .billing_icon{
+        opacity:1;
+        pointer-events: all;
+    }
+
+
+
+
+
+
+
+
+
+
+
+}
+}
+
+
+
+//     animation: up_down 2s infinite;
+@keyframes up_down{
+    0%{
+        transform: translateY(-100%); 
+        opacity: 0;
+    }
+    100%{
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

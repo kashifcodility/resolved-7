@@ -1,0 +1,313 @@
+<table style="table-layout: fixed; width: 100%;">
+  <tr>
+    <td>
+      <div class="d-flex">
+        <div class="d-flex">
+          <p>Standard</p>
+          <p class="input-line ml-1 options-inputs">&nbsp;&nbsp;<%= '&#10003;'.html_safe if @step11[:standard].present? %> </p>
+        </div>
+    
+        <div class="d-flex ml-2">
+          <p>Luxury</p>
+          <p class="input-line ml-1 options-inputs">&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:luxury].present? %></p>
+        </div>
+      
+        <div class="d-flex ml-2">
+          <p class="no-wrap">Owner's Fee</p>
+          <p class="input-line ml-1 options-inputs">&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:owner].present? %></p>
+        </div>
+      
+        <div class="d-flex ml-2">
+          <p class="no-wrap">Built-in</p>
+          <p class="input-line ml-1 options-inputs">&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:built_in].present? %></p>
+        </div>
+      </div>
+    </td>
+    <td>
+      <div class="d-flex Realtor-Request">
+        <p class="no-wrap">Realtor Request</p>
+        <p class="input-line ml-1 options-inputs"><%=@step11[:realtor_request] %></p>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table style="border-collapse: collapse;" class="step-2-main-table">
+  <tr>
+    <td>
+      <table style="table-layout: fixed; width: 100%;">
+        <tr>
+          <td valign="top">
+            <table style="width: 100%; table-layout: fixed;">
+              <tr>
+                <td>
+                  <div class="d-flex">
+                    <div class="d-flex">
+                      <p>Floor</p>
+                      <p class="input-line ml-1 options-inputs		">
+                      <%=@step11[:floor] %>
+                      </p>
+                    </div>
+                    <div class="d-flex ml-2">
+                      <p>Room</p>
+                      <p class="input-line ml-1 rooms-input">
+                      <%=@step11[:room] %>
+                      </p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex mt-3">
+                    <p>Mirror</p>
+                    <p class="input-line ml-2 options-inputs"><%=@step11[:mirror] %></p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex mt-3">
+                    <p>TV</p>
+                    <p class="input-line ml-2 options-inputs"><%=@step11[:tv] %></p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex w-50 mt-3">
+                    <div class="d-flex">
+                      <p class="mr-2">Art</p>
+                      <p class="ml-3">S</p>
+                      <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:s].present? %></p>
+                      <p class="ml-2">M</p>
+                      <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:m].present? %></p>
+                      <p class="ml-2">L</p>
+                      <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:l].present? %></p>
+                      <p class="ml-2">XL</p>
+                      <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:xl].present? %></p>
+                      <p class="ml-2">XXL</p>
+                      <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:xxl].present? %></p>
+                      <p class="ml-2">XXXL</p>
+                      <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:xxxl].present? %></p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex mt-3">
+                    <p class="mr-2">Rug</p>
+                    <p class="ml-2">5&#215;7</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:'5_by_7'].present? %></p>
+                    <p class="ml-2">6&#215;8</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:'6_by_8'].present? %></p>
+                    <p class="ml-2">7&#215;9</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:'7_by_9'].present? %></p>
+                    <p class="ml-2">8&#215;10</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:'8_by_10'].present? %></p>
+                    <p class="ml-2">other</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;&nbsp;&nbsp;<%='&#10003;'.html_safe if @step11[:other].present? %></p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex mt-3">
+                    <p class="no-wrap">Wall color</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;<%=@step11[:wall_color] %></p>
+                    <p class="ml-2 no-wrap">Floor color</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;<%=@step11[:floor_color] %></p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex mt-3">
+                    <p class="mr-2">Lighting</p>
+                    <p class="ml-2 no-wrap">Needs</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;<%=@step11[:needs] %></p>
+                    <p class="ml-2 no-wrap">Good</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;<%=@step11[:good] %></p>
+                    <p class="ml-2 no-wrap">Drapes Length</p>
+                    <p class="input-line options-inputs">&nbsp;&nbsp;<%=@step11[:drapes_length] %></p>
+                  </div>
+                </td>
+              </tr>
+            </table>
+
+            <table >
+              <tr>
+                <td valign="bottom">
+                  <div class="w-100 mt-4">
+                    <table style="table-layout: fixed; width: 100%;border-collapse:collapse;margin-top: 620px;" class="step-2-table">
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td>S</td>
+                        <td>M</td>
+                        <td>L</td>
+                        <td>Lux</td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td>Sofa</td>
+                        <td><input <%='checked' if @step11[:sofa_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:sofa_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:sofa_large] == "on"%> type="checkbox" /></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td>Loveseat</td>
+                        <td><input <%='checked' if @step11[:love_seat_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:love_seat_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:love_seat_large] == "on"%> type="checkbox" /></td>
+													<td></td>
+												</tr>
+												<tr>
+                          <td></td>
+                          <td>Sectional</td>
+                          <td><input <%='checked' if @step11[:sectional_small] == "on"%> type="checkbox" /></td>
+                          <td><input <%='checked' if @step11[:sectional_medium] == "on"%> type="checkbox" /></td>
+                          <td><input <%='checked' if @step11[:sectional_large] == "on"%> type="checkbox" /></td>
+                          <td></td>
+													</tr>
+												<tr>
+													<td></td>
+													<td>Armchair</td>
+													<td><input <%='checked' if @step11[:armchair_small] == "on"%> type="checkbox" /></td>
+                          <td><input <%='checked' if @step11[:armchair_medium] == "on"%> type="checkbox" /></td>
+                          <td><input <%='checked' if @step11[:armchair_large] == "on"%> type="checkbox" /></td>
+													<td></td>
+												</tr>
+												<tr>
+													<td></td>
+													<td>Bench</td>
+													<td><input <%='checked' if @step11[:bench_small] == "on"%> type="checkbox" /></td>
+                          <td><input <%='checked' if @step11[:bench_medium] == "on"%> type="checkbox" /></td>
+                          <td><input <%='checked' if @step11[:bench_large] == "on"%> type="checkbox" /></td>
+													<td></td>
+												</tr>
+												<tr>
+												<td></td>
+												<td>Cofee/Ottoman</td>
+												<td><input <%='checked' if @step11[:cofee_ottoman_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:cofee_ottoman_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:cofee_ottoman_large] == "on"%> type="checkbox" /></td>
+												<td></td>
+											</tr>
+											<tr>
+												<td></td>
+												<td>Side/Table</td>
+												<td><input <%='checked' if @step11[:side_table_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:side_table_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:side_table_large] == "on"%> type="checkbox" /></td>
+												<td></td>
+											</tr>
+                      <tr>
+                        <td></td>
+                        <td>Console</td>
+                        <td><input <%='checked' if @step11[:console_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:console_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:console_large] == "on"%> type="checkbox" /></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td>Chest/Cabinet</td>
+                        <td><input <%='checked' if @step11[:chest_cabinet_small] == "on"%> type="checkbox"></td>
+                        <td><input <%='checked' if @step11[:chest_cabinet_medium] == "on"%> type="checkbox"></td>
+                        <td><input <%='checked' if @step11[:chest_cabinet_large] == "on"%> type="checkbox"></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td>Plant/Tree</td>
+                        <td>Plant: <input <%='checked' if @step11[:plant] == "on"%> type="checkbox"></td>
+                        <td>Tree: <input <%='checked' if @step11[:tree] == "on"%> type="checkbox"></td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td>Bookcase</td>
+                        <td><input <%='checked' if @step11[:bookcase_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:bookcase_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:bookcase_large] == "on"%> type="checkbox" /></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td>Media</td>
+                        <td><input <%='checked' if @step11[:media_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:media_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:media_large] == "on"%> type="checkbox" /></td>
+                        <td></td>
+                      </tr>
+                      
+                      <tr>
+                        <td></td>
+                        <td>Floor Lamp</td>
+                        <td><input <%='checked' if @step11[:floor_lamp_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:floor_lamp_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:floor_lamp_large] == "on"%> type="checkbox" /></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td>Game Table</td>
+                        <td><input <%='checked' if @step11[:game_table_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:game_table_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:game_table_large] == "on"%> type="checkbox" /></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td>Dining Chair</td>
+                        <td><input <%='checked' if @step11[:dining_chair_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:dining_chair_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:dining_chair_large] == "on"%> type="checkbox" /></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td>Tent</td>
+                        <td><input <%='checked' if @step11[:tent_small] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:tent_medium] == "on"%> type="checkbox" /></td>
+                        <td><input <%='checked' if @step11[:tent_large] == "on"%> type="checkbox" /></td>
+                        <td></td>
+                      </tr>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td valign="top">
+            <table style="width: 100%; table-layout: fixed;border-left: 1px solid black;">
+              <tr>
+                <td>
+                  <div class="w-100">
+                    <p>Notes:</p>
+                    <p><%=@step11[:notes] %> </p>
+                  </div>
+                </td>
+              </tr>
+              <%@step11[:images].each do |img|%>
+              <tr>
+                
+                <td>
+                  
+                  <%= wicked_pdf_image_tag(img,alt: "pdf image", style:"margin:0px;height:160px;width:100%;") %>
+                </td>
+              </tr>
+              <%end if @step11[:images]%>
+              
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

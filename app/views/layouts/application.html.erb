@@ -1,0 +1,195 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title><%= @title || "re|SOLVED | Rental Furniture" %></title>
+		<meta property="type" content="website" />
+		<meta property="title" content="re|SOLVED | Home Staging & Furniture Rental" />
+		<meta name="description" content="Our inventory has been curated by stagers, designers, Realtors, and builders. From transitional to modern to one-of-a-kind, you’ll find the style, scale, and price point to suit your project, perfectly.">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="keyword" content="Seattle, Staging, Decor, Home, Real-Estate, Design, Rental, Stagers, Furniture, Rent" />
+		<meta name="robots" content="index, follow" />
+		 <meta name="theme-color" content="#FFFFFF" />
+		<meta name="msapplication-navbutton-color" content="#FFFFFF" />
+		<link rel="apple-touch-icon" href="favicon/new-apple-touch-icon.png">
+		<link rel="apple-touch-icon" sizes="152x152" href="favicon/new-apple-touch-icon.png">
+		<link rel="apple-touch-icon" sizes="180x180" href="favicon/new-apple-touch-icon.png">
+		<link rel="apple-touch-icon" sizes="167x167" href="favicon/new-apple-touch-icon.png">
+		<link rel="apple-touch-icon" sizes="180x180" href='<%=image_path("favicon/new-apple-touch-icon.png") %>'>
+		<link rel="icon" type="image/png" sizes="32x32" href='<%=image_path("favicon/new-favicon-32x32.png") %>'>
+		<link rel="icon" type="image/png" sizes="16x16" href='<%=image_path("favicon/new-favicon-16x16.png") %>'>
+		<link rel="shortcut icon" href="favicon/new-favicon-16x16.png">
+		<link rel="manifest" href="/site.webmanifest">
+		<%= csrf_meta_tags %>
+		<%= csp_meta_tag %>
+	<link href="https://www.r-e-solved.com" hreflang="en" rel="alternate" />
+
+	<!-- Google Fonts -->
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+				
+	
+
+
+
+<!-- BOOTSTRAP DATEPICKER -->
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.css">
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.css">
+		<!-- <script src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> -->
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js"></script>
+		<!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> -->
+<!-- DATEPICKER ENDS -->
+
+		<!--Font Awesome Version 5.0.0  || https://fontawesome.com/icons?d=gallery  -->
+
+		<%#= stylesheet_link_tag    "application", :media => "all" %>
+		<%#= javascript_include_tag 'application', media: 'all' %>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-30293159-1"></script>
+	
+	<script src="https://js.stripe.com/v3/"></script>
+
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('set', 'userId', '<%unless current_user.nil? %><%=current_user.id%><%end%>'); 
+ga('create', 'UA-30293159-1', 'auto');
+ga('send', 'pageview');
+window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-30293159-1', {'currency': 'USD'});
+</script>
+<!-- End Google Analytics -->
+
+	<!-- For testimonials -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.theme.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.transitions.css">
+	<!-- end -->
+
+
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+	</head>
+	<body data-offset="200" data-spy="scroll" data-target=".ow-navigation" data-gr-c-s-loaded="true">
+
+		<!-- IMPORTANT! PRELOAD FONT -->
+		<div class="font_preload" style="opacity: 0">
+			<span style="font-family: 'Poppins', sans-serif;"></span>
+			<span style="font-family: 'Poppins', sans-serif;"></span>
+		</div>
+		<!-- PRELOAD FONT ENDS -->
+
+		<div id="submit_order_message"><h3>Please wait. It might take up to 60 seconds to process this order.</h3></div>
+		<!-- LOADER -->
+		<div class="loader"><div></div></div>
+
+		<% unless request.original_url.include?('cms')%>
+			<div class="page_wrapper">
+				<%= render 'layouts/header' %>
+				<div id="nav_bg"></div>
+				<%= render 'layouts/notifications' %>
+				<%= yield %>
+				<%= render 'layouts/footer' %>
+			</div>
+		<% else %>
+			<div class="page_wrapper">
+				<%= yield %>
+			</div>
+		<% end %>
+		<% #else %>
+			<!--<div id="closing_message">
+				<div>
+						<h3>Dear SDN Community,</h3>
+						<p class="title_underline"></p>
+						<div class="separator20"></div>
+						<h5>We are sad to announce that <span class="red">SDN is closing shop and no longer taking orders</span>.</h5>
+						<h5>We are grateful for your support of our business over the last nine years. Stagers are the creative design gurus that have driven our mission. </h5>
+						<h5>We were fortunate to have a strong community of SDN customers and supporters, and we wish you and your businesses all the best. </h5>
+						<div class="separator20"></div>
+						<div class="separator20"></div>
+						<h5>If you need to connect with us directly, please email <span class="teal">support@sdninc.net</span>.</h5>
+						<div class="separator20"></div>
+						<h5>Sincerely,</h5>
+						<h5>The SDN Team</h5>
+						<div class="separator20"></div>
+						<div class="separator20"></div>
+						<a href="<%= logout_path %>">Logout</span></a>
+				</div>
+			</div>-->
+		<% #end %>
+
+
+	</body>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="https://kit.fontawesome.com/0bffe0d6ee.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://sdninc.atlassian.net/s/d41d8cd98f00b204e9800998ecf8427e-T/-vm4ego/b/20/a44af77267a987a660377e5c46e0fb64/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?locale=en-US&collectorId=487ecfa8&SameSite=None"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+<%#= javascript_include_tag "global_functions" %>
+<%#= javascript_include_tag "ui-elements.js" %>
+
+
+<script>
+	window.intercomSettings = {
+		app_id: "ajb00rm4",
+<% if user_signed_in? %>
+		name: "<%= current_user.full_name %>", // Full name
+		email: "<%= current_user.email %>", // Email address
+		created_at: "<%= current_user.join_date.to_i %>", // Signup date as a Unix timestamp
+		phone: "<%= current_user.telephone %>",
+		"Default Card Expiration": "<%= (Date.new(current_user.default_credit_card.year.to_i, current_user.default_credit_card.month.to_i,1).next_month.prev_day.to_datetime.to_i rescue nil) %>",
+		"Default Card Expired": "<%= ((Date.new(current_user.default_credit_card.year.to_i, current_user.default_credit_card.month.to_i,1).next_month.prev_day.to_datetime.to_i < Time.zone.now.to_i ? 'True' : 'False') rescue 'False') %>",
+		"Default Card Expiring Soon": "<%= ((Time.zone.now.to_i + 30.days.to_i > Date.new(current_user.default_credit_card.year.to_i, current_user.default_credit_card.month.to_i,1).next_month.prev_day.to_datetime.to_i ? 'True' : 'False') rescue 'False') %>",
+		"User Type": "<%= current_user.occupation %>" 
+<% end %>
+	};
+
+
+
+</script>
+
+<script>
+// We pre-filled your app ID in the widget URL: 'https://widget.intercom.io/widget/ajb00rm4'
+(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/ajb00rm4';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
+</script>
+
+</html>

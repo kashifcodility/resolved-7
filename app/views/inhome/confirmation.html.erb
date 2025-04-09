@@ -1,0 +1,153 @@
+<div class="container-fluid">
+
+    <div class="latest-product shop-1 container-fluid no-padding woocommerce">
+        <div class="products-container">
+
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1>Order Confirmation</h1>
+                    <p>Thank you for your purchase with re|SOLVED. A copy of this confirmation has been emailed to you.</p>
+                    <p>Explore our full inventory of designer staging <%= link_to('furnishings for sale', plp_path) %>.</p>
+                    <hr>
+                </div>
+            </div>            
+
+            <div class="row">
+                
+                <div class="col-12 col-md-5">
+                    <div class="row">
+                        <div class="col-12">
+                            <h2>Billing</h2>
+
+                            <table class="table table-sm">
+                                <tbody>
+				    <tr>
+					<td>Order Number:</td>
+					<td><%= @summary.ihs_order_id %></td>
+				    </tr>
+                                    <tr>
+                                        <td>Transaction Number:</td>
+                                        <td><%= @billing.transaction %></td>
+                                    </tr>
+                                    <tr>
+                                        <td>In the Amount of:</td>
+                                        <td><%= number_to_currency(@receipt.amount) %></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Order Date:</td>
+                                        <td><%= @billing.date.strftime('%D') %></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Billed to:</td>
+                                        <td><%= @receipt.card_type %> ending in <%= @receipt.last_four %></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Cardholder:</td>
+                                        <td>
+                                            <%= @billing.name %><br>
+                                            <%= @billing.address.street %><br>
+                                            <%= @billing.address.city %>,
+                                            <%= @billing.address.state %>
+                                            <%= @billing.address.zip %><br>
+                                            <%= @billing.mobile %><br>
+                                            <%= @billing.email %>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                        </div>
+                        <div class="col-12">
+                            <h2>Delivery</h2>
+
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr>
+                                        <td>Method:</td>
+                                        <td><%= @delivery.label %></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Date:</td>
+                                        <td>To be arranged when items are available</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Address:</td>
+                                        <td>
+                                            <%= @delivery.address.street %><br>
+                                            <%= @delivery.address.city %>,
+                                            <%= @delivery.address.state %>
+                                            <%= @delivery.address.zip %><br>
+                                            <%= @delivery.mobile %><br>
+                                            <%= @delivery.email %>
+                                        </td>
+                                    </tr>                                    
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2">
+                                            These items are currently staged in a home for sale.
+                                            <%= @delivery.note %>
+                                            All sales are final once you have received your items.  
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="row no-gutters">
+                        <h2>Order Summary</h2>
+
+                        <% @products.each do |product| %>
+			    <div class="cart-item">
+			        <div class="row no-gutters">
+				    <div class="col-3 col-md-2">
+                                        <img src="<%= product[:image] %>" alt="product image">
+				    </div>
+				    <div class="col-8 col-md-10">
+				        <div class="cart-item-name">
+                                            <%= product[:name] %>
+                                        </div>
+				        <div class="cart-item-intent text-right">
+					    <%= number_to_currency(product[:price]) %>
+				        </div>
+				    </div>
+			        </div>                                                       
+			    </div>
+                        <% end %>
+                    </div>
+
+                    <div class="row no-gutters">
+                        <div class="col-5 offset-7">
+                            <table class="table table-borderless table-sm">
+                                <tbody>
+                                    <tr>
+                                        <td>Subtotal:</td>
+                                        <td class="text-right"><%= number_to_currency(@summary.subtotal) %></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Delivery:</td>
+                                        <td id="summary_delivery_total" class="text-right"><%= number_to_currency(@summary.delivery_total) %></td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid #ccc;">
+                                        <td>Tax:</td>
+                                        <td id="summary_tax_total" class="text-right"><%= number_to_currency(@summary.tax) %></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Total:</th>
+                                        <th id="summary_total" class="text-right"><%= number_to_currency(@summary.total) %></th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,65 @@
+@import'./colors';
+
+.delivery_service_table{
+    margin: 0;
+    min-width: 320px;
+    margin: 20px 10px 0;
+    .rates_title{
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        h4{
+            font-size: 20px;
+            color: $dark_teal;
+        }
+    }
+
+    table{
+        font-family: sans-serif !important;
+        thead{
+
+            tr{
+                border: none !important;
+                border-bottom: 1px solid $light_grey;
+                th{
+                    border: none !important;
+                    font-size: 12px;
+                    padding: 10px 0;
+                    font-weight: 400;
+                }
+            }
+        }
+        tbody{
+            tr{
+                border: none !important;
+                border-bottom: 1px solid $light_grey;
+                th{
+                    color: rgb(174, 174, 174);
+                    font-size: 12px;
+                    padding: 10px 0;
+                    font-weight: 400;
+                }
+                td{
+                    color: $grey;
+                    font-weight: 400;
+                    font-size: 12px;
+                    padding: 10px 0;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .delivery_modal_text{
+        padding: 20px;
+        font-size: 12px;
+    }
+    .delivery_service_table .rates_title h4{
+        font-size: 16px;
+    }
+}
+
+
+

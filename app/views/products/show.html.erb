@@ -1,0 +1,62 @@
+<div class="Product-detail container-fluid no-padding woocommerce">
+    
+    <div class="separator_w_border"></div>
+    <div class="separator20"></div>
+
+    <!-- Product Details -->
+    <div class="container" id="pdp">
+
+	<%= render(partial: 'item_detail', locals: { product: @product, orders_to_add_to: @orders_to_add_to }) %>
+	
+    </div>
+
+    <div class="separator20"></div>
+    <div class="separator20"></div>
+
+    <!-- Related Products -->
+    <% if @related_products&.any? %>
+        <div class="col-12 content-area">
+            <div class="suggested-items">
+                <h2>Suggested Items</h2>
+            </div>
+            <!-- Products -->
+            <ul class="products related_products">
+                <% @related_products.each do |product| %>
+                    <%= render partial: 'item', locals: { product: product } %>
+                <% end %>
+            </ul>
+        </div>
+    <% end %>    
+
+</div>
+
+<%= render partial: 'quickview_modal' %>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    
+    var selectElement = document.getElementById('room_id');
+    
+
+   
+    if (selectElement) {
+      
+      selectElement.addEventListener('change', function () {
+       
+        var selectedRoomId = selectElement.value; 
+        
+
+        
+        var linkElements = document.querySelectorAll('.single_add_to_cart_button');
+        
+        linkElements.forEach(function (linkElement) {
+          
+          linkElement.setAttribute('data-room', selectedRoomId);
+        });
+      });
+    }
+  });
+</script>
+
+

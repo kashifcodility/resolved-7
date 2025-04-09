@@ -1,0 +1,47 @@
+<div class="new_design">
+  
+    <%= form_tag(update_room_path, id: 'address', method: 'put') do %>
+
+        <div class="outside_wrapper">
+            <div class="wrapper800 form_design_1">
+                <div class="separator10"></div>
+
+               
+                <div class="form_title">EDIT ROOM</div>
+                <div class="separator10"></div>
+
+                
+                <div class="inline_elements_min_width_130px">
+                    <div class="input_w_label">
+                        <label for="project_name">Room Name</label>
+                        <%= text_field_tag :name , "", required: true, value: @room.name %>
+                        <%= hidden_field_tag :id , "", required: true, value: @room.id %>
+                    </div>
+                </div>
+                <div class="separator10"></div>
+ 
+               
+                </div>
+
+            </div>
+        </div>
+
+
+       
+        <div class="outside_wrapper ">
+            <div class="wrapper800 form_design_1">
+                <div class="buttons_proceed_and_back">
+                    <div class="back_button">
+                        <a href="/rooms">BACK TO ROOMS <%=image_tag("new_icons/back_arrow_grey.svg", alt:"back_arrow_grey") %></a>
+                    </div>
+                    <div class="proceed_button">
+                        <button type="submit">UPDATE ROOM <%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %></button>
+                    </div>
+                </div>
+                <div class="separator20"></div>
+            </div>
+        </div>
+        
+    <% end %>
+   
+</div>

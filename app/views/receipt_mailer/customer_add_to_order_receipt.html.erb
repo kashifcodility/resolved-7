@@ -1,0 +1,29 @@
+<h1>Order <%= @order.order_id %> Updated</h1>
+
+<p>
+    Hi<%= " #{@order.user.first_name}" if @order.user.first_name %>,<br><br>
+    
+    This email is to confirm that you've added the following products to order
+    <strong><%= @order.order_id %></strong> on <strong><%= Date.today.strftime('%B %e, %Y') %></strong>.<br><br>
+
+    For more information or to manage this order, please go to the order in your account:
+    <%= "%s%s" % [ root_url.delete_suffix('/'), Rails.application.routes.url_helpers.account_order_path(@order.order_id) ] %><br><br>
+</p>
+
+<ul>
+    <% @products.each do |product| %>
+	<li><%= product.name %></li>
+    <% end %>
+</ul>
+
+<hr>
+
+<p>
+    <strong>Thank you!</strong><br>
+</p>
+
+<p>
+    A scheduler is now processing your order and will be in contact with you shortly. 
+    If you need immediate response between 9:00 AM - 5:00 PM, please contact Staging &amp; 
+    Design Network at (425) 697-3045, or email: support@r-e-solved.com.
+</p>

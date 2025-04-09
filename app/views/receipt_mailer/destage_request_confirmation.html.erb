@@ -1,0 +1,43 @@
+<h1>Order <%= @order.order_id %> Destage Requested</h1>
+
+<p>
+    Hi<%= " #{@customer_first_name}" if @customer_first_name %>,<br><br>
+    
+    This email is to confirm that you've requested a destage for order <strong><%= @order.order_id %></strong>.<br><br>
+</p>
+
+<p>
+    <% if @order.model.project_name %>
+	<strong>Project:</strong> <%= @order.model.project_name %><br>
+    <% end %>
+    
+    <strong>Address: </strong> <%= @order.model.address.full_address %><br>
+    
+    <strong>Requested Date:</strong> <%= @date.strftime('%B %e, %Y') %><br>
+    
+    <% if @expedited %>
+	<strong>Expedited Destage Requested</strong><br><br>
+    <% end %>
+
+    <% if @siblings.any? %>
+	<strong>Related Orders:</strong>
+	<ul>
+	<% @siblings.each do |order| %>
+	    <li>
+		#<%= order.id %> /
+		<%= "#{order.project_name} / " if order.project_name %>
+		<%= order.address.full_address %>
+	    </li>
+	<% end %>
+	</ul><br>
+    <% end %>
+</p>
+
+<p>We'll be in contact within one business day to confirm.<br><br></p>
+
+<hr>
+
+<p>
+    <strong>Thank you!</strong> Please contact us with any questions.<br>
+    Design Network at (425) 697-3045, or email: support@r-e-solved.com.    
+</p>

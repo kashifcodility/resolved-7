@@ -1,0 +1,34 @@
+
+<% if false %>
+
+
+<div class="profile-navigation">
+    <div class="profile-nav-item-mb">
+        <a data-toggle="collapse" href="#accountMenu" aria-expanded="true" aria-controls="accountMenu">☰ Menu</a>
+    </div>
+    <div id="accountMenu" class="collapse dont-collapse-sm" role="tabpanel" aria-labelledby="accountMenu">
+        <ul class="navbar navbar-expand-xs">
+            <li class="profile-nav-item"><%= link_to('Profile', account_path, style: request.path == '/account' ? 'border-bottom: solid 3px var(--brand);' : '') %></li>
+            <li class="profile-nav-item"><%= link_to('Orders', account_orders_path, style: request.path == '/account/orders' ? 'border-bottom: solid 3px var(--brand);' : '') %></li>
+            <li class="profile-nav-item"><%= link_to('Delivery Appointments', '/delivery_appointments/new_delivery_appointment', style: request.path == '/delivery_appointments/new_delivery_appointment' ? 'border-bottom: solid 3px var(--brand);' : '') %></li>
+
+
+            <li class="profile-nav-item"><%= link_to('Income', account_accounting_income_path, style: request.path == '/account/income' ? 'border-bottom: solid 3px var(--brand);' : '') %></li>
+            <li class="profile-nav-item"><%= link_to('Payment History', account_accounting_payments_path, style: request.path == '/account/payments' ? 'border-bottom: solid 3px var(--brand);' : '') %></li>
+
+
+            
+            <!-- <li class="profile-nav-item"><%= link_to('Accounting', account_accounting_path, style: request.path == '/account/accounting' ? 'border-bottom: solid 3px var(--brand);' : '') %></li> -->
+            <li class="profile-nav-item"><%= link_to('Inventory', account_inventory_path, style: request.path == '/account/inventory' ? 'border-bottom: solid 3px var(--brand);' : '') %></li>
+	    <% if session['god'] %>
+	        <li class="profile-nav-item"><%= link_to('Logout', '/admin/users/unimpersonate') %></li>
+	    <% else %>
+	        <li class="profile-nav-item"><%= link_to('Logout', logout_path) %></li>
+	    <% end %>
+        </ul>
+    </div>
+</div>
+
+
+<% end %>
+

@@ -1,0 +1,116 @@
+<div class="control-bar">
+    <div class="row text-center">
+        <div class="col">
+            <div class="slogan">
+            <%if @order.ids.count > 1 %>
+                Items List for Orders:
+            <% else %>
+                Items List for Order:
+            <% end %>
+             <%= @order.ids.join(' / ') %>
+            </div>
+        </div>
+        <div class="col">
+            <a href="javascript:window.print()">Print</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <% if @related_orders.size > 1 %>
+    <div class="container text-center mt-2 order-select">
+        We found <%= @related_orders.size %> orders related to this order. If you would like a consolidated receipt, select the related orders:
+        <%= form_tag(order_receipt_grouped_path) do %>
+        <% @related_orders.each do |order| %>
+        <%= check_box_tag('orders[]', order.id.to_s, order.id.among?(@order_ids), id: "order_#{order.id}") %> <label for="order_<%= order.id %>"><%= order.id %></label>
+        <% end %>
+        <button type="submit" class="btn btn-info btn-sm">Update</button>
+        <% end %>
+    </div>
+    <% end %>
+</div>
+
+<div class="invoice-container">
+
+    <!--.control-bar-->
+    <div class="invoice" id="invoice">
+        <h4>EXHIBIT A: ITEM LIST</h4>
+        <div class="row">
+
+            <div class="col-6 mt-3">
+                <div>Paid To:</div>
+                <p>
+                    re|SOLVED<br>
+                    5901 23rd Dr West #105<br>
+                    Everett, WA 98203<br>
+                </p>
+            </div>
+            <div class="col-6 mt-3">
+                <div>Billed To:</div>
+                <p>
+                    <%= @order.billing_address&.name %><br>
+                    <% if @order.billing_address %>
+                        <%= @order.billing_address.address1 %><br>
+                        <%= "#{@order.billing_address.city}, #{@order.billing_address.state}. #{@order.billing_address.zipcode}" %><br>
+                    <% end %>
+                </p>
+            </div>
+
+            <div class="col-12">
+            <hr>
+            </div>
+
+            <div class="col-6">
+            <%if @order.ids.count > 1 %>
+                 <div>Orders:</div>
+            <% else %>
+            <div>Order:</div>
+            <% end %>
+                <p>
+                  <%= @order.ids.join(' / ') %>
+                </p>
+            </div>
+            <div class="col-6">
+               <div>Service Address:</div>
+                <p>
+                    <% if @order.project_name %>
+                    <strong><%= @order.project_name %></strong><br>
+                    <% end %>
+                    <%= @order.address.address1 %><br>
+                    <%= "#{@order.address.city}, #{@order.address.state}. #{@order.address.zipcode}" %>
+                </p>
+            </div>
+        </div>
+        <div class="">
+        <h4>Itemized Order Breakdown</h4>
+        </div>
+        <div class="invoicelist-body table-responsive">
+            <table class="table text-left">
+                <thead>
+                    <th>Product/Description</th>
+                     <%if @order.ids.count > 1 %>
+                        <th>Order</th>
+                    <%end%>
+                </thead>
+                <tbody>
+                    <% @order.product_lines.each do |line| %>
+                        <%if line.active == 'Sold'%>
+                            <tr class="line-item">
+                                <td id="product_info"><%= line.name %> (#<%= line.id %>)</td>
+                                <% if @order.ids.count > 1 %>
+                                    <td id="date_info"><%= line.order %></td>
+                                <% end %>
+                            </tr>
+                        <%end%>
+                    <% end %>
+                </tbody>
+            </table>
+            <!--a class="control newRow" href="#">+ New ROW</a-->
+        </div>
+        <hr>
+        <footer class="row">
+            <div class="col-12 text-center">
+                <p class="notaxrelated">re|SOLVED | support@sdninc.net | 833-STAGE-SDN</p>
+            </div>
+        </footer>
+    </div>

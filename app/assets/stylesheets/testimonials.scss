@@ -1,0 +1,107 @@
+@import'./colors';
+
+.testimonials_container{
+    width: calc(100% - 40px);
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: $intercom_grey;
+    border-radius: 5px;
+}
+.top-icon,
+.bottom-icon{
+    display: block;
+    font-size: 70px;
+    color: #fdfeff;
+    text-align: center;
+    margin: 0 auto;
+}
+.testimonial{
+    width: 90%;
+    max-width: 800px;
+    margin: auto;
+    min-width: 300px;
+    position: relative;
+    overflow: hidden;
+    color: #222;
+    z-index: 1;
+    text-align: center;
+}
+
+.testimonial .testimonial-content{
+    width: 100%;
+    margin: auto;
+    text-align: center;
+    padding: 40px 0 0 ;
+    font-family: $new_font;
+    color: #fff;
+}
+.testimonial .testimonial-title{
+    font-size: 26px;
+    font-weight: 500;
+    margin: 0;
+    text-transform: capitalize;
+    font-family: $new_font;
+}
+.five_stars{
+    width: 180px;
+    height: auto;
+    margin-top: 10px;
+    margin-bottom: -10px;
+}
+.testimonial .description{
+    font-size: 16px;
+    font-family: $new_font;
+    line-height: 1.6;
+    padding-top: 20px;
+    color: #fff;
+}
+.owl-theme .owl-controls .owl-page span{
+    width: 12px;
+    height: 12px;
+    background: $new_black !important;
+    // border: 2px solid $font_black_4;
+}
+.owl-theme .owl-controls{
+    margin: 0;
+    padding: 0;
+}
+
+.owl-theme .owl-controls .owl-page:active span{
+    color: $font_black_4;
+}
+@media only screen and (max-width: 767px){
+    .testimonial{
+        text-align: center;
+    }
+    .testimonial .pic{
+        float: none;
+        margin: 20px auto 0;
+    }
+    .testimonial .testimonial-content{
+        width: 100%;
+        float: none;
+        padding: 40px 0 20px;
+    }
+    .testimonial .description{
+        font-size: 14px;
+    }
+}
+@media only screen and (max-width: 480px){
+    .testimonial{ padding: 0; min-width: 280px;}
+    .testimonial .testimonial-title{
+        font-size: 22px;
+    }
+    .testimonials_container{
+        padding: 20px;
+    }
+}
+
+@media only screen and (max-width: 480px){
+    .testimonial .testimonial-title{
+        font-size: 20px;
+    }
+    .testimonials_container{
+        padding: 20px 15px;
+    }
+}

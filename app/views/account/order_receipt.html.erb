@@ -1,0 +1,282 @@
+<div class="control-bar">
+    <div class="row text-center">
+        <div class="col">
+            <div class="slogan">
+            <%if @order.ids.count > 1 %>
+                Receipt for Orders: 
+            <% else %>
+                Receipt for Order:
+            <% end %>
+             <%= @order.ids.join(' / ') %>
+            </div>
+        </div>
+        <div class="col">
+            <a href="javascript:window.print()">Print</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <% if @related_orders&.size.to_i > 1 %>
+    <div class="container text-center mt-2 order-select">
+        We found <%= @related_orders.size %> orders related to this order. If you would like a consolidated receipt, select the related orders:
+        <%= form_tag(order_receipt_grouped_path) do %>
+        <% @related_orders.each do |order| %>
+        <%= check_box_tag('orders[]', order.id.to_s, order.id.among?(@order_ids), id: "order_#{order.id}") %> <label for="order_<%= order.id %>"><%= order.id %></label>
+        <% end %>
+        <button type="submit" class="btn btn-info btn-sm">Update</button>
+        <% end %>
+    </div>
+    <% end %>
+</div>
+
+<!-- <div class="container text-center">
+    Seeing errors on this receipt? View the <a href="https://legacy.r-e-solved.com/my_account/print_order_receipt.php?order_id=<%= @order.ids.first %>">legacy receipt</a> or <%= link_to('contact us', contact_path) %>.
+</div> -->
+
+<div class="invoice-container">
+
+    <!--.control-bar-->
+    <div class="invoice" id="invoice">
+        <div class="row">
+
+            <div class="col-6 mt-3">
+                <div>Paid To:</div>
+                <p>
+                    re|SOLVED<br>
+                    8131 W Bostian RD STE B100<br>
+                    Woodinville, WA 98072<br>
+                </p>
+            </div>
+            <div class="col-6 mt-3">
+                <div>Billed To:</div>
+                <p>
+                    <%= "#{@current_user&.first_name} #{@current_user&.last_name}" %><br>
+                    <% if @order.billing_address %>
+                        <%= @order.billing_address.address1 %><br>
+                        <%= "#{@order.billing_address.city}, #{@order.billing_address.state}. #{@order.billing_address.zipcode}" %><br>
+                    <% end %>
+                </p>
+            </div>
+
+            <div class="col-12">
+            <hr>
+            </div>
+      
+            <div class="col-6">
+            <%if @order.ids.count > 1 %>
+                 <div>Orders:</div>
+            <% else %>
+            <div>Order:</div>
+            <% end %>
+                <p>
+                  <%= @order.ids.join(' / ') %>
+                </p>
+            </div>
+            <div class="col-6">
+               <div>Service Address:</div>
+                <p>
+                    <% if @order.project_name %>
+                    <strong><%= @order.project_name %></strong><br>
+                    <% end %>
+                    <%= @order.address&.address1 || 'N/A'%><br>
+                    <%= "#{@order.address&.city}, #{@order.address&.state}. #{@order.address&.zipcode}" %>
+                </p>
+            </div>
+        </div>
+        <div class="">
+        <h4>Itemized Order Breakdown</h4>
+        </div>
+        <div class="invoicelist-body table-responsive">
+            <table class="table text-left">
+                <thead>
+                    <th>Product/Description</th>
+                     <%if @order.ids.count > 1 %>
+                        <th>Order</th>
+                    <%end%>
+                    <th>Dates</th>
+                    <th>Days</th>
+                    <th>Subtotal</th>
+                </thead>
+                <tbody>
+                    <% @order.product_lines.each do |line| %>
+                        <tr class="line-item">
+                            <td id="product_info"><%= line.name %> (#<%= line.id %>)</td>
+                            <% if @order.ids.count > 1 %>  
+                                <td id="date_info"><%= line.order %></td>
+                            <% end %>
+                            <% if line.returned_on.nil? && line.type == "Rental" %>
+                                <td id="date_info"><%= line.shipped_on&.strftime("%m/%d/%y") %> - Renting</td>
+                            <% elsif line.returned_on.nil? && line.type == "Sales" %>
+                                <td id="date_info"><%= line.created_on.strftime("%m/%d/%y") %> </td>
+                            <% else %>
+                                <td id="date_info"><%= line.created_on.strftime("%m/%d/%y") + " - " + line.returned_on.strftime("%m/%d/%y") %></td>
+                            <% end %>			    
+                            
+                            <%if line.type == "Sales" %>
+                                <td>Sale</td>
+                            <%elsif line.returned_on.nil? == FALSE %>
+                                <td id="date_info"><%= (line.returned_on - line.started_on).to_i    %></td>
+                            <%else %>
+                                <td id="date_info"><%= (Date.today - line.started_on).to_i rescue 0  %></td>
+                            <%end %>
+                     
+                            <% if line.type == "Sales" %>
+                            <td class="line-cost line-sub money"><%= number_to_currency(line.sales_price, unit: '') %></td>
+                            <% else %>
+                            <td class="line-cost line-sub money"><%= number_to_currency(line.base_price, unit: '') %></td>
+                            <% end %>
+                        </tr>
+                    <% end %>
+
+                    <% if @order.fee_lines %>
+                        <% @order.fee_lines.each do |line| %>
+                            <% @order.extra_fees.each do |fee| %>
+                                <% if fee.order_line == line.id%>
+                                    <tr class="line-item">
+                                        <td id="product_info">
+                                            <%= fee.type %><%= " - #{fee.description}" if fee.description.present? %>
+                                        </td>
+                                        <%if @order.ids.count > 1 %>
+                                            <td id="date_info"><%= fee.order_id %></td>
+                                        <%end%>
+                                        <td id="date_info"><%= fee.date%></td>
+                                        <td id="date_info"></td>
+                                        <td class="line-cost line-sub money"><%= number_to_currency(line.base_price, unit: '') %></td>
+                                    </tr>
+                                <%end%>
+                            <%end%>
+                        <%end%>
+                    <%end%>
+                </tbody>
+            </table>
+            <!--a class="control newRow" href="#">+ New ROW</a-->
+        </div>
+        <!--.invoice-body-->
+        <div class="invoicelist-footer">
+            <table>
+                <tr>
+                    <td>Product</td>
+                    <td class="money"><%= number_to_currency(@order.subtotal, unit: '') %></td>
+                </tr>
+                   <tr>
+                    <td>Shipping</td>
+                    <td class="money"><%= number_to_currency(@order.shipping, unit: '') %></td>
+                </tr>
+                   <tr>
+                    <td>Extra Fees</td>
+                    <td class="money"><%= number_to_currency(@order.extra_fees_total, unit: '') %></td>
+                </tr>
+                <tr>
+                    <td>Tax</td>
+                    <td class="money"><%= number_to_currency(@order.tax_amount, unit: '') %></td>
+                </tr>
+                <tr>
+                    <td>Damage Waiver</td>
+                    <td class="money"><%= number_to_currency(@order.damage_waiver, unit: '') %></td>
+                </tr>
+                
+                 <tr>
+                <td>Total</td>
+                <td class="money" id="total_owed"><%= number_to_currency(@order.total, unit: '') %></td>
+                </tr>
+            </table>
+        </div>
+        <hr>
+        <h4>Payment History</h4>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <th>Payment Method</th>
+                    <th>Order</th>
+                    <th>Date</th>		    
+                    <th>Amount</th>
+                </thead>
+                <tbody>
+                    <% @payment_log.sort_by(&:date).each do |payment|
+                    next if payment.amount < 0.02%>
+                    
+                            <tr>
+                                <td>
+                                    <%= "#{payment.card_type.upcase} - " if payment.card_type %>
+                                    <%=  "#{payment.card_last_4}" if payment.card_last_4 %>
+                                </td>
+                                <td>
+                                    <%= payment.order %>
+                                </td>
+                                <td><%= payment.date.strftime('%F') %></td>
+                                <td class="money"><%= number_to_currency(payment.amount, unit: '') %></td>
+                            </tr>
+                    <% end %>
+
+                    <% @order.refunds.each do |refund| %>
+                    <% if refund.response.nil? && refund.status == "OK"%>
+                    <tr class="line-item">
+                        <td>Refund - <%= refund.reason_description %></td>
+                        <td><%= refund.timestamp.strftime('%F') %></td>
+                        <td >(<%= number_to_currency(refund.amount, unit: '$') %>)</td>
+                    </tr>
+                    <%end%>
+                    <%end%>
+
+                </tbody>
+            </table>
+        </div>
+        <div class="invoicelist-footer">
+            <table>
+            <%unless @order.total_refund == 0.00%>
+            <tr>
+                 <td>Total Charged</td>
+                   <td class="money"><%= number_to_currency(@order.total_charged, unit: '') %></td>
+            </tr>
+             <tr>
+                    <td>Total Refunded</td>
+                   <td>(<%= number_to_currency(@order.total_refund, unit: '$') %>)</td>
+                </tr>
+            <%end%>
+                <tr>
+                    <td>Total Paid</td>
+                   <td class="money"><%= number_to_currency(@order.total_paid, unit: '') %></td>
+                </tr>
+            
+            </table>
+        </div>
+ 
+        <!--.invoice-body-->
+        <div class="note">
+            <h2><strong>Thank you!</strong></h2>
+            <small>
+
+                <p>We appreciate your business! Please let us know if you have any questions/concerns about your bill <a href="mailto:support@r-e-solved.com" target="_blank">support@r-e-solved.com</a> or call us at
+                    425-697-3045
+                </p>
+                <p><strong><sup>**</sup> <em>Miscellaneous Charges</em></strong> are made up from past delivery fees, extra time or design time. Your original emailed receipt will a break down of those charges.</p>
+
+                <p>
+                    For every order, the first 30 days are billed and non-refundable, to meet a 30-day minimum rental. Items are prorated by the day
+                    after the first 30 days. The rental will be renewed on Day 37 for 7 days and continue to renew every 7 days after that. If the items
+                    are returned before the 7-day renewal, you will only be charged for the days you used.
+                </p>
+                <p>
+                     RETURNING YOUR ORDER: Rental fees continue until the items are scanned back into the fulfillment center and available for the others to use, so please place your destage request a minimum  of 7 days in advance. Destage requests are fulfilled on a first come first served basis. <a href="https://www.r-e-solved.com/account/orders">Click here to view your orders and select request destage on your order.</a>  
+                </p>
+                <p>
+                    We provide a 7 day grace period at the front end of your rental as you are building your order to offset some of the delivery
+                    service availability. We also try to minimize your expenses by not requiring a flat two or three-month minimum.
+                </p>
+                <hr>
+                <small>
+                    <p><strong><sup>**</sup> <em>Miscellaneous Charges</em></strong> are made up from past delivery fees, extra time or design time. Your emailed receipt will a break down of those charges.</p>
+                    <p><strong><sup>1</sup> <em>Returned Date</em></strong> is when a product was destaged and returned to re|Furnish..</p>
+                    <p><strong><sup>2</sup> <em>Hold Dates</em></strong> are the days that a product was held over its grace period (7 days) before being delivered. This is to prevent customers from holding items for extended periods of time on open orders. How it's calculated: [delivery date] - ([date product added to order] + [7 grace period days])</p>
+                    <p><strong><sup>3</sup> <em>Blackout Dates</em></strong> are days that are exempt from billing. They're subtracted from the product's rent.</p>
+                </small>
+            </small>
+            </p>
+        </div>
+        <footer class="row">
+            <div class="col-12 text-center">
+                <p class="notaxrelated">re|SOLVED | support@r-e-solved.com</p>
+            </div>
+        </footer>
+    </div>

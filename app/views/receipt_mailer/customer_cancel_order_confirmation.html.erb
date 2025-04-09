@@ -1,0 +1,14 @@
+<h1>Order <%= @order.order_id %> Cancelled</h1>
+
+<p>
+    Hi<%= " #{@order.user.first_name}" if @order.user.first_name %>,<br><br>
+    
+    This email is to confirm that you've cancelled order <strong><%= @order.order_id %></strong> on <strong><%= Date.today.strftime('%B %e, %Y') %></strong>.<br><br>
+</p>
+
+<hr>
+
+<p>
+    <strong>Thank you!</strong> Please contact us with any questions.<br>
+    Design Network at (425) 697-3045, or email: support@r-e-solved.com.
+</p>

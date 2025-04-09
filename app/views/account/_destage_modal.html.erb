@@ -1,0 +1,105 @@
+<%
+# FIXME: @soonest_destage_date needs to be set
+# FIXME: pickup if statement only works on order detail page and not on order list.  MDC
+
+%>
+
+<!-- POPUP - Request a destage  -->
+<div class="popup_modal">
+    <div class="modal fade" id="requestDestage" tabindex="-1" role="dialog" aria-labelledby="requestDestage" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <div>
+                        <%=image_tag("new_icons/homepage_hand_truck.svg", class:"modal_header_icon", alt:"header_location") %>
+                        <h5 id="requestDestage">Request a destage for #<span id="order_destage_id"></span></h5>
+                        <%= image_tag('new_icons/close.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+                    </div>
+                    </div>
+                    <%= form_tag(nil, class: 'form-horizontal', id: 'request_destage_form') %>
+                        <div class="modal-body" style="margin: 0; padding: 0;">
+                            <div class="new_design">
+                                <div class="form_design_1">
+                                    
+                    
+                                        <!-- Appointment Date -->
+                                        <div class="input_w_label">
+                                            <label for="address1">Desired Appointment Date:</label>
+                                            <%= text_field_tag(:destage_date, params[:destage_date], autocomplete:'off', placeholder: 'Select Date', min: @soonest_destage_date,  required: true)  %>
+                                        </div>
+                
+                                        <div class="separator10"></div>
+
+                                        <!-- Service Type -->
+                                        <div class="form_select_w_label">
+                                            <label for="payment_method">Service Type</label>
+                                            <div>
+                                                <%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                                                <select name="destage_service" id="destage_service" >
+                                                    <% if @order&.pickup? %>  
+                                                        <option value="destage_dropoff">Drop off at re|Furnish warehouse</option>
+                                                        <option value="destage">re|Furnish picks it up</option>
+                                                    <% else %> 
+                                                        <option value="destage">re|Furnish picks it up</option>
+                                                        <option value="destage_dropoff">Drop off at re|Furnish warehouse</option> 
+                                                    <% end %> 
+                                                    </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="separator20"></div>
+
+                                        <div class="form_text teal">Absolutely have to have it sooner?</div><div class="separator10"></div>
+                                        <div class="form_checkbox">
+                                            <%= check_box_tag(:expedited, 1, false) %>
+                                            <label for="expedited">Request expedited Destage</label>
+                                        </div>
+
+                                        <div class="separator20"></div>
+        
+                                        <!-- Notification -->
+                                        <div class="form_notification">
+                                            <%=image_tag("new_icons/warning_notification.svg", class:"img_warning", alt:"warning") %>
+                                            <p>We will contact you within one business day to confirm if we are able to meet your requested Destage date.</p>
+                                        </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="margin: 0; padding: 0;">
+                            <div class="new_design">
+                                <div class="form_design_1">
+                                    <!-- BUTTON -->
+                                    <div class="proceed_button">
+                                        <button type="submit">SUBMIT REQUEST <%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %></button>
+                                    </div>
+                                </div>
+                            </div>    
+                        </div>
+                    </form>
+                </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function requestDestage(order_id) {
+        document.getElementById('order_destage_id').innerHTML = order_id;
+        var form = document.getElementById('request_destage_form');
+        form.action = Routes.request_destage_path(order_id);
+        
+        $("#destage_date").datepicker({
+            format: 'yyyy-mm-dd',
+            daysOfWeekDisabled: [6,7],
+            beforeShowDay: function(date){
+                var dayNr = date.getDay();
+                let dmy = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+                if(date <= (new Date('<%= @soonest_destage_date %> 00:00:00'))) {
+                    return false;
+                }
+                return true;
+            }
+        });
+    }   
+</script>

@@ -1,0 +1,24 @@
+<h1><%= @subject %></h1>
+
+<p><%= @message %><br></p>
+
+<hr>
+
+<% if @info.first_name.present? %>
+    <p>
+        <strong>First Name:</strong>
+        <%= @info.first_name %>
+    </p>
+<% end %>
+
+<% if @info.phone.present? %>
+    <p>
+        <strong>Phone:</strong>
+        <%= @info.phone %>
+    </p>
+<% end %>
+
+<p>
+    <strong>Email:</strong>
+    <%= @info.email %>
+</p>

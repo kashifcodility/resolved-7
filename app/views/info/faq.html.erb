@@ -1,0 +1,330 @@
+<div class="container py-3">
+    <div class="home-titles">
+        <h3>FAQ </h3>
+    </div>
+    <hr class="title-line">
+    <div class="col-8 m-auto">
+        <input type="search" placeholder="Ask your question?" name="search" class="form-control searchbox-input mb-5" required="">
+    </div>
+    <div class="row">
+        <div class="col-10 mx-auto">
+            <div class="accordion" id="faq">
+                <h3 class="text-center m-4">Orders</h3>
+                <hr>
+                <div class="card">
+                    <div class="card-header p-2" id="headingOne">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseZero_rentals" aria-expanded="true" aria-controls="collapseZero_rentals">
+                            How Do I Start a Rental Order?
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseZero_rentals" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
+                        <div class="card-body">
+                            <ol>
+                                <li>Log-in/Sign Up and then go to the “SHOP” button at the top of the page. </li>
+                                <li>Choose your rental location: Kirkland, Everett, or Phoenix.</li>
+                                <li>You’ll see products, prices, and measurements that are important to note when considering your property’s hallways, doorways, and stairways.</li>
+                                <li>If you do not see everything you want, try searching or using the filters</li>
+                                <li>Your cart has a 2-hour timeout limit before it releases your selected items back to the pool. If you are actively shopping, it won’t empty your cart. It’s only if you forget to checkout and leave your cart idle for more than 120 consecutive minutes.</li>
+                                <li>Be sure to check all the way out, until you reach the order confirmation page, you will also receive a confirmation email. You can add and remove to it later, but you won’t want to lose all your work now!</li>
+                                <li>You can track your order on your account page.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header p-2" id="headingOne">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne_rentals" aria-expanded="true" aria-controls="collapseOne_rentals">
+                            Is there a Daily Rental Option?
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseOne_rentals" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
+                        <div class="card-body">
+                            There is a minimum 30-day rental for every item, even if you only need it for a day or event. This helps cover administrative and warehouse expenses and depreciation as it moves through the rental journey from online, to your property, and back. 
+                            After the 30-day rental minimum has been met you can rent by the day! We will prorate the monthly rate. No two-month minimums!
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header p-2" id="headingTwo">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo_rentals" aria-expanded="false" aria-controls="collapseTwo_rentals">
+                            Are there Rental Minimums?
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseTwo_rentals" class="collapse" aria-labelledby="headingTwo" data-parent="#faq">
+                        <div class="card-body">
+                            <div>There is no minimum quantity or dollar amount to meet when you rent with SDN. You can stage the entire home with the Shared Rental Pool and are more than welcome to rent a single chair, a piece of art, or just a pillow! </div>
+                            <div> There IS a minimum 30-day rental for every item, even if you only need it for a day or event. After the first 30-days, you are only charged only for the days your items are renting. This helps cover administrative and warehouse expenses and also depreciation as it moves through the rental journey from online, to your property, and back.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header p-2" id="headingThree">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree_rentals" aria-expanded="false" aria-controls="collapseThree_rentals">
+                            What If I Want to Return Before the 30-Day Minimum is Met? </button>
+                        </h5>
+                    </div>
+                    <div id="collapseThree_rentals" class="collapse" aria-labelledby="headingThree" data-parent="#faq">
+                        <div class="card-body">
+                            <div> You are welcome to return the items sooner, but without discount. After the 30th day, your order rental will accrue daily and you will be charged every 7 days or on the day the items are returned, whichever comes first.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header p-2" id="heading4">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse4_rentals" aria-expanded="false" aria-controls="collapse4_rentals"> How Do I Add Items to an Existing Order?</button>
+                        </h5>
+                    </div>
+                    <div id="collapse4_rentals" class="collapse" aria-labelledby="heading4" data-parent="#faq">
+                        <div class="card-body">
+                            <div class="mb-2">
+                                After you have created an order, you have two ways to add to an order. 
+                                <ol>
+                                    <li> Start your shopping like you are creating a new order. When you click the "Checkout Button", you will have the option of adding all the items in your cart to an open order. </li>
+                                    <li> If you just need to add a single item, a new button will appear on the product page the next time you are shopping out of the same location. The button will allow you to instantly add an item to any current open order at that location.     
+                                        <%= image_tag('add_to_order.jpg', class: '.w-100' , alt: 'add to order example') %>
+                                    </li>
+                                </ol>
+                                If you do not see these options, the order is already renting, or the order is in the cut-off window
+                            </div>
+                            <div class="mb-2">
+                                ORDER FREEZE: Our fulfillment team needs one whole business day to pull the order, this means that you have until 12:00 AM two business days before the delivery of your order to make changes. <br>
+                                The only exception is Tuesday orders freeze on Sunday to give you the weekend.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header p-2" id="heading5">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse5_rentals" aria-expanded="false" aria-controls="collapse5_rentals"> How Do I Cancel an Item Off an Order? </button>
+                            </h5>
+                        </div>
+                        <div id="collapse5_rentals" class="collapse" aria-labelledby="heading6" data-parent="#faq">
+                            <div class="card-body">
+                                <ul>
+                                    <li>Go to your account</li>
+                                    <li>Select Orders</li>
+                                    <li>Click Edit Order</li>
+                                    <li>Find the product you want to remove and click the "Remove" button</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header p-2" id="heading6">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse6_rentals" aria-expanded="false" aria-controls="collapse6_rentals"> What Happens if I Damage or Lose Part of a Set?</button>
+                                </h5>
+                            </div>
+                            <div id="collapse6_rentals" class="collapse" aria-labelledby="heading6" data-parent="#faq">
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        You are responsible for maintaining the Rental Items in good condition, in a full set. This is subject to occasional use by a potential buyer such as sitting on a couch or chair. Items available for rent are not intended for daily household use and are expected to remain in the original rented condition. 
+                                    </div>
+                                    <div class="mb-2">
+                                        When items are rented that are intended to go into an owner-occupied home, you are responsible for advising the homeowner against using the items. 
+                                    </div>
+                                    <div>
+                                        In the event of damage or loss not covered by the Damage Waiver Fee, SDN will charge you for the costs of lost rent until the item is replaced as well as replacing or repairing the rental items.            
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 class="text-center m-4">Billing</h3>
+    <hr>
+    <div class="row">
+        <div class="col-10 mx-auto">
+            <div class="accordion" id="faq">
+                <div class="card">
+                    <div class="card-header p-2" id="headingOne">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#change_cc_on_order" aria-expanded="true" aria-controls="change_cc_on_order">
+                            How to Change a Credit Card on a Rental Order? 
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="change_cc_on_order" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
+                        <div class="card-body">
+                            <div class="mb-2">
+                                After an order is placed you can change the credit card related to that order by following these steps. 
+                            </div>
+                            <ol>
+                                <li>Go to <a href="<%=account_path%>"> Account</a></li>
+                                <li>Click the <a href="<%=account_orders_path%>">Orders</a> tab</li>
+                                <li>Select the order that you wish to change the credit card on</li>
+                                <li>Under the "Payment Info" section, select the "Change Card" button </li>
+                                <li>Here you can either add a new card or select an existing card on your account</li>
+                            </ol>
+                            <div class="mb-2">
+                                Once you have completed these steps, any future payments related to that order will charge the newly assigned card. This does not change any past charges related to that order. 
+                            </div>
+                            <div class="mb-2">
+                               If the new card fails to charge, the system will charge your default card for your order.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header p-2" id="headingOne">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#see_cc_on_order" aria-expanded="true" aria-controls="see_cc_on_order">
+                                How to See What Credit Card is Assigned to Which Order? 
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="see_cc_on_order" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    For any open or renting order, you can quickly see what credit card is assigned to your order by following these steps:
+                                </div>
+                                <ol>
+                                    <li>Go to <a href="<%=account_path%>"> Account</a></li>
+                                    <li>Scroll Down to "Payment Options" <br>
+                                        (Here you will see a table of your current credit cards on file)
+                                    </li>
+                                    <li>You will see a linkable number under the "Current Orders" column</li>
+                                    <li>When you click the number associated with the credit card, it will show you a list of orders that are currently linked to that credit card</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header p-2" id="headingOne">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse7_rentals" aria-expanded="true" aria-controls="collapse7_rentals">
+                                    When and How Do I Pay for My Rental?
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="collapse7_rentals" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        When you submit your online order, you will provide your credit card at checkout (we do not accept third-party cards or American Express). We place an authorization on your card which may appear as a $1.00 or less verification charge on your credit card account. We don’t charge the entire order total until it’s delivered.
+                                    </div>
+                                    <div>
+                                        The charge will be for the first 30-day rental. Sales tax, a damage waiver fee, and delivery services (if applicable) will be included in your total.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header p-2" id="headingOne">
+                                    <h5 class="mb-0">
+                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse8_rentals" aria-expanded="true" aria-controls="collapse8_rentals">
+                                        How Do I Calculate My First 30 Days</button>
+                                    </h5>
+                                </div>
+                                <div id="collapse8_rentals" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            The first rental day of your 30 day minimum begins when it leaves the warehouse OR on the 7th day of the item being held on your order prior to delivery, whichever happens first. You will count that day as your first day and add 29 days to that day to calculate your full 30 days.
+                                        </div>
+                                        <div>
+                                            Your rental will continue until the items are inspected and received back into inventory. For items that are made up of multiple pieces, all pieces must be received to end the rental period for that order.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header p-2" id="headingOne">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse9_rentals" aria-expanded="true" aria-controls="collapse9_rentals">
+                                            What If I Want to Keep My Items Longer than 30 Days? </button>
+                                        </h5>
+                                    </div>
+                                    <div id="collapse9_rentals" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
+                                        <div class="card-body">
+                                            <div class="mb-2">
+                                                After the first 30-day minimum has been met we will post charge your card at the end of 7-day blocks OR when you return the items - whichever happens first! No more having to pay an entire second or third month (& in advance) if you don’t need it! 
+                                            </div>
+                                            <div class="mb-2">
+                                                Other Scenarios:
+                                            </div>
+                                            <ul>
+                                            <li> Held items for over 7 days on order: You will be charged one time for the extra days on your first renewal.</li>
+                                            <li> Return All or Part Before 30 Days: You will not be charged again for the items that did not rent for over 30 days.</li>
+                                            <li> Partial Return: If you bring an item back (but not all), you'll get charged that day for that item. The remaining items will continue to rent and bill on 7-day increments.</li>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header p-2" id="headingOne">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse10_rentals" aria-expanded="true" aria-controls="collapse10_rentals">
+                                            What is the Damage Waiver Fee?
+                                            </button>
+                                        </h5>
+                                    </div>
+                                    <div id="collapse10_rentals" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
+                                        <div class="card-body">
+                                            <div class="mb-2">For this fee, re|SOLVED will bear all risk of damage or loss to the Rental Items (this includes damage or loss caused by natural disasters such as fires, floods, earthquakes, and tornados) EXCEPT for damage or loss caused by theft, disappearance, gross negligence, misuse or abuse (including without limitation, damage by cigar or cigarette burns and pets) for which you will remain responsible. SDN, in its sole discretion, will make this determination. </div>
+                                            <div class="mb-2">The total amount you will pay during the Rental Term in damage waiver fees is 4% per month of your monthly rental fee. The 4% is NOT assessed on pickup or delivery fees, late charges or sales tax. </div>
+                                            <div class="mb-2">To decline this damage waiver fee you must provide re|SOLVED, prior to delivery, with a Certificate of Insurance evidencing fire and extended coverage protection for the full replacement value of the Rental Items with re|SOLVED named as Additional Insured in a loss payable clause. 
+                                                Damage Waiver fees will be charged until this certificate is received.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-header p-2" id="headingOne">
+                                            <h5 class="mb-0">
+                                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse11_rentals" aria-expanded="true" aria-controls="collapse11_rentals">
+                                                Do I Have to Pay to Rent My Own Inventory?            </button>
+                                            </h5>
+                                        </div>
+                                        <div id="collapse11_rentals" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
+                                            <div class="card-body">
+                                                <div class="mb-2">Yes. For the first 30 days of each rental, you will pay 70% of your item’s published rental value. There will be no additional daily rental charge after the first 30-day period of your rental order (on your items). </div>
+                                                <div class="mb-2">
+                                                    We appreciate you might find it odd to pay to rent your own inventory. Once you’ve paid the first 30 days of the rental, you can keep using it until you don’t need it.
+                                                </div>
+                                                <div class="mb-2">
+                                                    Remember how the storage fees only apply while the items are in the warehouse (unlike typical public storage)? Charging a reduced rent for your own items is the way we can make that work while providing you with the highest level of service from our service team. 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="text-center m-4">Delivery & Scheduling</h3>
+                <hr>
+                <div class="card">
+                    <div class="card-header p-2" id="heading6">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#delivery_rates" aria-expanded="false" aria-controls="delivery_rates"> How Much Is Delivery & Setup?</button>
+                        </h5>
+                    </div>
+                    <div id="delivery_rates" class="collapse" aria-labelledby="heading6" data-parent="#faq">
+                        <div class="card-body">    SDN offers one-touch placement, destage, and will-call. Delivery includes two professional movers and one truck. </div>
+                        <div class="card-body">
+                            Delivery & Destage fees on rental orders above $1,000 before taxes and fees are FREE! (Some exclusions apply). For orders valued at $500 or less, one-way rates start at $119. For orders valued between $500-$1,000, one-way rates start at $169. Your base delivery fees cover up to 30 minutes of drive time and a one-time placement of furniture. 
+                        </div>
+                        <div class="mb-2">
+                            <%= render "delivery_rates"%>       
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+      $('.searchbox-input').on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $(".card").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);  
+        });
+      });
+    });
+</script>

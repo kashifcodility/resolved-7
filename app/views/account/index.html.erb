@@ -1,0 +1,136 @@
+
+
+<div class="separator20"></div>
+<h3 class="section_title_h3">Profile</h3>
+<div class="separator20"></div>
+
+<div class="container" style="overflow: scroll;">
+    <div class="woocommerce my_account_box">
+
+        <div class="member-info">
+
+
+        <% unless IntuitAccount.quickbooks_connected? %>
+          <%= link_to 'Connect to QuickBooks', quickbooks_authenticate_path, class: 'btn btn-primary' %>
+        <% end %>
+        
+            <div id="profileOptions">
+  
+                <!--- Profile Information --->
+                <div class="profile_info_large">
+
+                    <div class="profile_photo">
+                        <% if ['jpg', 'jpeg', 'png', 'gif'].any? { |e| @profile.image_url.include? e } %>
+                            <%= image_tag(@profile.image_url, alt: 'Profile Photo') %>
+                        <% else %>
+                            <%= image_tag("icons/temp-profile.png", alt: 'Temp Profile Photo') %>
+                        <%end %>
+                    </div>
+                    <div class="div20"></div>
+                    <div class="profile_info">
+                        <h5>Member Since <%= @profile.join_year %></h5>
+                        <h3><%= @profile.full_name %></h3>
+                        <% if @profile.address %>
+                            <h4><%= @profile.address.address1 %></h4>
+                            <h4>
+                                <%= "#{@profile.address.city}, " if @profile.address.city %>
+                                <%= "#{@profile.address.state} #{@profile.address.zipcode}" %>
+                            </h4>
+                        <% end %>
+                        <h4><%= @profile.phone %></h4>
+                        <h4><%= @profile.email %></h4>
+                        <button data-toggle="modal" data-target="#edit_profile"> Edit Profile </button>
+                    </div>
+                </div>
+                <hr>
+
+
+                <!-- Saved Credit Cards -->
+                <div class="home-titles">
+                    <h3 class="section_title_h3">Payment Options</h3>
+                    <p>Manage payment type</p>
+                    <hr class="title-line">
+                </div>     
+                <div class="text-center bootstrap_table_container">
+                    <table class="table table-hover table-condensed bordered">
+                        <thead>
+                            <tr>
+                                <th>Label</th>
+                                <th>Card</th>
+                                <th>Exp. Date</th>
+                                <th>Current Orders</th>                                
+                                <th>Remove</th>
+                                <th>Default</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% unless @profile.credit_cards.any? %>
+                                <tr><td colspan="5" class="text-center"><em>No credit cards saved.</em></td></tr>
+                            <% else %>
+                                <% @profile.credit_cards.each do |card| %>
+                                <tr>
+                                    <td><%= card.label %></td>
+                                    <td><%= "#{card.type} **** #{card.last_4}" %></td>
+                                    <td><%= "#{card.month} / #{card.year}" %></td>
+                                    <td><a href="<%= account_orders_path %>/?cc=<%= card.id %>"><%= card.order_count %></a></td>
+                                    <td><%= link_to('Remove', remove_payment_method_path(card.id)) %></td>
+                                    <td><%= radio_button_tag('cc_default', card.id, card.default?, class: 'cc_default') %></td>
+                                </tr>
+                                <% end %>
+                            <% end %>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="6"><%= link_to('Add New Card', new_credit_card_path) %></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>                 
+                
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+<%= javascript_include_tag "user_account" %>
+
+<script>
+ $(function(){
+     var default_btns = document.getElementsByClassName('cc_default');
+     if(default_btns.length) {
+	 Array.from(default_btns).forEach(function(btn) {
+	     btn.addEventListener('change', function(e) {
+		 var spinner = document.createElement('div');
+		 spinner.classList.add('spinner-border');
+		 spinner.classList.add('spinner-border-sm');
+		 spinner.setAttribute('role', 'status');		 
+		 $.ajax({
+		     url: Routes.set_default_credit_card_path(),
+		     type: 'POST',
+		     data: { card_id: btn.value },
+		     beforeSend: function(){
+			 btn.style.display = 'none';
+			 btn.insertAdjacentElement('beforebegin', spinner);
+		     },
+		     complete: function() {
+			 btn.parentNode.removeChild(spinner);
+			 btn.style.display = null;
+		     },
+		     success: function(result) {
+			 Array.from(default_btns).forEach(function(btn_to_uncheck) {
+			     btn_to_uncheck.checked = false;
+			 });
+			 btn.checked = true;
+		     }
+		 });
+	     });
+	 });
+     }
+ });
+</script>

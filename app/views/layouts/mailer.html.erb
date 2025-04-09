@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta content="telephone=no" name="format-detection" />
+    <style type="text/css" media="screen">
+        body { font-family: Verdana, sans-serif, Helvetica, Arial; font-size:10pt;}
+        a    { color:#28C3BB; text-decoration:underline }
+        p    { padding:0 !important; margin:0 !important }
+        h2   { color:#87e0dc;margin-bottom:-20px;}
+    </style>
+</head>
+<body class="body" style="padding:0 !important; margin:0 !important; display:block !important; background-color:#FAFAFA;">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#FAFAFA;">
+        <tr>
+            <%img = 'https://www.r-e-solved.com' + image_url('sdn-logo.png')%>
+            <td align="center"><br />
+              <%= image_tag(img, style: "width: 60%; max-width: 360px; min-width: 220px; margin: 0 auto; text-align: center;") %>
+            <br /><br />
+                <table border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto;">
+                    <tr>
+                        <td style="padding:0px;">
+                            <%= yield %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 20px;">
+                            <div class="footer" style="color:#28C3BB; font-size:9pt; line-height:18px; text-align:center;">
+                                <div>Copyright &copy; <%= Date.today.year %> re|SOLVED All Rights Reserved. <br /> 8131 W Bostian RD STE B100 Woodinville, WA 98072
+                                r-e-solved.com | 425-697-3045<br />
+                                    <a href="https://www.r-e-solved.com" target="_blank" style="color: grey;" >r-e-solved.com</a>  |  <a href="callto:+4256973045" style="color: grey;">(425) 697-3045</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+<p>&nbsp;</p>
+</body>
+</html>

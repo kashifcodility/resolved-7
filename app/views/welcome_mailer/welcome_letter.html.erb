@@ -1,0 +1,457 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://wwww.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style type="text/css">
+        /* RESET */
+        body{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #cccccc;
+            font-family: 'Montserrat', sans-serif;
+        }
+        table{border-spacing: 0;}
+        td{padding: 0;}
+        img{border: 0;}
+        p{
+            margin: 0;
+            padding: 0;
+            line-height: normal;
+        }
+        /* STYLES */
+        .wrapper{
+            width: 100%;
+            table-layout: fixed; /* means that wrapper would be no wider then element inside */
+            background-color: #cccccc;
+            text-align: center;
+        }
+        .main{
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            border-spacing: 0;
+            font-family: sans-serif;
+        }
+        .icon_img{
+            width: 50px; 
+            height: 50px; 
+            margin: 0 5px; 
+            opacity: 0.7; 
+            border-radius: 50%; 
+            text-align: center;
+        }
+        .welcome_text{
+            font-size: 28px; 
+            line-height: 34px; 
+            font-weight: 400; 
+            color:#5f5b5a;
+            padding: 0 10px;
+        }
+        .line{
+            width: 50%;
+            max-width: 150px;
+            height: 3px;
+            background-color: #03798d;
+            margin: 0 auto;
+        }
+        .space{
+            width: 100%;
+            max-width: 600px;
+            height: 20px;
+        }
+        .button{
+            background-color: #03798d;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: 1px;
+            padding: 12px 20px;
+        }
+
+        .block_title{
+            font-size: 20px; 
+            line-height: 28px; 
+            text-transform: uppercase; 
+            color: #03798d;
+        }
+        .two_columns{
+            text-align: center;
+            font-size: 0;
+            padding: 0 20px;
+        }
+        .two_columns .column_right{
+            width: 100%;
+            max-width: 390px;
+            display: inline-block;
+            vertical-align: top;
+
+        }
+        .separator{
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            vertical-align: top;
+        }
+        .text_next_to_separator{
+            display: inline-block;
+            vertical-align: top;
+            font-size: 14px;
+            line-height: 20px;
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 400;
+            color: #5f5b5a;
+        }
+        .title{
+            font-size: 16px;
+            letter-spacing: 0.6px;
+            font-weight: 500; 
+            color:#01cfc4; 
+        }
+        .span_highlight{
+            font-weight: bold; 
+            color:#03798d;
+        }
+        .two_columns .column_left{
+            width: 100%;
+            max-width: 130px;
+            display: inline-block;
+            vertical-align: top;
+        }
+        .two_columns .content{
+            text-align: left;
+        }
+
+
+        /* MEDIA */
+        @media screen and (max-width: 400px){
+            .welcome_text{
+                font-size: 20px; 
+                line-height: 30px; 
+            }
+            .icon_img{
+                width: 40px; 
+                height: 40px; 
+            }
+            .block_title{
+                font-size: 16px; 
+                line-height: 24px; 
+            }
+            .two_columns .column_right{
+                text-align: center;
+            }
+            .two_columns .column_left{
+                text-align: center;
+            }
+            .title{
+                text-align: center;
+                font-size: 15px;
+            }
+            .text_next_to_separator{
+                text-align: center;
+                font-size: 12px;
+                line-height: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <center class="wrapper"> 
+        <table class="main" width="100%">
+            <!-- BLOCK: LOGO -->
+            <!-- <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td style="background-color: #ffffff;">
+                                <a href="" style="text-align: center;"><img style="width: 90%; max-width: 460px; text-align: center;" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/sdn_logo.png" alt="sdn_logo" title="logo"></a>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr> -->
+
+
+            <!-- BLOCK: IMAGE WITH 100% -->
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td style="background-color: #ffffff; text-align: center;">
+                               <img style="width: 100%; max-width: 600px;" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/bg1.png" alt="stage" title="stage">
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr><td><table class="space"></table></td></tr> 
+
+            <!-- BLOCK: WELCOME IMAGE -->
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td style="background-color: #ffffff; text-align: center; padding: 0 15px;">
+                                <img style="width: 90%; max-width: 560px;" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/welcome.png" alt="welcome" title="welcome">
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr><td><table class="space"></table></td></tr> 
+
+            <!-- BLOCK: WELCOME TEXT -->
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td style="background-color: #ffffff; text-align: center; padding: 0 20px;">
+                                <p class="welcome_text">You are now part of a robust network of Home Stagers, Interior Designers, Builders, & Realtors.</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr><td><table class="space"></table></td></tr> 
+            <tr><td><table class="line"></table></td></tr>
+            <tr><td><table class="space"></table></td></tr> 
+
+            <!-- BLOCK: TEXT - In order for you to have all the information.... -->
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td style="background-color: #ffffff; text-align: center; padding: 0 20px;">
+                                <p style="font-size: 17px; line-height: 23px; font-weight: 400; color:#5f5b5a; padding: 0 10px;">In order for you to have all the information you need to successfully place your first order, let's review a few key points.</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr><td><table class="space"></table></td></tr> 
+            <tr><td><table class="space"></table></td></tr> 
+            
+
+            <!-- Step 1 - WHEN TO START YOUR ORDER... -->
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <a href="" style="text-align: center;"><img style="width: 90%; height: 80px; width: auto; text-align: center; margin-bottom: 6px;" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/step_1.jpg" alt="Step 1 - WHEN TO START YOUR ORDER" title="Step 1 - WHEN TO START YOUR ORDER"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0 30px;">
+                                <p class="title">WHEN TO START YOUR ORDER</p>
+                                <p class="text_next_to_separator">We recommend creating your order 
+                                    <span class="span_highlight">7 DAYS</span> before delivery date, as you have a 
+                                    <span class="span_highlight">7 DAYS</span> grace period on your order. You won't accrue charges until the 8th day from checkout or the delivery/pick-up date, whichever comes first. 
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr><td><table class="space"></table></td></tr> 
+            <tr><td><table class="space"></table></td></tr> 
+
+            <!-- Step 2 - DELIVERY/PICK-UP... -->
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <a href="" style="text-align: center;"><img style="width: 90%; height: 80px; width: auto; text-align: center; margin-bottom: 6px;" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/step_2.jpg" alt="Step 2 - DELIVERY/PICK-UP" title="Step 2 - DELIVERY/PICK-UP"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0 30px;">
+                                <p class="title">DELIVERY/PICK-UP SCHEDULING</p>
+                                <p class="text_next_to_separator">
+                                    You will request Delivery or Pick-up and a desired date during the checkout process and we will confirm the date within <span class="span_highlight">24 HOURS</span>. For deliveries, we set up the schedule the day prior and need flexibility to control the time of appointments in order to optimize our route. You will get a text message with the precise time of your appointment at <span class="span_highlight">11 AM</span> one business day in advance. 
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr><td><table class="space"></table></td></tr> 
+            <tr><td><table class="space"></table></td></tr> 
+
+            <!-- Step 3 - DON'T FORGET TO CHECK OUT -->
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <a href="" style="text-align: center;"><img style="width: 90%; height: 80px; width: auto; text-align: center; margin-bottom: 6px;" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/step_3.jpg" alt="Step 3 - DON'T FORGET TO CHECK OUT" title="Step 3 - DON'T FORGET TO CHECK OUT"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0 30px;">
+                                <p class="title">DON'T FORGET TO CHECK OUT</p>
+                                <p class="text_next_to_separator">
+                                    Your shopping cart will be cleared after <span class="span_highlight">2 HOURS</span> of inactivity. So make sure to checkout completely before leaving your computer. Don't worry, you won't be charged delivery and you have the <span class="span_highlight">7 DAY</span> grace period to continue to add or remove items from your order! Keep in mind your order will freeze <span class="span_highlight">2 FULL</span> business days prior to your appointment. 
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr><td><table class="space"></table></td></tr> 
+            <tr><td><table class="space"></table></td></tr> 
+
+            <!-- Step 4 - RESERVING A SPOT ON THE CALENDAR -->
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <a href="" style="text-align: center;"><img style="width: 90%; height: 80px; width: auto; text-align: center; margin-bottom: 6px;" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/step_4.jpg" alt="Step 4 - RESERVING A SPOT ON THE CALENDAR" title="Step 4 - RESERVING A SPOT ON THE CALENDAR"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0 30px;">
+                                <p class="title">RESERVING A SPOT ON THE CALENDAR</p>
+                                <p class="text_next_to_separator">
+                                    Typically we will meet your delivery date request, but if you would like to reserve a spot on the calendar before you start your order, we recommend emailing our scheduling team at <span class="span_highlight"><a href="mailto:support@r-e-solved.com" target="_blank" style="font-weight: bold; 
+                                        color:#03798d; text-decoration: none;">support@r-e-solved.com</a></span> with your desired delivery date, approximate size of home, and how many rooms you are staging with our product, so we can judge how much time to reserve. Once you are within <span class="span_highlight">7 DAYS</span> of delivery, you will need to create an actual order to hold the spot. 
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr><td><table class="space"></table></td></tr> 
+            <tr><td><table class="space"></table></td></tr> 
+
+            <!-- Step 5 - THE FREEZE -->
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <a href="" style="text-align: center;"><img style="width: 90%; height: 80px; width: auto; text-align: center; margin-bottom: 6px;" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/step_5.jpg" alt="Step 5 - THE FREEZE" title="Step 5 - THE FREEZE"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0 30px;">
+                                <p class="title">THE FREEZE</p>
+                                <p style="text-align: center;">
+                                    <img style="width: 100%; height: auto; text-align: center; margin-bottom: 6px; margin-top: 6px;" src="https://sdn-content.s3.us-west-1.amazonaws.com/delivery-schedule.jpg" alt="Step 5 - THE FREEZE" title="Step 5 - THE FREEZE">
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr><td><table class="space"></table></td></tr> 
+            <tr><td><table class="space"></table></td></tr> 
+
+            <!-- Step 6 - RESTOCKING FEE -->
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <a href="" style="text-align: center;"><img style="width: 90%; height: 80px; width: auto; text-align: center; margin-bottom: 6px;" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/step_6.jpg" alt="Step 6 - RESTOCKING FEE" title="Step 6 - RESTOCKING FEE"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0 30px;">
+                                <p class="title">RESTOCKING FEE</p>
+                                <p class="text_next_to_separator">
+                                    If you absolutely need a change after your order freezes, just send us a message at <span class="span_highlight"><a href="mailto:support@r-e-solved.com" target="_blank" style="font-weight: bold; 
+                                        color:#03798d; text-decoration: none;">support@r-e-solved.com</a></span> and we'll do our best to accommodate your request. If we've already pulled your items, we will need to charge a restocking fee of <span class="span_highlight">25%</span> of the rental value to cover labor and the time the item was reserved for your order. The best bet is to make sure your order is finalized before The Freeze, whenever possible. 
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr><td><table class="space"></table></td></tr> 
+            <tr><td><table class="line"></table></td></tr>
+            <tr><td><table class="space"></table></td></tr> 
+
+            <!-- BLOCK: TITLE, TEXT, BUTTON  - PREFER TO TALK THIS.... -->
+            <tr>
+                <td>
+                    <table width="100%"style="background-color: #ffffff; text-align: center; padding: 0 30px;" >
+                        <!-- TITLE -->
+                        <tr>
+                            <td>
+                                <p class="block_title">Prefer to talk this through with one of our design assistants to make sure you get off on the right foot?</p>
+                            </td>
+                        </tr>
+                        <tr><td><table class="space"></table></td></tr> 
+
+                        <!-- TEXT -->
+                        <tr>
+                            <td>
+                                <p style="font-size: 17px; line-height: 23px; font-weight: 400; color:#5f5b5a;">Reply to this email with a few good times in the next week and we will give you a call to walk you through the process!</p>
+                            </td>
+                        </tr>
+
+                        <!-- BUTTON -->
+                        <tr>
+                            <td style="padding-top: 30px; padding-bottom: 30px;">
+                                <a href="https://www.r-e-solved.com/" target="_blank" class="button" style="color: #fff; text-decoration: none;">START STAGING</a>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- BLOCK: TEXT - WE ARE HERE TO SUPPORT -->
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td style="background-color: #ffffff; text-align: center; padding: 0 20px;">
+                                <p class="welcome_text">We are here to support your business so you can focus on what you do best. We'll take care of the rest.</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr><td><table class="space"></table></td></tr> 
+
+            <!-- BLOCK: SOCIAL MEDIA ICONS -->
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td style="background-color: #ffffff; padding: 0 10px;">
+                                <a href="https://www.facebook.com/StagingAndDesignNetwork"><img class="icon_img" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/sdn_facebook.png"  alt="icon" title="icon" ></a>
+                                <a href="https://www.linkedin.com/company/staginganddesignnetwork"><img class="icon_img" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/sdn_linkedin.png"  alt="icon" title="icon" ></a>
+                                <a href="https://www.youtube.com/c/stagingdesignnetwork"><img class="icon_img" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/sdn_youtube.png"   alt="icon" title="icon" ></a>
+                                <a href="https://www.pinterest.com/sdnetwork"><img class="icon_img" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/sdn_pinterest.png" alt="icon" title="icon" ></a>
+                                <a href="https://www.instagram.com/staginganddesign/"><img class="icon_img" src="https://sdn-emails.s3-us-west-2.amazonaws.com/welcome/sdn_instagram.png" alt="icon" title="icon" ></a>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr><td><table class="space"></table></td></tr> 
+
+        </table>
+    </center>
+</body>
+</html>

@@ -1,0 +1,712 @@
+<%= form_tag("/project_walk_through/create_step8", method: :post, multipart: true) do %>
+	<div class="print-area">
+	<table>
+		<tr>
+			<td>
+				<table style="table-layout: fixed; width: 100%; margin-bottom:8px;">
+					<tr>
+						<td>
+							<div class="d-flex">
+								<div class="d-flex">
+									<p>Standard</p>
+									<p class="input-line ml-1"><input type="checkbox" name="standard" class="ml-1" <%= @project_walk_through[:standard] == "on" ? 'checked' : 'standard' if @project_walk_through.present?%> ></p>
+									<input type="hidden" value=<%=@id %> name="project_walk_through_id" class="input-line">
+									<input type="hidden" id="hiddenField" name="remove_existing_images[]" value="">
+								</div>
+						
+								<div class="d-flex ml-2">
+									<p>Luxury</p>
+									<p class="input-line ml-1"><input type="checkbox" name="luxury" class="ml-1" <%= @project_walk_through[:luxury] == "on" ? 'checked' : 'luxury' if @project_walk_through.present?%> ></p>
+								</div>
+							
+								<div class="d-flex ml-2">
+									<p class="no-wrap">Owner's Fee</p>
+									<p class="input-line ml-1"><input type="checkbox" name="owner" class="ml-1" <%= @project_walk_through[:owner] == "on" ? 'checked' : 'owner' if @project_walk_through.present?%> ></p>
+								</div>
+							
+								<div class="d-flex ml-2">
+									<p class="no-wrap">Built-in</p>
+									<p class="input-line ml-1"><input type="checkbox" name="built_in" class="ml-1" <%= @project_walk_through[:built_in] == "on" ? 'checked' : 'built_in' if @project_walk_through.present?%> ></p>
+								</div>
+							</div>
+						</td>
+						<td>
+							<div class="d-flex Realtor-Request">
+								<p class="no-wrap">Realtor Request</p>
+								<p class="input-line ml-1"><input type="text" name="realtor_request" class="options-inputs" value=<%=@project_walk_through[:realtor_request] if @project_walk_through.present?%> ></p>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+	<table style="border-collapse: collapse;" class="step-2-main-table">
+		<tr>
+			<td>
+				<table style="table-layout: fixed; width: 100%;">
+					<tr>
+						<td valign="top" style="padding:8px;">
+							<table style="width: 100%; table-layout: fixed;">
+								<tr>
+									<td>
+										<div class="d-flex">
+											<div class="d-flex">
+												<p>Floor</p>
+												<p class="input-line ml-1">
+													<input type="text" name="floor" class="options-inputs" value=<%=@project_walk_through[:floor] if @project_walk_through.present?%> >
+												</p>
+											</div>
+											<div class="d-flex ml-2">
+												<p>Room</p>
+												<p class="input-line ml-1">
+													<input type="text" name="room" class="w-100" value=<%=@project_walk_through[:room] if @project_walk_through.present?%> >
+												</p>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="d-flex mt-3">
+											<p>Mirror</p>
+											<p class="input-line ml-2"><input type="text" name="mirror" class="ml-1" value=<%=@project_walk_through[:mirror] if @project_walk_through.present?%>></p>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="d-flex w-50 mt-3">
+											<div class="d-flex">
+												<p class="mr-2">Art</p>
+												<p class="ml-3">S</p>
+												<p class="input-line"><input type="checkbox" name="small" class="ml-1" <%= @project_walk_through[:small] == "on" ? 'checked' : 'small' if @project_walk_through.present?%> ></p>
+												<p class="ml-2">M</p>
+												<p class="input-line"><input type="checkbox" name="medium" class="ml-1" <%= @project_walk_through[:medium] == "on" ? 'checked' : 'medium' if @project_walk_through.present?%> ></p>
+												<p class="ml-2">L</p>
+												<p class="input-line"><input type="checkbox" name="large" class="ml-1" <%= @project_walk_through[:large] == "on" ? 'checked' : 'large' if @project_walk_through.present?%> ></p>
+												<p class="ml-2">XL</p>
+												<p class="input-line"><input type="checkbox" name="xl" class="ml-1" <%= @project_walk_through[:xl] == "on" ? 'checked' : 'xl' if @project_walk_through.present?%> ></p>
+												<p class="ml-2">XXL</p>
+												<p class="input-line"><input type="checkbox" name="xxl" class="ml-1" <%= @project_walk_through[:xxl] == "on" ? 'checked' : 'xxl' if @project_walk_through.present?%> ></p>
+												<p class="ml-2">XXXL</p>
+												<p class="input-line"><input type="checkbox" name="xxxl" class="ml-1" <%= @project_walk_through[:xxxl] == "on" ? 'checked' : 'xxxl' if @project_walk_through.present?%> ></p>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="d-flex mt-3">
+											<p class="mr-2">Rug</p>
+											<p class="ml-2">5&#215;7</p>
+											<p class="input-line"><input type="checkbox" name="five_by_seven" class="ml-1" <%= @project_walk_through[:five_by_seven] == "on" ? 'checked' : 'five_by_seven' if @project_walk_through.present?%>></p>
+											<p class="ml-2">6&#215;8</p>
+											<p class="input-line"><input type="checkbox" name="six_by_eight" class="ml-1" <%= @project_walk_through[:six_by_eight] == "on" ? 'checked' : 'six_by_eight' if @project_walk_through.present?%>></p>
+											<p class="ml-2">7&#215;9</p>
+											<p class="input-line"><input type="checkbox" name="seven_by_nine" class="ml-1" <%= @project_walk_through[:seven_by_nine] == "on" ? 'checked' : 'seven_by_nine' if @project_walk_through.present?%>></p>
+											<p class="ml-2">8&#215;10</p>
+											<p class="input-line"><input type="checkbox" name="eight_by_ten" class="ml-1" <%= @project_walk_through[:eight_by_ten] == "on" ? 'checked' : 'eight_by_ten' if @project_walk_through.present?%>></p>
+											<p class="ml-2">other</p>
+											<p class="input-line"><input type="checkbox" name="other" class="ml-1" <%= @project_walk_through[:other] == "on" ? 'checked' : 'other' if @project_walk_through.present?%>></p>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="d-flex mt-3">
+											<p class="no-wrap">Wall color</p>
+											<p class="input-line"><input type="text" name="wall_color" class="ml-1 options-inputs" value=<%=@project_walk_through[:wall_color] if @project_walk_through.present?%> ></p>
+											<p class="ml-2 no-wrap">Floor color</p>
+											<p class="input-line"><input type="text" name="floor_color" class="ml-1 options-inputs" value=<%=@project_walk_through[:floor_color] if @project_walk_through.present?%> ></p>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="d-flex mt-3">
+											<p>Cabinets</p>
+											<p class="input-line ml-2"><input type="text" name="cabinets" class="ml-1" value=<%=@project_walk_through[:cabinets] if @project_walk_through.present?%>></p>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="d-flex mt-3">
+											<p>Counterops</p>
+											<p class="input-line ml-2"><input type="text" name="counterops" class="ml-1" value=<%=@project_walk_through[:counterops] if @project_walk_through.present?%>></p>
+										</div>
+									</td>
+								</tr>
+
+								<tr>
+									<td>
+										<div class="d-flex w-50 mt-3">
+											<div class="d-flex">
+												<p class="mr-2">Shower Curtain</p>
+												<p class="ml-3">Yes</p>
+												<p class="input-line"><input type="checkbox" name="curtain_yes" class="ml-1" <%= @project_walk_through[:curtain_yes] == "on" ? 'checked' : 'curtain_yes' if @project_walk_through.present?%> ></p>
+												<p class="ml-2">No</p>
+												<p class="input-line"><input type="checkbox" name="curtain_no" class="ml-1" <%= @project_walk_through[:curtain_no] == "on" ? 'checked' : 'curtain_no' if @project_walk_through.present?%> ></p>
+												
+											</div>
+										</div>
+									</td>
+								</tr>
+
+								<tr>
+									<td>
+										<div class="d-flex w-50 mt-3">
+											<div class="d-flex">
+												<p class="mr-2">Shower Rod</p>
+												<p class="ml-3">Yes</p>
+												<p class="input-line"><input type="checkbox" name="rod_yes" class="ml-1" <%= @project_walk_through[:rod_yes] == "on" ? 'checked' : 'rod_yes' if @project_walk_through.present?%> ></p>
+												<p class="ml-2">No</p>
+												<p class="input-line"><input type="checkbox" name="rod_no" class="ml-1" <%= @project_walk_through[:rod_no] == "on" ? 'checked' : 'rod_no' if @project_walk_through.present?%> ></p>
+												
+											</div>
+										</div>
+									</td>
+								</tr>
+
+								<tr>
+									<td>
+										<div class="d-flex mt-3">
+											<p class="">Lighting</p>
+											<p class="ml-1 no-wrap">Skins</p>
+											<p class="input-line"><input type="text" name="skins" class="ml-1 options-inputs" value=<%=@project_walk_through[:skins] if @project_walk_through.present?%> ></p>
+											<p class="ml-1 no-wrap">Bath Towels</p>
+											<p class="input-line"><input type="text" name="bath_towels" class="ml-1 options-inputs" value=<%=@project_walk_through[:bath_towels] if @project_walk_through.present?%> ></p>
+											<p class="ml-1 no-wrap">Hand Towels</p>
+											<p class="input-line"><input type="text" name="hand_towels" class="ml-1 options-inputs" value=<%=@project_walk_through[:hand_towels] if @project_walk_through.present?%> ></p>
+										</div>
+									</td>
+								</tr>
+							</table>
+							<table >
+								<tr>
+									<td valign="bottom">
+										<div class="w-100 mt-4">
+											<table style="table-layout: fixed; width: 100%;border-collapse:collapse;" class="step-2-table">
+												<tr>
+													<td></td>
+													<td></td>
+													<td>S</td>
+													<td>M</td>
+													<td>L</td>
+													<td>Lux</td>
+												</tr>
+
+												<tr>
+													<td></td>
+													<td>Stool</td>
+													<td><input name="stool_small" type="checkbox" <%= @project_walk_through[:stool_small] == "on" ? 'checked' : 'stool_small' if @project_walk_through.present?%> ></td>
+													<td><input name="stool_medium" type="checkbox" <%= @project_walk_through[:stool_medium] == "on" ? 'checked' : 'stool_medium' if @project_walk_through.present?%>></td>
+													<td><input name="stool_large" type="checkbox" <%= @project_walk_through[:stool_large] == "on" ? 'checked' : 'stool_large' if @project_walk_through.present?%>></td>
+													<td></td>
+												</tr>
+									
+												<tr>
+													<td></td>
+													<td>Bench</td>
+													<td><input name="bench_small" type="checkbox" <%= @project_walk_through[:bench_small] == "on" ? 'checked' : 'bench_small' if @project_walk_through.present?%>></td>
+													<td><input name="bench_medium" type="checkbox" <%= @project_walk_through[:bench_medium] == "on" ? 'checked' : 'bench_medium' if @project_walk_through.present?%>></td>
+													<td><input name="bench_large" type="checkbox" <%= @project_walk_through[:bench_large] == "on" ? 'checked' : 'bench_large' if @project_walk_through.present?%>></td>
+													<td></td>
+											  </tr>
+												
+												
+											</table>
+										</div>
+									</td>
+								</tr>
+							</table>
+						</td>
+						<td valign="top">
+							<table style="width: 100%; table-layout: fixed;border-left: 1px solid black;">
+								<tr>
+									<td style="padding:8px;">
+										<div class="w-100">
+											<p>Notes:</p>
+											<textarea  name="notes" id="" cols="42" rows="20" class="w-100 mt-2"><%=@project_walk_through[:notes] if @project_walk_through.present?%></textarea>
+										</div>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+	<table>
+		<tr>
+			<td>
+				<table style="margin-top:12px;">
+					<tr>
+						<td>							
+							<button id="addFileInput" type="button" class="image-add-button">Add new image</button>
+						
+							<%if @project_walk_through.present? && @project_walk_through[:images].any?%>
+								<div id="fileInputsContainer">
+								<br>
+								<p>Already add images</p>
+								<br>
+									<%@project_walk_through[:images].each_with_index do |img,index|%>
+										<div class="file-input-container" id="fileInput_<%=index%>_container">
+											
+											<button type="button" class="editFileInput">X</button>
+											<img id="fileInput_<%=index%>_preview" class="preview" src="<%= img %>" alt="Image preview" style="display: none1;">
+										</div>
+									<%end %>
+								</div>
+							<%else%>
+							<div id="fileInputsContainer"></div>
+							<%end%>	
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<td>
+			<table style="table-layout:fixed;width:100%;margin-top:24px;">
+				<tr>
+					<td>		
+						<div class="back_button">			
+							<a href="/project_walk_through/step7?id=<%=params[:id]%>" >
+								<%=image_tag("new_icons/back_arrow_grey.svg", alt:"back_arrow_grey") %>
+								Back
+							</a>
+						</div>
+					</td>
+					<td>
+						<div class="d-flex justify-content-end">
+								<div class="proceed_button">
+									<button>
+									<%= submit_tag("step 9", style:"background: transparent;color:#ffffff;") %>
+									<%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %>
+									</button>
+								</div>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</table>
+</div>
+<% end %>
+<style>
+@media print {
+body{
+	margin: 15px auto;
+	padding: 0;
+	width: 24cm;
+	height: 27.7cm;
+	background-color: #B49F83;
+}
+.print-area {
+	position: relative;
+	top: 1cm;
+	left: 1cm;
+	width: 24cm;
+	font-size: 10pt;
+	background-color: #B49F83;
+	padding: 12px;
+	margin:auto;
+}
+}
+.print-area {
+position: relative;
+top: 1cm;
+left: 1cm;
+width: 24cm;
+height: 29.7cm;
+font-size: 10pt;
+background-color: #B49F83;
+padding: 12px;
+margin:15px auto;
+}
+*{
+margin: 0px;
+padding: 0px;
+box-sizing: border-box;
+}
+p{
+font-size: 14px;
+color:#000000;
+margin:0px;
+}
+.w-100{
+width: 100% !important;
+}
+.w-75{
+width: 75%;
+}
+.w-50{
+width: 50%;
+}
+.gap-1{
+gap: 4px;
+}
+.gap-2{
+gap: 8px;
+}
+.gap-3{
+gap: 16px;
+}
+.gap-4{
+gap: 24px;
+}
+.gap-5{
+gap: 48px;
+}
+.ml-1{
+margin-left: 4px;
+}
+.ml-2{
+margin-left: 8px;
+}
+.ml-3{
+margin-left: 16px;
+}
+.mt-1{
+margin-top: 4px;
+}
+.mt-2{
+margin-top: 8px;
+}
+.mt-3{
+margin-top: 16px;
+}
+.mt-4{
+margin-top: 24px;
+}
+.mx-auto{
+margin: auto 0 ;
+}
+.p-3{
+padding:16px;
+}
+.d-flex{
+display: flex;
+}
+.flex-col{
+flex-direction: column;
+}
+.align-items-center{
+align-items: center;
+}
+.justify-content-start{
+justify-content: flex-start;
+}
+.justify-content-end{
+justify-content: flex-end;
+}
+.justify-content-center{
+justify-content: center;
+}
+.justify-content-between{
+justify-content: space-between;
+}
+.no-wrap{
+white-space: nowrap;
+}
+.input-line{
+border-bottom: 2px solid black;
+}
+.note-section{
+border: 2px solid black;
+height: 100%;
+}
+input{
+border: none;
+outline: none;
+}
+/* Image uploader css */
+.image-add-button{
+padding: 4px 6px;
+border-radius: 6px;
+border: 1px solid #2bd6ce;
+cursor: pointer;
+background: #2bd6ce;
+color: #ffffff;
+font-weight: bold;
+}
+.file-input-container{
+display: flex;
+align-items: flex-start;
+position: relative;
+margin-top:12px;
+}
+.removeFileInput{
+position: absolute;
+top: -20px;
+right: -13px;
+padding: 4px 9px;
+border-radius: 50%;
+aspect-ratio: 1/1;
+cursor: pointer;
+background: #2bd6ce;
+color: #ffffff;
+font-weight: bold;
+border: 1px solid #2bd6ce;
+}
+.editFileInput{
+position: absolute;
+top: -20px;
+left: 68px !important;
+padding: 4px 9px;
+border-radius: 50%;
+aspect-ratio: 1/1;
+cursor: pointer;
+background: #2bd6ce;
+color: #ffffff;
+font-weight: bold;
+border: 1px solid #2bd6ce;
+}
+.preview{
+height:80px;
+width:80px;
+}
+.wrapper {
+margin-bottom: 48px;
+padding: 10px;
+background: #16A085;
+box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+}
+.wrapper:active #img-result {
+margin-top: 2px;
+box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.wrapper #img-result {
+cursor: pointer;
+margin: 0;
+position: relative;
+background: #1ABC9C;
+background-size: cover;
+background-position: center;
+display: block;
+height: 150px;
+box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+color: rgba(0,0,0,0);
+transition: box-shadow .3s, margin .3s, background-image 1.5s;
+}
+.wrapper #img-result.no-image:before {
+font-family: 'FontAwesome';
+content: "\f030";
+position: absolute;
+left: 50%;
+top: 50%;
+color: #fff;
+font-size: 48px;
+opacity: .8;
+transform: translate(-50%,-50%);
+text-shadow: 0 0px 5px rgba(0,0,0,0.4);
+}
+.wrapper button {
+margin-top: 20px;
+display: block;
+font-family: 'Open Sans Condensed', sans-serif;
+background: #1ABC9C;
+width: 100%;
+border: none;
+color: #fff;
+padding: 10px;
+letter-spacing: 1.3px;
+font-size: 1.05em;
+border-radius: 5px;
+box-shadow: 0 4px 5px rgba(0,0,0,0.3);
+outline: 0;
+transition: box-shadow .3s, margin-top .3s, padding .3s;
+}
+.wrapper button:active {
+box-shadow: none;
+margin-top: 24px;
+padding: 8px;
+}
+.show-button {
+background: #264974;
+border: none;
+color: #fff;
+padding: 10px 20px;
+float: right;
+display: none;
+}
+.upload-result {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: #fff;
+overflow-y: auto;
+}
+.upload-result__content {
+word-break: break-all;
+font-family: 'Source Code Pro';
+overflow-wrap: break-word;
+}
+/* Image uploader css */
+.avatar-upload {
+position: relative;
+max-width: 350px;
+}
+.avatar-upload .avatar-edit {
+position: absolute;
+right: -28px;
+z-index: 1;
+top: 10px;
+}
+.avatar-upload .avatar-edit input {
+display: none;
+}
+.avatar-upload .avatar-edit input + label {
+display: inline-block;
+width: 34px;
+height: 34px;
+margin-bottom: 0;
+border-radius: 100%;
+background: #FFFFFF;
+border: 1px solid transparent;
+box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.12);
+cursor: pointer;
+font-weight: normal;
+transition: all .2s ease-in-out;
+}
+.avatar-upload .avatar-edit input + label:hover {
+background: #F1F1F1;
+border-color: #D6D6D6;
+}
+.avatar-upload .avatar-edit input + label:after {
+content: "\f040";
+font-family: 'FontAwesome';
+color: #757575;
+position: absolute;
+top: 10px;
+left: 0;
+right: 0;
+text-align: center;
+margin: auto;
+}
+.avatar-upload .avatar-preview {
+width: 400px;
+height: 225px;
+position: relative;
+border: 6px solid #F8F8F8;
+box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.1);
+}
+.avatar-upload .avatar-preview > div {
+width: 100%;
+height: 100%;
+background-size: cover;
+background-repeat: no-repeat;
+background-position: center;
+}
+.page-break {
+page-break-before: always;
+}
+.Realtor-Request{
+margin-left: 220px;
+}
+.Realtor-Request p{
+color: red;
+}
+.options-inputs{
+width: 48px;
+}
+.options-input{
+width: 28px;
+}
+.step-2-table tr td,
+.step-2-main-table{
+border: 1px solid black;
+}
+</style>
+
+
+<script>
+function readURL(input) {
+if (input.files && input.files[0]) {
+	var reader = new FileReader();
+	
+	reader.onload = function(e) {
+		$('#imagePreview').css('background-image', 'url('+ e.target.result +')');
+		$('#imagePreview').hide();
+		$('#imagePreview').fadeIn(650);
+	}
+	reader.readAsDataURL(input.files[0]);
+}
+}
+$("#imageUpload").change(function() {
+readURL(this);
+});
+
+$(document).ready(function() {
+$('#addFileInput').click(function() {
+	if ($('.file-input-container').length < 5) {
+		addFileInput();
+	} else {
+		alert('You can only add up to 5 files.');
+	}
+});
+
+function addFileInput() {
+	const fileInputId = 'fileInput_' + $('.file-input-container').length;
+	const fileInputContainer = `
+		<div class="file-input-container" id="${fileInputId}_container">
+			<input type="file" id="${fileInputId}" name="files[]" class="file-input" />
+			<button type="button" class="removeFileInput">X</button>
+			<img id="${fileInputId}_preview" class="preview" src="" alt="Image preview" style="display: none;" />
+		</div>
+	`;
+	$('#fileInputsContainer').append(fileInputContainer);
+
+	// Add change event listener to the new file input
+	$('#' + fileInputId).change(function(event) {
+		showImagePreview(event, fileInputId);
+	});
+
+	// Add click event listener to the remove button
+	$('#' + fileInputId + '_container .removeFileInput').click(function() {
+		$('#' + fileInputId + '_container').remove();
+	});
+}
+
+function showImagePreview(event, inputId) {
+	const file = event.target.files[0];
+	if (file) {
+		const reader = new FileReader();
+		reader.onload = function(e) {
+			$('#' + inputId + '_preview').attr('src', e.target.result).show();
+		}
+		reader.readAsDataURL(file);
+	}
+}
+});
+
+
+$(document).ready(function() {
+	$('.editFileInput').on('click', function() {
+			var container = $(this).closest('.file-input-container');
+			var fileInput = container.find('.file-input');
+			var previewImage = container.find('.preview');
+			var hiddenField = $('input[name="remove_existing_images[]"]');
+			var imageSrc = previewImage.attr('src');
+			var currentValues = hiddenField.map(function() {
+					return $(this).val();
+			}).get();
+			currentValues.push(imageSrc);        
+			hiddenField.val(currentValues.join(','));
+			fileInput.val('');        
+			previewImage.hide();        
+			container.remove();
+	});
+});
+
+
+
+
+
+</script>
+

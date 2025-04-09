@@ -1,0 +1,363 @@
+@import'./colors';
+
+.outside_wrapper{
+    width: 100%;
+    padding: 0 10px;
+    min-width: 320px;
+}
+.inside_wrapper{
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    min-width: 300px;
+}
+
+.checkout-form-holder{
+    margin: 0;
+    padding: 10px 20px 20px;
+}
+
+.form_banner{
+    padding: 20px;
+    background-color: $primary;
+    border-radius: 20px 20px 0 0;
+    h3{
+        line-height: normal;
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+        font-weight: bold;
+        text-align: center;
+        color: #fff;
+        font-size: 22px;
+        letter-spacing: 0.5px;
+    }
+}
+.form_note_box{
+    padding: 5px;
+    padding-bottom: 0;
+    .small_note{
+        font-family: sans-serif;
+        font-size: 11px;
+        line-height: 1.4;
+        font-weight: 400;
+        color: $grey;
+        margin-bottom: 0;
+    }
+}
+
+.form_label{
+    color: $primary;
+    font-size: 12px;
+    margin-bottom: -7px;
+    a{
+        color: $primary;
+        text-decoration: underline !important;
+    }
+}
+.form_field{
+    input, select, textarea, option{
+        font-size: 13px;
+        color: $grey;
+        &:hover{
+            outline: none;
+        }
+    }
+}
+.form_title{
+    text-align: center;
+    color: $primary;
+}
+
+.form_note_conteiner{
+    width: 100%;
+    text-align: left;
+}
+.form_note{
+    font-family: sans-serif;
+    font-size: 11px;
+    line-height: 12px !important;
+    color: $grey;
+}
+
+.text_align_center{
+    text-align: center;
+}
+.form_alert_message{
+    border-radius: 20px !important;
+    small{
+        background: none;
+    }
+}
+
+#select_pickup_location{
+    display: none;
+}
+
+.address_inputs{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+.square10{
+    width: 10px;
+    height: 10px;
+    max-width: 10px;
+    min-width: 10px;
+}
+
+
+
+
+// REVIEW CHECKOUT PAGE
+.alert_container{
+    margin-bottom: 0 !important;
+}
+.review_title{
+    margin-top: 20px;
+    font-size: 20px;
+    color: $dark_teal;
+    text-align: center;
+}
+.review_title2{
+    margin-top: 20px;
+    font-size: 20px;
+    color: $dark_teal;
+}
+
+
+.review_form_container_inside{
+    padding: 20px;
+}
+.review_form_container_inside > div{
+    color: $dark_grey;
+    font-size: 14px;
+}
+.review_label{
+    color: rgb(176, 176, 176);
+}
+
+.label_and_value{
+    display: flex;
+    align-items: flex-start;
+    .review_label{
+        flex: 0.7;
+        min-width: 124px;
+        max-width: 180px;
+        word-wrap: break-word;
+    }
+}
+.label_and_value > div:last-child{
+    flex: 1;
+    padding-left: 10px;
+}
+
+
+
+.upsell_container{
+    display: none;
+    margin-top: 20px;
+}
+.upsell {
+	margin: 10px auto;
+	width: max-content;
+
+}
+#checkout_process{
+    width: 100%;
+}
+input.finalize {
+	width: 100%;
+    position: relative;
+    margin-top: 20px;
+    color: var(--brand);
+    border: solid var(--brand) 2px;
+    height: 50px;
+    color: #fff !important;
+    font-weight: 600;
+    letter-spacing: 1px;
+    
+	-webkit-transition: all .2s ease;
+	-o-transition: all .2s ease;
+	transition: all .2s ease;
+	-webkit-animation: pulse 5s infinite;
+	animation: pulse 5s infinite;
+    input{
+        color: #fff !important;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+}
+
+input.finalize:hover,
+input.finalize:active {
+  background: rgba(40, 209, 209, 1);
+  -webkit-animation: none;
+  animation: none;
+  color:white;
+}
+
+.place_qr_stand{
+    padding-left: 10px;
+    padding-top: 10px;
+    display: flex;
+    align-items: center;
+    margin-bottom: -5px;
+}
+.place_qr_stand > div:first-child{
+    margin-bottom: -4px;
+    input:focus{
+        outline: none;
+    }
+}
+.place_qr_stand > div:last-child{
+    margin-left: 5px;
+}
+
+.place_qr_stand_label{
+    font-weight: bold;
+    color: $dark_grey;
+}
+
+.submit_order_btn{
+    background-color: $primary !important;
+    input{
+        color: #fff !important;
+    }
+}
+
+
+.display_none{
+    display: none;
+}
+
+// CHECKOUT RECEIPT PAGE
+.order_conf_title{
+    margin: 0;
+    padding: 0;
+}
+.order_conf_number{
+    padding-top: 10px;
+}
+.notification_container{
+    width: 100%;
+    padding: 10px 20px;
+    border: 2px solid $primary;
+    color: $primary;
+    h4{
+        margin: 0;
+        padding: 0;
+        line-height: 1.4;
+        font-family: var(--main-font);
+        font-weight: bold;
+    }
+}
+
+
+
+// LOADER
+.loader{
+    display: none;
+    overflow: hidden;
+    background-color: $dark_teal;
+    background-color: rgba(0, 0, 0, 0.8);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1100;
+}
+.loader>div{
+    height: 100px;
+    width: 100px;
+    border: 15px solid $primary;
+    border-top-color: #fff;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 50%;
+    animation: spin_spiner 1.5s infinite linear;
+}
+#submit_order_message{
+    display: none;
+    position: fixed;
+    top: calc(50% - 100px);
+    transform: translateY(-50%);
+    left: 0;
+    right: 0;
+    z-index: 1101;
+    padding: 20px;
+    h3{
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        font-family: $new_font !important;
+        color: #fff;
+    }
+}
+
+
+@keyframes spin_spiner{
+    100%{
+        transform: rotate(360deg);
+    }
+}
+
+
+
+@media (max-width:900px) {
+    .form_title{
+        font-size: 20px;
+    }
+    .form_section_title{
+        font-size: 17px;
+    }
+    .address_inputs{
+        width: 100%;
+        flex-direction: column;
+    }
+    .address_inputs > .form_field{
+        width: 100%;
+    }
+    .address_inputs > .form_field:nth-child(2),
+    .address_inputs > .form_field:nth-child(3){
+        margin-top: 0 !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .form_title{
+        text-align: center;
+    }
+
+}
+
+@media (max-width: 575px) {
+    .form_title{
+        font-size: 18px;
+    }
+    .form_section_title{
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 420px) {
+    .label_and_value, 
+    .label_and_value div,
+    .label_and_value span{
+        font-size: 12px !important;
+    }
+
+}
+
+
+
+
+
+

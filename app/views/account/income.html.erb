@@ -1,0 +1,123 @@
+<script>
+    var url_year = '<%= params[:year] %>';
+    var url_month = '<%= params[:month] %>';
+</script>
+
+<div class="separator20"></div>
+<h3 class="section_title_h3">Income</h3>
+<div class="separator20"></div>
+
+
+<div class="container">
+    <div class="woocommerce">
+
+
+
+        <!---Rental Income-->
+        <div>
+            <div class="container account-filter">
+                <!--Date Selector-->
+                <div class="year-selector">
+                    <button onclick="subtractYear()" class="controller-button year-input"><</button>
+                    <span id="year">Year</span>
+                    <button onclick="addYear()" class="controller-button year-input">></button>
+                </div>
+                <form id="month-pick">
+                    <div class="month-selector">
+                        <div class="row">
+                            <%
+                                month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+                                month_num = 0;
+
+                                month.each do |mon|
+                                    month_num = month_num + 1
+                            %>
+                                <div class="col-4 col-sm-3 col-md-1 text-center">
+                                    <input type="radio" name="month" id="<%= month_num %>" class="d-none" value="<%= month_num %>">
+                                    <label class="year-input" for="<%= month_num %>">
+                                        <%= mon %>
+                                    </label>
+                                </div>
+                            <% end %>
+                            <div class="col-12 text-center">
+                            
+                            <hr>
+                                <input id="commission-date" class="view" type="text">
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+                <!--- The Date Value is Set in the box as "YYYY-MM" || change class d-none to view--->
+                
+
+            </div>
+            
+            <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-6 text-center">
+                        <h3 class="commissions-filter-title" style="display:inline-block;"><span id="month-income"> </span> Income</h3>
+                        <h1>$<span id="sum_month"></span></h1>
+                    </div>
+                    
+                    <!--Month Over Month Overview-->
+                    <div class="col-xs-12 col-sm-12 col-md-6 text-center">
+                        <h3 class="commissions-filter-title" style="display:inline-block;"><span id="year-income">Year</span> Total Income</h3>
+                        <h1>$<span id="sum_year"></span></h1>
+                    </div>
+            </div>
+
+            <hr>
+
+            <div class="row justify-content-center">
+                <% if @products.first.nil? %>
+                    <div class="col-auto text-center mt-3">
+                        <h4>You have no rental income for this month.</h4>
+                    </div>
+                <% else %>
+                    <div class="col-auto text-center">
+                        <table class="table table-responsive table-striped  m-auto w-100" id="commissions">
+                            <thead class="thead">
+                                <tr>
+                                    <td colspan="6" class="text-left" style="border-top:none;">
+                                        <h4 style="display:inline-block;"><%= "#{params[:year]}-#{params[:month]}-#{01}}".to_date.strftime('%B, %Y') %> Rental Income by Item</h4>
+                                        <a href="<%= account_accounting_income_path %>?year=<%= params[:year] %>&month=<%= params[:month] %>" class="date-submit btn-primary" style="padding: .375rem .75rem; float: right;" id="date_submit" href="#">Refresh List</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Item</th>
+                                    <th scope="col">Product</th>
+                                    <th scope="col">Rental Period</th>
+                                    <th scope="col">Days</th>
+                                    <th scope="col">Earn/day</th>
+                                    <th scope="col">Total Earned</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% @products.each do |product| %>
+                                    <%if product.paid <= 0 %>
+                                        <tr>
+                                            <td><%= link_to(product.id, pdp_path(product.id), target: '_blank') %></td>
+                                            <td><%= (product.name).truncate(20) %></td>
+                                            <td><%=product.shipped_date&.strftime("%m/%d/%y") %> - <%=product.return_date&.strftime("%m/%d/%y") || "Still Renting"%></td>
+                                            <%if product.days_rented <= 30 %> 
+                                                <td>30</td>
+                                                <td title="$<%= product.earned_per_day.round(4)%>"><%= number_to_currency(product.earned_per_day.floor(2))%></td>
+                                                <td><%= number_to_currency(product.earned_per_day*30) %></td>                                                    
+                                            <%else%>
+                                                <td><%= product.days_rented %></td>
+                                                <td title="$<%= product.earned_per_day.round(4)%>"><%= number_to_currency(product.earned_per_day.floor(2))%></td>
+                                                <td><%= number_to_currency(product.earned_per_day*product.days_rented) %></td>                                                        
+                                            <%end%>
+                                        </tr>
+                                    <%end%>
+                                <%end%>
+                            </tbody>
+                        </table>
+                    </div>
+                <% end %>
+            </div>
+            
+        </div>
+
+    </div>
+</div>

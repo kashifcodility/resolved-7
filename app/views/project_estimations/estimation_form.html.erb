@@ -1,0 +1,118 @@
+<div class="container">
+    <div class="woocommerce">
+
+        <h1 class="category-header">Send Client Estimation</h1>
+        <%#= render 'navigation' %>
+
+        <div class="member-info">
+
+            <!-- Add Credit Card Form -->
+            <div class="add-card">
+
+                
+                
+                <hr>
+                <%= form_tag(controller: 'project_estimations', action: 'create_estimation' ,id: 'payment-form11') %>
+                
+                   <div class="col-sm-12 col-md-6">
+                   <p>Client Email</p>
+                   <div class="form-group">
+                      <%= text_field_tag(:email, nil, class: 'form-control required_field', autocomplete:'off', placeholder: 'Email', required: true) %>
+                   </div>
+                   <p>Date</p>
+                   <div class="form-group">
+                      <%= text_field_tag(:estimation_date, nil, class: 'datepicker form-control required_field', autocomplete:'off', placeholder: '-- Select Date --', required: true) %>
+                   </div>
+                    <p>Client Name</p>
+                   <div class="form-group">
+                      <%= text_field_tag(:name, nil, class: 'form-control required_field', autocomplete:'off', placeholder: 'Name', required: true) %>
+                   </div>
+                   <p>Message</p>
+                   <div class="form-group">
+                      <%= text_area_tag(:message, 'Hi Adam,
+                            Thank you for your interest in our services. After viewing your property, we have put together the
+                            following estimate.', class: 'form-control required_field', autocomplete: 'off', placeholder: '-- Message --') %>
+
+                   </div>
+                   <p>Tentative Stage Date</p>
+                   <div class="form-group">
+                      <%= text_field_tag(:tentative_stage_date, nil, class: 'datepicker form-control required_field', autocomplete:'off', placeholder: '-- Tentative Stage date --') %>
+                   </div>
+                   <p>Rooms To Stage</p>
+                   <div class="form-group">
+                      <%= text_area_tag(:rooms_to_stage, "Entry, Living Room, Kitchen, Dining Room, Powder Room, Primary Bedroom &
+                            Bathroom, Family Bathroom, Girls Bedroom, Boys Bedroom, Bonus Room, Bonus Bath, and
+                            Workspace", class: 'form-control required_field', autocomplete:'off', placeholder: '-- Rooms to stage --') %>
+                   </div>
+
+                   <p>Total Design Fee</p>
+                   <!-- Address Line 1 -->
+                   <div class="form-group">
+                       <%= text_field_tag(:total_design_fee, nil , class: 'form-control', placeholder: 'Total Design Fee', required: true) %>
+                   </div>
+                   <p>Total Rental Fee</p>
+                   <!-- Address Line 2 -->
+                   <div class="form-group">
+                       <%= text_field_tag(:total_rental_fee, nil , class: 'form-control', placeholder: 'Total Rental Fee') %>
+                   </div>
+                   <p>Total</p>
+                   <!-- City -->
+                   <div class="form-group">
+                       <%= text_field_tag(:total, nil, class: 'form-control', placeholder: 'Total fee', required: true) %>
+                   </div>
+
+                   <p>Add On Kids Playroom (3rd floor)</p>                  
+                   <div class="form-group">
+                       <%= text_field_tag(:add_on_kids_playroom, nil, class: 'form-control',placeholder: 'Add On Kids Playroom (3rd floor) price', required: true) %>
+                   </div>
+                   <p>Add On Outdoor Space</p>
+                   <div class="form-group">
+                       <%= text_field_tag(:add_on_outdoor_space, nil, class: 'form-control',placeholder: 'Add On Outdoor Space price', required: true) %>
+                   </div>
+                   <p>Add On Basement Office</p>
+                   <div class="form-group">
+                       <%= text_field_tag(:add_on_basement_office, nil, class: 'form-control',placeholder: 'Add On Basement Office price', required: true) %>
+                   </div>
+                   <p>Contract terms</p>
+                   <div class="form-group">
+                      <%= text_area_tag(:contract_terms, "We offer a 45-day rental period for the first billing period, with each additional billing cycle billed at
+                            30 days. After the initial 45 days, any additional time is prorated.
+                            The design fee is a one-time fee covering the cost of design, installation, and de-staging.
+                            The rental is a monthly recurring fee.", class: ' form-control required_field', autocomplete:'off', placeholder: 'Contract terms') %>
+                   </div>
+<!--
+                   <p>Regards</p>
+                   <div class="form-group">
+                      <%= text_area_tag(:regards, "Kelli Giarritiello
+                        General Manager
+                        Ready Set Staging
+                        Kerri Robledo
+                        Assistant Manager
+                        Ready Set Staging
+                        Jacquie Miley
+                        Administrative Assistant
+                        Ready Set Staging", class: ' form-control required_field', autocomplete:'off', placeholder: 'Regards') %>
+                   </div>
+-->
+               </div>
+
+                   <button type="submit" class="btn btn-outline-secondary btn-lg btn-block">Send Estimation</button>
+                </form>   
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+jQuery('.datepicker').datepicker({
+        autoclose: true,
+        todayHighlight: true,
+        format: 'yyyy-mm-dd',
+        startDate: new Date() // This disables previous dates
+    });
+
+</script>

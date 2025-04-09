@@ -1,0 +1,211 @@
+<!-- SHOPPING CART -->
+<div class="sidebar_modal">
+    <div class="modal right fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content animate_right">
+
+            <div class="modal-header sidebar_header">
+                <div>
+                    <%=image_tag("new_icons/header_shopping_cart.svg", class:"modal_header_icon", alt:"header_shopping_cart") %>
+                    <h5>CART</h5>
+                    <%= image_tag('new_icons/close.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+                </div>
+            </div>
+
+            <% if @cart&.items.blank? %>
+                <div class="empty_cart">
+                    <div class="separator20"></div>
+                    <p > Your Cart is Empty </p>
+                    <div class="separator20"></div>
+                    <div class="side_button proceed_btn">
+                        <a href="<%= plp_path(sort: 'qhtl') %>">START SHOPPING <%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %></a>
+                    </div>
+                </div>
+            <%else%>
+                <div class="total_info_container">
+                    
+                    <div class="est-upsell-box">  
+                        <span id="est-upsell"></span>
+                    </div>
+                    <div>
+                        <div class="total_info">
+                        <%#binding.pry%>
+                            <p><span class="formated">Items Subtotal: </span><span>$</span><span class="main-color-text" id="cart-subtotal"><%= number_with_precision(@cart&.items_sub_total_and_quantity[0] || 0, precision: 2) %></span></p>
+                            <p><span class="formated">Est. Delivery:  </span><span>$</span><span class="main-color-text" id="est-delivery">0</span></p>
+                            <p><span class="formated">Est. Destage:  </span><span>$</span><span class="main-color-text" id="est-destage">0</span></p>
+                            <small class="will_call">Will Call option available</small>
+                            <div class="horizontal_line"></div>
+                            <p><span class="formated">Total:              </span><span>$</span><span class="main-color-text" id="cart-total"></span></p>
+                        </div>
+                        <a href="" class="clear_cart" data-toggle="modal" data-target="#modal4">
+                            <div>
+                                <%=image_tag("new_icons/refresh.svg", alt:"empty cart") %>
+                                <p>Empty Cart</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="review_items_btn_container">
+                        <div class="side_button proceed_btn">
+                            <a href="<%= cart_path %>">REVIEW ITEMS <%=image_tag("new_icons/forward.svg", alt:"proceed_arrow_white") %></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="separator20"></div>
+            
+
+
+
+                <div class="modal-body">
+                    <div class="body_content">
+                        <p class="cart_sidebar_title">ITEMS</p>
+
+                        <div class="all_cart_items all_items_height">
+                            <% @cart.items.each do |cart_item| %> 
+                                <%item = cart_item.with_indifferent_access%>
+                                <div class="cart_item" id="cart_item_<%=item[:uniq_id]%>">
+                                    <div><%=image_tag( item[:main_image_url] || 'https://placehold.co/400?text=No+image', alt:item[:product] ) %></div>
+                                    <div>
+                                        <p>#<%= item[:id] %></p>
+                                        <a href="<%= pdp_path(item[:id]) %>"><%= item[:product] %></a>
+                                        <p><%= number_to_currency(item[:price]) %></p>
+                                    </div>
+                                    <div class="d-flex align-items-center" style="margin:auto 12px">
+                                        <button class="btn btn-sm btn-primary change-quantity" id="change-quantity" data-action="decrease" data-id="<%= item[:id] %>" data-uid="<%= item[:uniq_id] %>" style="height:24px;width: 20px;display: flex;align-items: center;justify-content: center;">-</button>
+                                        <p class="mx-2 font-weight-bolder" id="item_quantity_<%=item[:uniq_id]%>"><%=item[:quantity]%></p>
+                                        <button class="btn btn-sm btn-primary change-quantity" id="change-quantity" data-action="increase" data-id="<%= item[:id] %>" data-uid="<%= item[:uniq_id] %>" style="height:24px;width: 20px;display: flex;align-items: center;justify-content: center;">+</button>
+                                    </div>
+                                    <a href="<%= remove_from_cart_path(uniq_id: item[:uniq_id], id: item[:id]) %>" class="trash_item" title="Remove this item"><%=image_tag("new_icons/trash.svg", alt:"trash") %></a>
+
+                                    <!-- FAVORITE ITEM  -->
+                                    <% if item[:is_favorite] %>
+                                        <a class="favorite_btn favorite_item" aria-role="switch" data-pid="<%= item[:id] %>" data-action="unfavorite" href="/products/<%= item[:id] %>">
+                                            <i class="fas fa-heart " aria-hidden="true" aria-label="Unfavorite"></i>
+                                        </a>                                        
+                                    <% else %>
+                                        <a class="favorite_btn favorite_item" aria-role="switch" data-pid="<%= item[:id] %>" data-action="favorite" href="/products/<%= item[:id] %>">
+                                            <i class="far fa-heart " aria-hidden="true" aria-label="Favorite"></i>
+                                        </a>  
+                                    <% end %>
+                                </div>
+
+
+
+                                <%= form_tag(add_to_order_path, class: "cart", id: "add_to_order") %>			 
+                                    <div class="field">
+                                        <%= select_tag :room_id, options_from_collection_for_select(Room.active_rooms_ordered_by_position(current_user&.id), :id, :name, item[:room_id]), 
+                                        prompt: 'Select a Room', 
+                                        class: 'account-sort dummy',
+                                        style:"min-width:94%; margin:0 10px 10px 10px",
+                                        id: item[:uniq_id] %>
+                                    </div>
+                                </form>
+                                <hr class="item_separator">
+                            <%end%>
+                        </div>
+                        <div class="separator20"></div>
+                        <a href="<%= plp_path(sort: 'qhtl') %>" class="continue_shopping">continue shopping</a>
+                        <div class="separator20"></div>
+                        <div class="ios_space height50"></div>
+                    
+                    </div>
+                </div>
+                <% end %>
+        </div><!-- modal-content -->
+    </div><!-- modal-dialog -->
+    </div>	
+</div>
+
+<script>
+
+
+$(document).on('change', '.account-sort.dummy', function() {
+    var dropdownId = $(this).attr('id');
+    
+
+    // You can add additional logic here
+    // For example, making an AJAX request with the selected value and ID
+    var selectedValue = $(this).val();
+    
+
+    fetch('/update_cart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({ product_id: dropdownId, room_id:  selectedValue})
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log(data);
+    })
+    .catch(error => {
+      console.error('There was a problem with the fetch operation:', error);
+    });
+    
+});
+
+
+
+$(document).on('click', '#change-quantity', function() {
+    let itemId = $(this).data('id');
+    let itemUid = $(this).data('uid');
+    let action = $(this).data('action');
+    let quantity = $('#item_quantity_' + itemUid).text();
+    let cart_items = $('#qty_of_items').text();
+    let cart_subtotal = $('#cart-subtotal').text();
+    let cart_total = $('#cart-total').text();
+
+    $.ajax({
+        url: '/update_items_quantity',
+        method: 'POST',
+        data: {
+            id: itemId,
+            uid: itemUid,
+            action_type: action,
+            quantity: quantity,
+            subtotal: cart_subtotal,
+            total: cart_total,
+            items: cart_items,
+            authenticity_token: '<%= form_authenticity_token %>'
+        },
+        success: function(response) {
+            // Update the quantity on success
+            console.log(response,'res.......')
+            if (response.message === "Product can't be added due to low quantity"){
+                 alert(response.message)
+            }  
+                 if (response.message === "Removed."){
+                    $('#qty_of_items').text(response.cart_items);
+                    $('#cart-total').text(response.price_total);
+                    $('#cart-subtotal').text(response.sub_total);
+                    $('#cart_item_' + itemUid).remove(); 
+                    $('#'+itemUid).remove(); 
+            }
+            else{
+                $('#item_quantity_' + itemUid).text(response.new_quantity);
+
+                // Optionally refresh the cart total or other UI elements
+                $('#cart-total').text(response.price_total);
+                $('#cart-subtotal').text(response.sub_total);
+                $('#qty_of_items').text(response.cart_items);
+            }      
+        },
+        error: function() {
+            alert('There was an error updating the cart. Please try again.');
+        }
+    });
+    
+
+
+    
+});
+
+
+
+</script>

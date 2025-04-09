@@ -1,0 +1,259 @@
+<script>
+    var url_year = '<%= params[:year] || Date.today.year %>';
+    var url_month = '<%= params[:month] || Date.today.month%>';
+</script>
+
+<div class="separator20"></div>
+<h3 class="section_title_h3">My Accounting</h3>
+<div class="separator20"></div>
+
+<div class="container">
+    <div class="woocommerce">
+
+
+
+
+        <!-- Accounting Page --> 
+
+        <!-- <div class="profile-navigation sub">
+            <div class="col-xs-9 col-md-6 ml-auto mr-auto">
+                <ul class="navbar navbar-expand-xs">
+                    <li data-target="#moneyManagement" data-slide-to="0" class="active">
+                        <a class="profile-nav-item active accounting_subnav" href="#" style="border-bottom: solid 3px var(--brand);">Income</a>
+                    </li>
+                    <li data-target="#moneyManagement" data-slide-to="1">
+                        <a class="profile-nav-item active accounting_subnav" href="#">Payment History</a>
+                    </li>
+                </ul>
+
+                <script>
+                 $('.accounting_subnav').on('click', function(e) {
+                     $(".accounting_subnav").css("border-bottom", "");
+                     $(this).css("border-bottom", "solid 3px var(--brand)");
+                 });
+                </script>
+                
+            </div>
+        </div> -->
+
+        <div id="moneyManagement" class="carousel slide" data-ride="carousel" data-interval="false">
+            <div class="carousel-inner">
+                <!---Rental Income-->
+                <div class="carousel-item active">
+                    <div class="container account-filter">
+                        <!--Date Selector-->
+                        <div class="year-selector">
+                            <button onclick="subtractYear()" class="controller-button year-input"><</button>
+                            <span id="year">Year</span>
+                            <button onclick="addYear()" class="controller-button year-input">></button>
+                        </div>
+                        <form id="month-pick">
+                            <div class="month-selector">
+                                <div class="row">
+                                    <%
+                                        month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+                                        month_num = 0;
+
+                                        month.each do |mon|
+                                            month_num = month_num + 1
+                                    %>
+                                        <div class="col-4 col-sm-3 col-md-1 text-center">
+                                            <input type="radio" name="month" id="<%= month_num %>" class="d-none" value="<%= month_num %>">
+                                            <label class="year-input" for="<%= month_num %>">
+                                                <%= mon %>
+                                            </label>
+                                        </div>
+                                    <% end %>
+                                    <div class="col-12 text-center">
+                                    
+                                    <hr>
+                                      <input id="commission-date" class="view" type="text">
+                                    </div>
+
+                                </div>
+                            </div>
+                        </form>
+                        <!--- The Date Value is Set in the box as "YYYY-MM" || change class d-none to view--->
+                      
+
+                    </div>
+                  
+                    <div class="row">
+                         <div class="col-xs-12 col-sm-12 col-md-6 text-center">
+                             <h3 class="commissions-filter-title" style="display:inline-block;"><span id="month-income"> </span> Income</h3>
+                             <h1>$<span id="sum_month"></span></h1>
+                         </div>
+                         
+                         <!--Month Over Month Overview-->
+                         <div class="col-xs-12 col-sm-12 col-md-6 text-center">
+                             <h3 class="commissions-filter-title" style="display:inline-block;"><span id="year-income">Year</span> Total Income</h3>
+                             <h1>$<span id="sum_year"></span></h1>
+                         </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row justify-content-center">
+                        <% if @products&.first&.nil? %>
+                            <div class="col-auto text-center mt-3">
+                                <h4>You have no rental income for this month.</h4>
+                            </div>
+                        <% else %>
+                            <div class="col-auto text-center">
+                                <table class="table table-responsive table-striped  m-auto w-100" id="commissions">
+                                    <thead class="thead">
+                                        <tr>
+                                            <td colspan="6" class="text-left" style="border-top:none;">
+                                                <h4 style="display:inline-block;"><%= "#{params[:year]}-#{params[:month]}-01".to_date.strftime('%B, %Y') %> Rental Income by Item</h4>
+                                                <a href="<%= account_accounting_path %>?year=<%= params[:year] %>&month=<%= params[:month] %>" class="date-submit btn-primary" style="padding: .375rem .75rem; float: right;" id="date_submit" href="#">Refresh List</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="col">Item</th>
+                                            <th scope="col">Product</th>
+                                            <th scope="col">Rental Period</th>
+                                            <th scope="col">Days</th>
+                                            <th scope="col">Earn/day</th>
+                                            <th scope="col">Total Earned</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% @products&.each do |product| %>
+                                            <%if product.paid <= 0 %>
+                                                <tr>
+                                                    <td><%= link_to(product.id, pdp_path(product.id), target: '_blank') %></td>
+                                                    <td><%= (product.name).truncate(20) %></td>
+                                                    <td><%=product.shipped_date&.strftime("%m/%d/%y") %> - <%=product.return_date&.strftime("%m/%d/%y") || "Still Renting"%></td>
+                                                    <%if product.days_rented <= 30 %> 
+                                                        <td>30</td>
+                                                        <td title="$<%= product.earned_per_day.round(4)%>"><%= number_to_currency(product.earned_per_day.floor(2))%></td>
+                                                        <td><%= number_to_currency(product.earned_per_day*30) %></td>                                                    
+                                                    <%else%>
+                                                        <td><%= product.days_rented %></td>
+                                                        <td title="$<%= product.earned_per_day.round(4)%>"><%= number_to_currency(product.earned_per_day.floor(2))%></td>
+                                                        <td><%= number_to_currency(product.earned_per_day*product.days_rented) %></td>                                                        
+                                                    <%end%>
+                                                </tr>
+                                            <%end%>
+                                        <%end%>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% end %>
+                    </div>
+                    
+                </div>
+
+                    <%
+                    # TODO: Finish pagination
+                    # <nav aria-label="Page navigation">
+                    #     <ul class="pagination justify-content-center">
+                    #         <li class="page-item">
+                    #             <a class="page-link" href="#!" aria-label="Previous">
+                    #                 <span aria-hidden="true">&laquo;</span>
+                    #                 <span class="sr-only">Previous</span>
+                    #             </a>
+                    #         </li>
+                    #         <li class="page-item"><a class="page-link" href="#!">1</a></li>
+                    #         <li class="page-item"><a class="page-link" href="#!">2</a></li>
+                    #         <li class="page-item"><a class="page-link" href="#!">3</a></li>
+                    #         <li class="page-item">
+                    #             <a class="page-link" href="#!" aria-label="Next">
+                    #                 <span aria-hidden="true">&raquo;</span>
+                    #                 <span class="sr-only">Next</span>
+                    #             </a>
+                    #         </li>
+                    #     </ul>
+                    # </nav>
+                    %>
+                
+
+                    <%
+                    # NOT IN MVP
+                    # <!---Sales Items-->
+                    # <div class="carousel-item">
+                    #     <ul class="purchased">
+                    #         <li class="purchased-item">
+                    #         <div class="d-flex flex-row">
+                    #         <div class="p-2">
+                    #         <img src="https://sdn-library.s3-us-west-1.amazonaws.com/1331-69440_XXX_v1.jpg" alt="Helleborus/Anemone/ Rose/Hydrangea in Glass Vase O">
+                    #         </div>
+                    #         <div class="p-2">
+                    #         <h5>Item #:</h5>
+                    #         <li><p>12345</p></li>
+                    #         </div>
+                    #         <div class="p-2">
+                    #         <h5>Name:</h5>
+                    #         <li><p>Yellow Chair</p></li>
+                    #         </div>
+                    #         <div class="p-2">
+                    #         <h5>Sales Price:</h5>
+                    #         <li><p>$500.00</p></li>
+                    #         </div>
+                    #         <div class="p-2">
+                    #         <h5>Sales Date:</h5>
+                    #         <li><p>12/1/19</p></li>
+                    #         </div>
+                    #         <div class="small-hide">
+                    #         <input type="submit" name="commit" value="Quick View" class="single_add_to_cart_button button quickview" data-disable-with="Rent">
+                    #         </div>
+                    #         </div>
+                    #         </li>
+                    #     </ul>
+                    # </div>
+                    %>
+
+                <!---Billing Reciepts -->
+                <div class="carousel-item">
+                            <div class="accounts-table">
+                            <table class="table table-hover table-condensed bordered">
+                                <thead>
+                                <tr>
+                                <th>Reference Number</th>
+                                <th>Type</th>
+				                <th>Order</th>
+                                <th>Billing Date</th>
+                                <th>Payment Method</th>
+                                <th>Total</th>
+                                <%
+                                # <th>Action</th>
+                                %>
+                                </tr>
+                                </thead>
+                                <tbody id="users_orders">
+                                    <% @payments&.each do |payment| %>
+                                        <tr>
+                                        <td class="align-middle"><%= payment.reference_number %></td>
+                                        <td class="align-middle"><%= payment.type %></td>
+                                        <td class="align-middle">
+                                        <% if payment.order %>
+                                            <% if payment.order.project.nil? %> 
+                                                <%= link_to(' #' + payment.order.id.to_s, account_order_path(payment.order.id)) %>
+                                            <%else%>
+                                                <%= link_to(' #' + payment.order.id.to_s + " - " + payment.order.project.to_s.truncate(10), account_order_path(payment.order.id)) %>
+                                            <%end%>
+                                        <% end %>
+                                        </td>					    
+                                        <td class="align-middle"><%= payment.date.strftime('%D') %></td>
+                                        <td class="align-middle">Card Ending in <%= payment.credit_card %></td>
+                                        <td class="align-middle"><%= number_to_currency(payment.value) %></td>
+                                        <%
+                                        # NOT IN MVP
+                                        # <td class="align-middle">
+                                        # <button type="button" class="btn btn-primary btn-sm edit-order-btn">
+                                        # Print Receipt
+                                        # </button>
+                                        # </td>
+                                        %>
+                                        </tr>
+                                    <% end %>
+                                </tbody>
+                            </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

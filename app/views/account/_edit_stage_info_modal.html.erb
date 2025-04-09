@@ -1,0 +1,76 @@
+<!--Edit Profile Modal-->
+<div class="popup_modal">
+    <div class="modal fade show" id="edit_stage_info_modal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <%=image_tag("new_icons/projects.svg", class:"modal_header_icon", alt:"edit_project") %>
+                        <h5 id="modal_title_with_id">Edit Stage info</h5>
+                        <%= image_tag('new_icons/close.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="new_design">
+                        <!-- EDIT PROJECT NAME FORM - epnf -->
+                        <div class="form_design_1 epnf_container">
+                            <%# if @order.present? %>
+                            <%= form_tag(nil, method: :post, id: 'edit_stage_info_form') do %>
+                                <!-- USERS CONTACT INFO -->
+                                <div id="form_title_project_id1" class="form_title">#</div><div class="separator10"></div>
+                                  <input id="stage_info" name="stage_info" value="stage"  type="hidden">
+                                <div class="input_w_label">
+                                    <label for="project_name">Contact Name</label>
+                                    <div class="d-flex justify-content-between">
+                                    <input class="col-6" id="f_name" name="first_name" type="text">
+                                    <input class="col-6" id="l_name" name="last_name"  type="text">
+                                </div>
+                                </div>
+                                <br><p class='text-center'>Shipping info</p><br>
+                                
+                                <div class="input_w_label">
+                                    <label for="project_name">Phone</label>
+                                    <input id="stage_phone" name="stage_phone"  type="text">
+                                </div>
+                                
+                                <div class="input_w_label">
+                                    <label for="project_name">Address</label>
+                                    <input id="stage_address" name="stage_address"  type="text">
+                                </div>
+                                
+                                <div class="input_w_label">
+                                    <label for="project_name">Home Type</label>
+                                    
+                                    <select id="stage_home_type" name="stage_home_type" required=""><option value="">-- Home Type --</option>
+                                        <option value="house">House</option>
+                                        <option value="apartment">Apartment</option>
+                                        <option value="condominium">Condominium</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="project_name">Levels</label>
+                                    <input id="stage_levels" name="stage_levels"  type="text">
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="project_name">Instructions</label>
+                                    <textarea id="stage_instructions" name="stage_instructions" rows="6"></textarea>
+                                </div>                               
+                                
+                                <div class="separator20"></div>
+
+                                <p class="side_button2">
+                                    <button>SAVE CHANGES<%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %></button>
+                                </p>
+                                <% end%>
+                            <%# end %>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

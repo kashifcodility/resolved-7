@@ -1,0 +1,53 @@
+<div class="container">
+    <div class="woocommerce">
+
+        
+        <div class="member-info">
+            <div class="add-card">
+                <h4>Approved Delivery Appointment for projects</h4>
+                <hr>
+                <%= form_tag(update_delivery_appointment_path,id: 'payment-form', method: 'PUT') %>
+
+                   <br>
+                   <div class="col-sm-12 col-md-6">
+                   <!-- State -->
+                   <div class="form-group">
+                   
+                   Approved <%= check_box_tag(:status, nil ,@delivery_appointment.status ) %>
+
+                   </div>
+
+                   Schedule Date
+                   <div class="form-group">
+                       <%date = @delivery_appointment.schedule_date || @delivery_appointment&.order&.due_date%>
+                       <%= text_field_tag(:schedule_date, date&.to_datetime.strftime("%Y-%m-%d"), class: 'form-control datepicker-ab',placeholder: 'Special instructions', required: true) %>
+                   </div>
+                   Special instructions
+                   <div class="form-group">
+                   <%= text_area_tag(:special_instructions, @delivery_appointment.special_instructions, class: 'form-control',placeholder: 'Special instructions', required: true) %>
+                   <%= hidden_field_tag(:id, @delivery_appointment.id) %>
+               </div>
+
+               </div>
+                   <button type="submit" class="btn btn-outline-secondary btn-lg btn-block">Delivery Appointment</button>
+                </form>   
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+jQuery('.datepicker-ab').datepicker({
+    autoclose: true,
+    todayHighlight: true,
+    format: 'yyyy-mm-dd',
+    startDate: new Date() // This disables previous dates
+});
+
+
+</script>

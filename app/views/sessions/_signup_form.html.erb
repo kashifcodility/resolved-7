@@ -1,0 +1,107 @@
+<div class="new_design">
+    <div class="form_design_1 ">
+        <%= form_tag(signup_path, class: 'form-horizontal login-form') %>
+            
+                <div class="inline_elements_min_width_140px">
+                    <div class="input_w_icon">
+                        <%=image_tag("new_icons/user_full.svg", alt:"email") %>
+                        <%= text_field_tag(:first_name, params[:first_name], placeholder: 'First Name') %>
+                    </div>
+
+                    <div class="input_w_icon">
+                        <%=image_tag("new_icons/user_full.svg", alt:"email") %>
+                        <%= text_field_tag(:last_name, params[:last_name], placeholder: 'Last Name') %>
+                    </div>
+                </div>
+
+               
+                <div class="separator10"></div>
+                <!-- EMAIL -->
+                <div class="input_w_icon">
+                    <%=image_tag("new_icons/email_full.svg", alt:"email") %>
+                    <%= email_field_tag(:email, params[:email], placeholder: 'E-mail Address', required: true) %>
+                </div>
+        
+        
+                <div class="separator10"></div>
+                
+                <div class="input_w_icon">
+                    <%=image_tag("new_icons/email_full.svg", alt:"username") %>
+                    <%= text_field_tag(:username, params[:username], placeholder: 'User Name', required: true) %>
+                </div> 
+                <!-- 
+                <div class="separator10"></div>
+                
+                <div class="input_w_icon">
+                    <%#=image_tag("new_icons/email_full.svg", alt:"username") %>
+                    <%#= text_field_tag(:username, params[:username], placeholder: 'User Name', required: true) %>
+                    <%#= select_tag :site_id, options_for_select([["Select a site", "", { disabled: true, selected: true }]] + all_sites_for_select) %>
+                </div>
+                -->
+                <div class="separator10"></div>
+
+                
+                    <!-- PASSWORD -->
+                    <div class="input_w_icon">
+                        <%=image_tag("new_icons/pass_full.svg", alt:"pass") %>
+                        <%= password_field_tag(:password, nil, placeholder: 'Password must be 8 characters long.', required: true) %>
+                    </div>
+                    <div class="separator10"></div>
+                    <!-- REPEAT PASSWORD -->
+                    <div class="input_w_icon">
+                        <%=image_tag("new_icons/pass_full.svg", alt:"pass") %>
+                        <%= password_field_tag(:password_confirmation, nil, id: 'signup_password_confirmation', placeholder: 'Repeat Password must be 8 characters long.', required: true) %>
+                    </div>
+                
+
+                <div class="separator10"></div>
+
+                <!-- SELECT WITH ICON -->
+                <div class="form_select_w_icon">
+                    <div class="what_best_describes_you">
+                        <%= image_tag("new_icons/occupation_full.svg", alt:"occupation") %>
+                        <%= select_tag(:occupation, options_for_select(
+                            [
+                                [ 'What best described you?', nil ],
+                                [ 'Stager',                   'stager' ],
+                                [ 'Builder',                  'builder' ],
+                                [ 'Realtor/Broker',           'realtor_broker' ],
+                                [ 'Home Shopper',             'home_shopper' ],
+                            ], params[:occupation])) %>
+                        <%= image_tag("new_icons/down_arrow_grey.svg", class: "select_arrow_down", alt:"arrow") %>
+                    </div>
+                </div>
+
+                
+                
+                <div class="separator10"></div>
+                <div class="separator10"></div>
+                
+                    <%= hidden_field_tag :recaptcha_token,nil, id: "recaptcha_token", value: params[:recaptcha_token] %>
+                 
+                  
+                <!-- BUTTON -->
+                <br>
+                <div class="form_button">
+                    <%= button_tag('SIGNUP', type: 'submit', class: 'fd_button prime_color') %>
+                </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    $("select").change(function() {
+        $(this).css('color','black')
+    })
+</script>
+<script src="https://www.google.com/recaptcha/api.js?render=<%= ENV['RECAPTCHA_SITE_KEY'] %>"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  grecaptcha.ready(function() {
+    grecaptcha.execute('<%= ENV['RECAPTCHA_SITE_KEY'] %>', {action: 'signup'}).then(function(token) {
+       document.getElementById('recaptcha_token').value = token;
+    });
+  });
+});  
+</script>

@@ -1,0 +1,111 @@
+<!--Edit Profile Modal-->
+<div class="popup_modal">
+    <div class="modal fade show" id="edit_profile" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content new_design">
+
+                <div class="modal-header">
+                    <div>
+                        <%=image_tag("new_icons/header_user.svg", class:"modal_header_icon", alt:"header_user") %>
+                        <h5>Edit Profile</h5>
+                        <%= image_tag('new_icons/close.svg', data: { dismiss: 'modal' }, aria: { label: 'Close' }, alt: 'close', class: 'close_modal_icon') %>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form_design_1">
+                        <%= form_tag(account_edit_profile_path, class: 'profile_edit_contact_billing', multipart: true) do %>
+                            <!-- USERS PHOTO -->
+                            <section>
+                                <div class="users_photo">
+                                    <%= image_tag( (user_signed_in? && current_user.logo_path.present?) ? current_user.logo_url : "new_icons/account.svg", alt: 'Profile Photo', class: 'user_photo_icon') %>
+                                    <div class="separator10"></div>
+                                    <input type="file" name="photo">
+                                </div>
+                                <div class="separator20"></div>
+                            </section>
+
+                            <!-- USERS CONTACT INFO -->
+                            <div class="form_title">USER INFORMATION</div><div class="separator10"></div>
+
+                            <!-- Company && First Name && Last Name -->
+                            <div class="inline_elements_min_width_140px">
+                                <div class="input_w_label">
+                                    <label for="company_name">Company Name</label>
+                                    <%= text_field_tag :company_name, params[:company_name] || current_user.company_name %>
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="first_name">First Name</label>
+                                    <%= text_field_tag :first_name, params[:first_name] || current_user.first_name %>
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="last_name">Last Name </label>
+                                    <%= text_field_tag :last_name, params[:last_name] || current_user.last_name %>
+                                </div>
+                            </div>
+
+                            <div class="separator10"></div>
+
+                            <!-- Email  &&  Phone  -->
+                            <div class="inline_elements_min_width_130px">
+                                <div class="input_w_label">
+                                    <label for="email">Email</label>
+                                    <%= email_field_tag nil, current_user.email, placeholder: 'Email', disabled: true %>
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="telephone">Phone </label>
+                                    <%= text_field_tag :telephone, params[:telephone] || current_user.telephone %>
+                                </div>
+                            </div>
+
+                            <div class="separator20"></div>
+                            <div class="separator20"></div>
+
+                            <!-- USERS ADDRESS -->
+                            <div class="form_title">COMPANY INFORMATION</div><div class="separator10"></div>
+
+                            <div class="inline_elements_30_by_70_w_label">
+                                <div class="input_w_label">
+                                    <label for="company">Company Name</label>
+                                    <%= text_field_tag(:company, params[:company] || current_user.company_name) %>
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="address1">Company Address</label>
+                                    <%= text_field_tag :address_1, params[:address_1] || current_user.billing_address&.address1 %>
+                                </div>
+                            </div>
+
+                            <div class="separator10"></div>
+
+                            <!-- City  &&  State   &&  Zip Code     -->
+                            <div class="inline_elements_min_width_100px">
+                                <div class="input_w_label">
+                                    <label for="city">City</label>
+                                    <%= text_field_tag :city, params[:city] || current_user.billing_address&.city %>
+                                </div>
+                                <div class="form_select_w_label">
+                                    <label for="state">State</label>
+                                    <div>
+                                        <%=image_tag("new_icons/down-arrow.svg", class:"select_arrow_down", alt:"down-arrow") %>
+                                        <%= select_tag(:state, options_for_select([['-- Select State --', nil]] + states, params[:state] || current_user.billing_address&.state)) %>
+                                    </div>
+                                </div>
+                                <div class="input_w_label">
+                                    <label for="zipcode">Zip Code</label>
+                                    <%= text_field_tag :zipcode, params[:zipcode] || current_user.billing_address&.zipcode %>
+                                </div>
+                            </div>
+
+                            <div class="separator20"></div>
+                            <div class="separator20"></div>
+
+                            <button class="side_button2">
+                                    <p>SAVE CHANGES<%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %></p>
+                            </button>
+                        <% end %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

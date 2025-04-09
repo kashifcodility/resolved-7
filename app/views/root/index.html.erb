@@ -1,0 +1,215 @@
+<!-- HERO SECTION -->
+<%#binding.pry%>
+<div class="hero_holder">
+    <div class="hero_container">
+        <div class="hero_image">
+            <div id="carouselExampleIndicators" class="carousel slide carousel-fade" data-ride="carousel">
+                <ol class="carousel-indicators">
+                  <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                  <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                  <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+                </ol>
+                <div class="carousel-inner">
+                    <div class="sdn_logo_container">
+                        <%=image_tag("new_icons/logo.svg", class: "search_logo", alt:"logo") %>
+                    </div>
+                    <div class="carousel-item active">
+                        <picture>
+                            <source srcset="<%= image_path('new_images/2_h740.jpg') %>" media="(min-width: 1400px)">
+                            <source srcset="<%= image_path('new_images/2_h740_w900.jpg') %>" media="(min-width: 950px)">
+                            <source srcset="<%= image_path('new_images/2_h420.jpg') %>" media="(min-width: 300px)">
+                            <img src="<%= image_path('new_images/2_h420.jpg') %>"  alt="photo" height="740">
+                        </picture>
+                      </div>
+                  <div class="carousel-item ">
+                    <picture>
+                        <source srcset="<%= image_path('new_images/1_h740.jpg') %>" media="(min-width: 1400px)">
+                        <source srcset="<%= image_path('new_images/1_h740_w900.jpg') %>" media="(min-width: 950px)">
+                        <source srcset="<%= image_path('new_images/1_h420.jpg') %>" media="(min-width: 300px)">
+                        <img src="<%= image_path('new_images/1_h420.jpg') %>"  alt="photo" height="740">
+                    </picture>
+                  </div>
+                  <div class="carousel-item">
+                    <picture>
+                        <source srcset="<%= image_path('new_images/3_h740.jpg') %>" media="(min-width: 1400px)">
+                        <source srcset="<%= image_path('new_images/3_h740_w900.jpg') %>" media="(min-width: 950px)">
+                        <source srcset="<%= image_path('new_images/3_h420.jpg') %>" media="(min-width: 300px)">
+                        <img src="<%= image_path('new_images/3_h420.jpg') %>"  alt="photo" height="740">
+                    </picture>
+                  </div>
+                </div>
+                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                    <span class="fas fa-chevron-left"></span>
+                  <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                    <span class="fas fa-chevron-right"></span>
+                  <span class="sr-only">Next</span>
+                </a>
+              </div>
+        </div>
+        <div class="hero_text_container">
+            <div class="hero_text">
+                <p>re|SOLVED</p>
+                <div data-toggle='modal' data-target='#main_heading'>
+                    <h1><%= @main_heading.description&.html_safe %></h1>
+                    <div class="icon-container text-center">
+                        <i class="fas fa-pencil-alt text-center"></i>
+                    </div>
+                </div>
+                <div class="underline"></div><div class="separator20"></div>
+                <div data-toggle='modal' data-target='#main_description'>
+                    <p><%= @main_description.description&.html_safe %></p>
+                    <div class="icon-container text-center">
+                        <i class="fas fa-pencil-alt text-center"></i>
+                    </div>
+                </div>
+                <div class="search_btn_container">
+                    <a class="search_btn" href="<%= about_path %>">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ENDS -->
+
+<div class="space_between_sections"></div>
+
+<!-- SERVICE BLOCK COMPONENT - sb -->
+<section class="sb_holder">
+    <div class="all_sb_components">
+        <div class="sb_component">
+            <div class="sb_image">
+                <picture>
+                    <source srcset="<%= image_path('new_images/luxe_h420.jpg') %>" media="(min-width: 500px)">
+                    <source srcset="<%= image_path('new_images/luxe_h380.jpg') %>" media="(min-width: 300px)">
+                    <img src="<%= image_path('new_images/luxe_h380.jpg') %>"  alt="photo" height="460">
+                </picture>
+            </div>
+            <div class="sb_description">
+                <div data-toggle='modal' data-target='#heading_1'>
+                   <h4><%= @heading_1.description&.html_safe %></h4>
+                    <div class="icon-container text-center">
+                        <i class="fas fa-pencil-alt text-center"></i>
+                    </div>
+                </div>
+                <div data-toggle='modal' data-target='#description_1'>
+                    <p><%= @description_1.description&.html_safe %></p>
+                    <div class="icon-container text-center">
+                        <i class="fas fa-pencil-alt text-center"></i>
+                    </div>
+                </div>
+                <a href="<%= plp_path + '?category=1'%>" class="sb_link">Rent Now</a>
+            </div>
+        </div>
+        <div class="sb_component">
+            <div class="sb_image">
+                <picture>
+                    <source srcset="<%= image_path('new_images/delivery_h420.jpg') %>" media="(min-width: 500px)">
+                    <source srcset="<%= image_path('new_images/delivery_h380.jpg') %>" media="(min-width: 300px)">
+                    <img src="<%= image_path('new_images/delivery_h380.jpg') %>"  alt="photo" height="460">
+                </picture>
+            </div>
+            <div class="sb_description">
+                <div data-toggle='modal' data-target='#heading_2'>
+                    <h4><%= @heading_2.description&.html_safe %></h4>
+                    <div class="icon-container text-center">
+                        <i class="fas fa-pencil-alt text-center text-primary"></i>
+                    </div>
+                </div>
+                <div data-toggle='modal' data-target='#description_2'>
+                    <p><%= @description_2.description&.html_safe %></p>
+                    <div class="icon-container text-center">
+                        <i class="fas fa-pencil-alt text-center"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ENDS -->
+
+<div class="space_between_sections"></div>
+
+<!-- SECTION TITLE -->
+<div class="section_title">
+    <div data-toggle='modal' data-target='#feedback_main'>
+        <h2><%= @feedback_main.description&.html_safe %></h2>
+        <div class="icon-container text-center">
+          <i class="fas fa-pencil-alt text-center"></i>
+        </div>
+    </div>
+    <div class="title_underline"></div>
+    <div class="separator10"></div>
+</div>
+<!-- ENDS -->
+
+<!-- TESTIMONIALS  -->
+<section class="testimonials_container">
+    <div id="testimonial-slider" class="owl-carousel">
+
+        <div class="testimonial">
+            <div class="testimonial-content">
+                <div data-toggle='modal' data-target='#feedback_heading_1'>
+                    <h3 class="testimonial-title"><%= @feedback_heading_1.description&.html_safe%></h3>
+                    <div class="icon-container text-center">
+                    <i class="fas fa-pencil-alt text-center"></i>
+                    </div>
+                </div>
+                <%=image_tag("new_icons/five_stars.svg", class:"five_stars", alt:"quote") %>
+                <div data-toggle='modal' data-target='#feedback_description_1'>
+                    <p class="description">
+                        <%= @feedback_description_1.description&.html_safe%>
+                    </p>
+                    <div class="icon-container text-center">
+                        <i class="fas fa-pencil-alt text-center"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+     
+        <div class="testimonial">
+            <div class="testimonial-content">
+                <div data-toggle='modal' data-target='#feedback_heading_2'>
+                    <h3 class="testimonial-title"><%= @feedback_heading_2.description&.html_safe%></h3>
+                    <div class="icon-container">
+                    <i class="fas fa-pencil-alt text-center text-light"></i>
+                    </div>
+                </div>
+                <%=image_tag("new_icons/five_stars.svg", class:"five_stars", alt:"quote") %>
+                <div data-toggle='modal' data-target='#feedback_description_2'>
+                    <p class="description">
+                        <%= @feedback_description_2.description&.html_safe%>
+                    </p>
+                    <div class="icon-container text-center">
+                        <i class="fas fa-pencil-alt text-center"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonial">
+            <div class="testimonial-content">
+                <div data-toggle='modal' data-target='#feedback_heading_3'>
+                    <h3 class="testimonial-title"><%= @feedback_heading_3.description&.html_safe%></h3>
+                    <div class="icon-container text-center">
+                    <i class="fas fa-pencil-alt text-center"></i>
+                    </div>
+                </div>
+                <%=image_tag("new_icons/five_stars.svg", class:"five_stars", alt:"quote") %>
+                <div data-toggle='modal' data-target='#feedback_description_3'>
+                    <p class="description">
+                        <%= @feedback_description_3.description&.html_safe%>
+                    </p>
+                    <div class="icon-container text-center">
+                        <i class="fas fa-pencil-alt text-center"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+<div class="space_between_sections"></div>
+
+<%#= javascript_include_tag "testimonials" %>

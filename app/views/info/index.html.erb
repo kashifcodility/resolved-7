@@ -1,0 +1,72 @@
+<div class="about-banner shop-banner-1 container-fluid no-padding">
+   <div class="page-banner-content">
+      <h3><%= @main_heading.description&.html_safe %></h3>
+   </div>
+</div>
+<section class="marketplace-section">
+   <div class="row">
+      <div class="col-xs-12 col-sm-6">
+         <div class="home-titles">
+            <h3>Our Mission</h3>
+            <hr class="title-line">
+         </div>
+         <p class="text-center"><%= @our_mission.description&.html_safe %></p>
+      </div>
+      <div class="col-xs-12 col-sm-6">
+         <div class="home-titles">
+            <h3>Our Vision</h3>
+            <hr class="title-line">
+         </div>
+         <p class="text-center"><%= @our_vision.description&.html_safe %></p>
+      </div>
+   </div>
+</section>
+<div class="container">
+   <br><br>
+   <div class="home-titles">
+      <h3><%= @heading_1.description&.html_safe %></h3>
+      <hr class="title-line">
+   </div>
+   <div class="row">
+      <div class="col-md-6 col-xs-12 about-content-image">
+         <%=image_tag(@header_1_image&.file_url || "stock/handshake.jpg", alt: @header_1_image&.description,id:"handshake") %>
+      </div>
+      <div class="col-md-6 col-xs-12">
+         <div class="about-content">
+             <h5><%= @description_header_1.description&.html_safe %></h5>
+            <p class="larger"><%= @description_1.description&.html_safe %></p>
+         </div>
+      </div>
+   </div>
+   <br><br>
+   <div class="home-titles">
+      <h3><%= @heading_2.description&.html_safe %></h3>
+      <hr class="title-line">
+   </div>
+   <div class="row">
+      <div class="col-md-6 col-xs-12">
+         <div class="about-content text-sm-right">
+            <h5><%= @description_header_2.description&.html_safe %></h5>
+            <p class="larger"><%= @description_2.description&.html_safe %></p>
+         </div>
+      </div>
+      <div class="col-md-6 col-xs-12 about-content-image">
+         <%=image_tag(@header_2_image&.file_url || "stock/fern-chair.jpg", alt: @header_2_image&.description,id:"fern-chair") %>
+      </div>
+   </div>
+</div>
+<br><br>
+<div class="container">
+   <div class="home-titles">
+      <h3>Letter From The Founder</h3>
+   </div>
+   <hr class="title-line">
+   <div class="letter">
+      <p class="larger">
+      <%= @description_3.description&.html_safe %>
+      </p>
+       <%=image_tag(@signature&.file_url || "tricia_signature.gif",  class: "t-signature", alt:"CEO SDN Signature",) %>
+      <p class="larger"><%= @signature&.description%></p>
+   </div>
+   <br><br>
+</div>

@@ -1,0 +1,254 @@
+<section>
+  <div class="invoice-container">
+    <!--.control-bar-->
+    <div class="invoice" id="invoice">
+      <div class="row">
+        <div class="col-6 invoice-address-details">
+          <h4>RE|Furnish</h4>
+          <p>8131 W Bostian RD STE B100</p>
+          <p>Woodinville, WA 98072-5027</p>
+          <p>+14254851982</p>
+          <p>Support@r-e-furnish.com</p>
+          <p>www.r-e-solved.com</p>
+        </div>
+        <div class="col-6 d-flex justify-content-end">
+          <% img = image_url('sdn-logo.png')%>
+          <%= image_tag(img)%>
+        </div>
+        <div class="col-12 mt-5 mb-3">
+          <h3 class="invoice-heading">INVOICE SALE</h3>
+        </div>
+      </div>
+      <div class="row invoice-upper-box">
+        <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+          <table>
+            <tr><td><p class="heading-text">BILL TO</p></td></tr>
+            <tr>
+              <td>
+                <p class="value-text">
+                    <%= @order.user&.shipping_address&.name%></br>
+                    <%= @order.user&.shipping_address&.address1%></br>
+                    <%= @order.user&.shipping_address&.city%>, <%=@order.user&.shipping_address&.state%> , <%=@order.user&.shipping_address&.zipcode%>
+                </p>
+              </td>
+            </tr>
+            <tr><td><p class="value-text"></p></td></tr>
+          </table>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+          <table>
+            <tr><td><p class="heading-text">SHIP TO</p></td></tr>
+            <tr>
+              <td>
+                <p class="value-text">                  
+                  <%= @order.address&.name%></br>
+                  <%= @order.address&.address1%></br>
+                  <%= @order.address&.city%>, <%=@order.address&.state%> , <%=@order.address&.zipcode%>
+                </p>
+              </td>
+            </tr>
+
+          </table>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+          <table>
+            <tr>
+              <td><p class="heading-text">SHIP DATE</p></td>
+              <td><p class="ml-3 value-text"><%= @order.due_date.strftime("%m/%d/%Y")%></p></td>
+            </tr>
+            <tr>
+              <td><p class="heading-text">SHIP VIA</p></td>
+              <td><p class="ml-3 value-text"><%=@order.service == "Company" ? "Delivery" : "Will Call"%></p></td>
+            </tr>
+            <tr>
+              <td><p class="heading-text">TRACKING#</p></td>
+              <td><p class="ml-3 value-text"> <%= @order.id%> </p></td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+          <table>
+            <tr>
+              <td><p class="heading-text">INVOICE#</p></td>
+              <td><p class="ml-3 value-text">REF-<%= @order.id %><%= params[:type] == 'prorate' ? '-2': ''%></p></td>
+            </tr>
+            <tr>
+              <td><p class="heading-text">DATE</p></td>
+              <td><p class="ml-3 value-text"><%= @order.ordered_date.strftime("%m/%d/%Y")%></p></td>
+            </tr>
+            <tr>
+              <td><p class="heading-text">Type</p></td>
+              <td><p class="ml-3 value-text"><%= @order.type%></p></td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12 mb-3 my-4">
+          <table>
+            <tr><td><p class="heading-text">PROJECT NAME</p></td></tr>
+            <tr><td><p class="m-0 value-text"><%= @order.project_name%></p></td></tr>
+          </table>
+        </div>
+      </div>
+
+
+      <div class="row invoice-upper-box-mobile">
+        <div class="col-6 mb-3">
+          <table>
+            <tr><td><p class="heading-text">BILL TO</p></td></tr>
+            <tr>
+              <td>
+                <p class="value-text">
+                    <%= @order.user&.shipping_address&.name%></br>
+                    <%= @order.user&.shipping_address&.address1%></br>
+                    <%= @order.user&.shipping_address&.city%>, <%=@order.user&.shipping_address&.state%> , <%=@order.user&.shipping_address&.zipcode%>
+                </p>
+              </td>
+            </tr>
+            <tr><td><p class="value-text"></p></td></tr>
+          </table>
+        </div>
+        <div class="col-6 mb-3">
+          <table>
+            <tr><td><p class="heading-text">SHIP TO</p></td></tr>
+            <tr>
+              <td>
+                <p class="value-text">                  
+                  <%= @order.address&.name%></br>
+                  <%= @order.address&.address1%></br>
+                  <%= @order.address&.city%>, <%=@order.address&.state%> , <%=@order.address&.zipcode%>
+                </p>
+              </td>
+            </tr>
+
+          </table>
+        </div>
+      </div>
+
+      <div class="row invoice-upper-box-mobile">
+        <div class="col-6 mb-3">
+          <table>
+            <tr>
+              <td><p class="heading-text">SHIP DATE</p></td>
+              <td><p class="ml-3 value-text"><%= @order.due_date.strftime("%m/%d/%Y")%></p></td>
+            </tr>
+            <tr>
+              <td><p class="heading-text">SHIP VIA</p></td>
+              <td><p class="ml-3 value-text"><%=@order.service == "Company" ? "Delivery" : "Will Call"%></p></td>
+            </tr>
+            <tr>
+              <td><p class="heading-text">TRACKING#</p></td>
+              <td><p class="ml-3 value-text"> <%= @order.id%> </p></td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-6  mb-3">
+          <table>
+            <tr>
+              <td><p class="heading-text">INVOICE#</p></td>
+              <td><p class="ml-3 value-text">REF-<%= @order.id %><%= params[:type] == 'prorate' ? '-2': ''%></p></td>
+            </tr>
+            <tr>
+              <td><p class="heading-text">DATE</p></td>
+              <td><p class="ml-3 value-text"><%= @order.ordered_date.strftime("%m/%d/%Y")%></p></td>
+            </tr>
+            <tr>
+              <td><p class="heading-text">Type</p></td>
+              <td><p class="ml-3 value-text"><%= @order.type%></p></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="row invoice-upper-box-mobile">
+        <div class="col-6 mb-3 my-4">
+          <table>
+            <tr><td><p class="heading-text">PROJECT NAME</p></td></tr>
+            <tr><td><p class="m-0 value-text"><%= @order.project_name%></p></td></tr>
+          </table>
+        </div>
+      </div>
+
+
+      <div class="row pb-5 pt-4 bottom-border">
+        <div class="col-12">
+          <table class="w-100 text-right pricing-table">
+            <tr>
+              <th></th>
+              
+              <th>RATE</th>
+              <th>QUANTITY</th>
+              <th>AMOUNT</th>
+            </tr>
+            <%total = 0.00%>
+            <%order_lines = @order.order_lines.map{|a| a if a.product_id != nil }.compact%>
+            <%order_lines.each do |ol|%>
+              <%if ol.type == "buy"%>
+                <tr>
+                  
+                  <td>
+                    <p class="heading-text text-left m-0"><%= ol.product&.name %> (#<%= ol.product&.id %>)</p>
+                    <p class="heading-text text-left m-0"><%= ol.product&.description %></p>
+                  </td>
+                  <%total = total + (ol.product&.sale_price.to_f * ol.quantity)%>
+                  <td><%= number_to_currency(ol.product&.sale_price, precision: 2) %></td>
+                  <td><%= ol.quantity %></td>
+                  <td><%= number_to_currency((ol.product&.sale_price * ol.quantity), precision: 2) %></td>
+
+                </tr>
+              <%end%>
+            <%end unless order_lines.blank?%>
+          </table>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6">
+          <p class="heading-text pt-3">
+            Thank you for your business.
+          </p>
+          <br>
+          <p class="heading-text pt-1">
+            Please make check payable to REFURNISH.
+          </p>
+          <br>
+               
+        </div>
+        <div class="col-6">
+          <table class="w-100">
+            
+            <tr>
+              <td class="heading-text pt-3">SUBTOTAL</td>
+              <td class="text-right value-text"><%= number_to_currency(total, precision: 2)%></td>
+            </tr>
+            <tr>
+              <td class="heading-text pt-3">TAX</td>
+              <td class="text-right value-text">$0.0</td>
+            </tr>
+            <tr>
+              <td class="heading-text pt-3">DISCOUNT 2%</td>
+              <td class="text-right value-text">-$0.0</td>
+            </tr>
+            <tr>
+              <td class="heading-text pt-3">SHIPPING</td>
+              <td class="text-right value-text"><%= number_to_currency((@order.service == "Company" ? Order.default_shipping_fee : 0.0))%></td>
+            </tr>
+            <tr>
+              <td class="heading-text pt-3">Rush Order</td>
+              <td class="text-right value-text"><%= number_to_currency((@order.rush_order == true ? Order.default_rush_order_fee : 0.0))%></td>
+            </tr>
+            <tr>
+              <td class="heading-text pt-3">TOTAL</td>
+              <td class="text-right value-text"><%= number_to_currency(total + (@order.service == "Company" ? Order.default_shipping_fee : 0.0) + (@order.rush_order == true ? Order.default_rush_order_fee : 0.0), precision: 2) %></td>
+            </tr>
+          </table>
+          <div class="bottom-border"></div>
+          <table class="w-100">
+            <tr>
+              <td class=" heading-text pt-3">BALANCE DUE</td>
+              <td><h3 class="text-right pt-3 font-weight-bold"><%= number_to_currency(total + (@order.service == "Company" ? Order.default_shipping_fee : 0.0) + (@order.rush_order == true ? Order.default_rush_order_fee : 0.0), precision: 2 ) %></h3></td>
+            </tr>
+          </table>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
