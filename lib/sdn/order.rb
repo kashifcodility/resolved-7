@@ -370,7 +370,7 @@ class SDN::Order
     # Sends event to intercom
     def create_intercom_destage_event(service:, requested_by:, date:, expedited: false)
         # TODO: Move token to config
-        intercom = Intercom::Client.new(token: 'dG9rOjBjOTI2ZjEyX2UwNjFfNGU1MV85NzVlXzBlYWU5Njg0YzBiNToxOjA=')
+        intercom = Intercom::Client.new(token: '')
         event = {
                 event_name:          'destage-request',
                 email:               requested_by&.email,
