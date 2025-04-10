@@ -30,8 +30,9 @@ class RootController < ApplicationController
            end 
            
         end    
-        current_user.cart.items.each do |item|
-            product = Product.find(item['id'])   
+        cart_items = eval(current_user&.cart&.items) if current_user.present?
+        cart_items.each do |item|
+            product = Product.find(item[:id])   
             if product.quantity == 0
                 begin
                     @cart.remove_items(product.id)
@@ -40,7 +41,7 @@ class RootController < ApplicationController
                     flash.alert = e.message
                 end
             end    
-        end if current_user.present? && current_user&.cart&.items&.present? # delete those products if not available now from cart.
+        end if cart_items.present? # delete those products if not available now from cart.
 
         @main_heading               = get_cms_fields('homepage', 'main_heading')
         @main_description           = get_cms_fields('homepage', 'main_description')
