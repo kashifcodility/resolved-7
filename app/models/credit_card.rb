@@ -87,11 +87,12 @@ class CreditCard < ApplicationRecord
     end
 
     def self.not_expired
-        all(conditions: [ "LAST_DAY(DATE(CONCAT(year, '-', month, '-01'))) >= ?", Date.today ])
+        # all(conditions: [ "LAST_DAY(DATE(CONCAT(year, '-', month, '-01'))) >= ?", Date.today ])
+        where("LAST_DAY(STR_TO_DATE(CONCAT(year, '-', month, '-01'), '%Y-%m-%d')) >= ?", Date.today)
     end
 
     def self.visible
-        all( visible: true )
+        where( visible: true )
     end
 
     # Shows label or formatted card type and number
@@ -100,7 +101,7 @@ class CreditCard < ApplicationRecord
     end
 
     def display_short(label_default: false)
-        return "%s %s - %s%s" % [ label.present? ? "#{label} - " : '', type, last_four, label_default && default? ? ' (default)' : '' ]
+        return "%s %s - %s%s" % [ label.present? ? "#{label} - " : '', card_type, last_four, label_default && default? ? ' (default)' : '' ]
     end
     
     def disable!

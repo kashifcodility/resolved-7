@@ -11,6 +11,15 @@ pin "elements", to: "old/ui-elements.js", preload: true
 pin "testimonials", to: "old/testimonials.js", preload: true
 pin "warning", to: "old/warning.js", preload: true
 pin "header", to: "old/header.js", preload: true
-pin "routes", to: "routes.js"
+pin "routes", to: "routes.js",preload: true
+pin "checkout", to: "checkout.js",preload: true
+pin "add_review", to: "add_review.js",preload: true
+pin "checkout_review", to: "checkout_review.js",preload: true
+pin "edit_project_name", to: "edit_project_name.js",preload: true
+pin "edit_stage_info ", to: "edit_stage_info.js",preload: true
+pin "global_functions", to: "global_functions.js",preload: true
+pin "project_detail_page", to: "project_detail_page.js",preload: true
+pin "user_account", to: "user_account.js",preload: true
+
 
 pin_all_from "app/javascript/controllers", under: "controllers"
