@@ -240,7 +240,7 @@ class CartController < ApplicationController
     # Removes all items from cart
     def empty
         begin
-            cart = Cart.first(user_id: current_user.id)
+            cart = Cart.where(user_id: current_user.id)&.first
             cart.update(items: [])
             flash.notice = "Cart emptied."
         rescue ::Sdn::CartException => e
