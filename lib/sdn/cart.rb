@@ -48,31 +48,32 @@ class Sdn::Cart
         @user.cart ||= ::Cart.new
 
         if @user.cart.id.nil?
-            $LOG.debug "CART: New cart initialized for %s" % [@user.email]
+            Rails.logger.debug "CART: New cart initialized for %s" % [@user.email]
             @user.cart.save
         end
 
         @cart_model = @user.cart
 
-        $LOG.debug "CART: Existing cart loaded for %s" % [@user.email]
+        Rails.logger.debug "CART: Existing cart loaded for %s" % [@user.email]
     end
 
     # Adds item to cart
     def add_item(product, intent,room_id, quantity, remaining_quantity)
-        raise CartError.new "Must buy or rent product." unless intent.among?('rent', 'buy')
+        raise CartError.new "Must buy or rent product." unless ['rent', 'buy'].include?(intent) 
         raise CartError.new "Invalid product." unless product.is_a?(Product)
-        raise CartError.new "Item quantity not available." if @cart_model.item_in_cart?(product) && @cart_model.item_quantity_remaining?(quantity, remaining_quantity, product&.id)
+        raise CartError.new "Item quantity not available." if @cart_model.item_in_cart?(product) 
+        # && @cart_model.item_quantity_remaining?(quantity, remaining_quantity, product&.id)
         raise CartError.new "Item already reserved." if product.is_reserved?
         raise CartError.new "Can't buy this item." if (intent == "buy" && !product.is_buyable?)
         raise CartError.new "Can't rent this item." if (intent == "rent" && !product.is_rentable?)
         # raise CartError.new "Item already on an open order." if product.on_open_order?
 
-        $DB.transaction do
+        ActiveRecord::Base.transaction do
             # Add item to cart
             self_rental_commission = (intent == 'rent' && @user.id == product.customer_id) # Is user renting their own product?
             @cart_model.add_item(product, intent, room_id, quantity, self_rental_commission)
             @cart_model.save
-            $LOG.info "CART: Product %i saved to %s's cart (%s)." % [product.id, @user.email, intent]
+            Rails.logger.info "CART: Product %i saved to %s's cart (%s)." % [product.id, @user.email, intent]
 
             # Reserve item (only allowed to exist in one cart at a time)
             # product.reserve!(@user.id)
@@ -114,20 +115,20 @@ class Sdn::Cart
         Array(ids).each do |id|
             # Destroy the item in the cart
             if @cart_model.destroy_item!(id)
-                $LOG.info "CART: Product %i removed from %s's cart." % [id, @user.email]
+                Rails.logger.info "CART: Product %i removed from %s's cart." % [id, @user.email]
             else
-                $LOG.error "CART: Product %i not found in %s's cart. Not removed. | %s" % [id, @user.email, @cart_model.errors.inspect]
+                Rails.logger.error "CART: Product %i not found in %s's cart. Not removed. | %s" % [id, @user.email, @cart_model.errors.inspect]
             end
 
             # Destroy the reservation
             if reservation = reservations.find{ |i| i.product_id == id.to_i }
                 if reservation.destroy!
-                    $LOG.info "CART: Reservation of product %i for %s (ID %i) destroyed." % [id, @user.email, @user.id]
+                    Rails.logger.info "CART: Reservation of product %i for %s (ID %i) destroyed." % [id, @user.email, @user.id]
                 else
-                    $LOG.error "CART: Reservation of product %i for %s (ID %i) NOT destroyed. | %s" % [id, @user.email, @user.id, reservations&.errors.inspect]
+                    Rails.logger.error "CART: Reservation of product %i for %s (ID %i) NOT destroyed. | %s" % [id, @user.email, @user.id, reservations&.errors.inspect]
                 end
             else
-                $LOG.error "CART: Reservation of product %i for %s (ID %i) doesn't exist." % [id, @user.email, @user.id]
+                Rails.logger.error "CART: Reservation of product %i for %s (ID %i) doesn't exist." % [id, @user.email, @user.id]
             end
         end
 
@@ -139,9 +140,10 @@ class Sdn::Cart
     def items_sub_total_and_quantity
         sub_total = 0.0
         total_quantity = 0
-        @cart_model.items.each do |item|
-           sub_total = sub_total + (item['price'].to_f * item['quantity'].to_i)
-           total_quantity += item['quantity'].to_i
+        cart_items = eval(@cart_model.items)
+        cart_items.each do |item|
+           sub_total = sub_total + (item[:price].to_f * item[:quantity].to_i)
+           total_quantity += item[:quantity].to_i
         end  if self.items.present?
         [sub_total, total_quantity]
     end
@@ -263,10 +265,10 @@ class Sdn::Cart
         @cart_model.save
 
         if @cart_model.saved?
-            $LOG.info "Saved checkout state for cart %i (user %s)." % [@cart_model.id, @user.email]
+            Rails.logger.info "Saved checkout state for cart %i (user %s)." % [@cart_model.id, @user.email]
             return true
         else
-            $LOG.error "Error updating checkout state for cart %i (user %s). | %s" % [@cart_model.id, @user.email, @cart_model.errors.inspect]
+            Rails.logger.error "Error updating checkout state for cart %i (user %s). | %s" % [@cart_model.id, @user.email, @cart_model.errors.inspect]
             return false
         end
     end
@@ -305,18 +307,18 @@ class Sdn::Cart
             tax_rate:      tax_authority.total_rate,
             refresh_taxes: false,
         })
-            $LOG.info "Cart %i checkout updated with: authority %i | loc code %s" % [@cart_model&.id, tax_authority&.id, tax_location_code]
+            Rails.logger.info "Cart %i checkout updated with: authority %i | loc code %s" % [@cart_model&.id, tax_authority&.id, tax_location_code]
         else
-            $LOG.error "Error updating cart %i checkout with tax info: authority %i | loc code %s | %s" % [@cart_model&.id, tax_authority&.id, tax_location_code, @cart_model.errors.inspect]
+            Rails.logger.error "Error updating cart %i checkout with tax info: authority %i | loc code %s | %s" % [@cart_model&.id, tax_authority&.id, tax_location_code, @cart_model.errors.inspect]
         end
     end
 
     # Sets the `refresh_taxes` flag so taxes will be recalculated
     def set_refresh_taxes_flag
         if fill_checkout({ refresh_taxes: true })
-            $LOG.info "Tax refresh flagged for cart %i (user %s)." % [@cart_model.id, @user.email]
+            Rails.logger.info "Tax refresh flagged for cart %i (user %s)." % [@cart_model.id, @user.email]
         else
-            $LOG.error "Error setting tax refresh flag for cart %i (user %s). | %s" % [@cart_model.id, @user.email, @cart_model.errors.inspect]
+            Rails.logger.error "Error setting tax refresh flag for cart %i (user %s). | %s" % [@cart_model.id, @user.email, @cart_model.errors.inspect]
         end
     end
 
@@ -361,18 +363,18 @@ class Sdn::Cart
 
             #     if card_model.save
             #         @card_to_charge = ::SDN::Card.new(@user).from_model(card_model)
-            #         $LOG.info "Credit card created: %i [last 4: %s, user: %s]" % [card_model.id, card_model.last_four, @user.email]
+            #         Rails.logger.info "Credit card created: %i [last 4: %s, user: %s]" % [card_model.id, card_model.last_four, @user.email]
             #     else
-            #         $LOG.error "Credit card NOT created: [last 4:: %s, user: %s] %s" % [card_model.last_four, @user.email, card_model.errors.inspect]
+            #         Rails.logger.error "Credit card NOT created: [last 4:: %s, user: %s] %s" % [card_model.last_four, @user.email, card_model.errors.inspect]
             #     end
             # rescue => error
-            #     $LOG.error "Credit card NOT created: [user: %s] %s" % [@user.email, error.full_message]
+            #     Rails.logger.error "Credit card NOT created: [user: %s] %s" % [@user.email, error.full_message]
             #     raise error
             # end
         elsif billing_data['payment_method'] != 'charge_account'
             @card_to_charge = ::SDN::Card.new(@user).from_model(CreditCard.first(user: @user, id: billing_data['payment_method']))
             unless @card_to_charge
-                $LOG.debug "Invalid credit card selected"
+                Rails.logger.debug "Invalid credit card selected"
                 raise CreditCardError.new('Invalid credit card selected')
             end
         end
@@ -395,10 +397,10 @@ class Sdn::Cart
         is_valid = ChargeAccount.first(account_number: account_number)&.belongs_to_user?(@user)
 
         if is_valid
-            $LOG.info "Charge account %i is being used by user %s." % [account_number.to_i, @user.email]
+            Rails.logger.info "Charge account %i is being used by user %s." % [account_number.to_i, @user.email]
             return true
         else
-            $LOG.error "Invalid charge account %i for user %s." % [account_number.to_i, @user.email]
+            Rails.logger.error "Invalid charge account %i for user %s." % [account_number.to_i, @user.email]
             return false
         end
     end
@@ -431,7 +433,7 @@ class Sdn::Cart
         begin
             card = ::SDN::Card.new(@user).from_model(CreditCard.first(id: card_id, user: @user))
         rescue ::SDN::Card::DetailsError => error
-            $LOG.error error.message
+            Rails.logger.error error.message
             raise error
         end
 
@@ -465,7 +467,7 @@ class Sdn::Cart
         items.group_by { |i| i[:site_id] }.each do |site_id, items_by_site|
             items_by_site.group_by { |j| j[:intent] }.each do |intent, items_by_intent|
                 # begin
-                    $DB.transaction do |t|
+                ActiveRecord::Base.transaction do |t|
                         order = create_order_with_stripe_invoice(items_by_intent, intent, site_id, data)
                         # orders.charges << charge_order(order, intent, site_id) #its for payleap gateway
                         # create_arrivy_task(order, intent: intent, site_id: site_id)
@@ -476,7 +478,7 @@ class Sdn::Cart
                 #     reason = error.user_message rescue 'Unknown'
                 #     product_ids = items_by_intent.pluck(:id).join(',') rescue ""
 
-                #     $LOG.error "Error creating/charging an order (order creation rolled back): [reason: %s, user: %s, site: %i, intent: %s, products: %s] %s" % [ reason, @user.email, site_id, intent, product_ids, error.message ]
+                #     Rails.logger.error "Error creating/charging an order (order creation rolled back): [reason: %s, user: %s, site: %i, intent: %s, products: %s] %s" % [ reason, @user.email, site_id, intent, product_ids, error.message ]
                 #     orders.failed << {
                 #         items: items_by_intent,
                 #         intent: intent,
@@ -512,12 +514,12 @@ class Sdn::Cart
             )
 
             if cac.saved?
-                $LOG.info "Charge account charge created: [charge id: %i, amount: %.2f, order: %i, user: %s]" % [cac.id, total, order.id, @user.email]
+                Rails.logger.info "Charge account charge created: [charge id: %i, amount: %.2f, order: %i, user: %s]" % [cac.id, total, order.id, @user.email]
                 receipt[:success?] = true
                 receipt[:type] = 'charge'
                 return receipt
             else
-                $LOG.error "Charge account charge NOT created: [amount: %.2f, order: %i, user: %s] %s" % [amount, order.id, @user.email, cac.errors.inspect]
+                Rails.logger.error "Charge account charge NOT created: [amount: %.2f, order: %i, user: %s] %s" % [amount, order.id, @user.email, cac.errors.inspect]
                 raise ChargeAccountError, cac.errors.inspect
             end
         end
@@ -534,10 +536,10 @@ class Sdn::Cart
             end
 
             if receipt.success?
-                $LOG.info "Credit card charged: [amount: %.2f, token: %s, order: %i, intent: %s, site: %i, user: %s, receipt: %s]" % [total, billing_data['token'], order.id, intent, site_id, @user.email, receipt.inspect]
+                Rails.logger.info "Credit card charged: [amount: %.2f, token: %s, order: %i, intent: %s, site: %i, user: %s, receipt: %s]" % [total, billing_data['token'], order.id, intent, site_id, @user.email, receipt.inspect]
             end
         rescue => error
-            $LOG.error "Credit card NOT charged: [amount: %.2f, token: %s, order: %i, intent: %s, site: %i, user: %s] %s" % [total, billing_data['token'], order.id, intent, site_id, @user.email, error.full_message]
+            Rails.logger.error "Credit card NOT charged: [amount: %.2f, token: %s, order: %i, intent: %s, site: %i, user: %s] %s" % [total, billing_data['token'], order.id, intent, site_id, @user.email, error.full_message]
             raise CreditCardError.new(error.message, user_message: (error&.user_message rescue 'Unknown error'))
         else
             # NOTE: This is where a user can be charged and an order creation can be rolled back.
@@ -561,9 +563,9 @@ class Sdn::Cart
             )
 
             if transaction.saved?
-                $LOG.info "Transaction record created: %i [amount: %.2f, order: %i, user: %s, stored card: %s]" % [transaction.id, receipt.amount, order.id, @user.email, card.model&.id.to_s || 'N/A']
+                Rails.logger.info "Transaction record created: %i [amount: %.2f, order: %i, user: %s, stored card: %s]" % [transaction.id, receipt.amount, order.id, @user.email, card.model&.id.to_s || 'N/A']
             else
-                $LOG.error "Transaction record NOT created: [amount: %.2f, order: %i, user: %s, stored card: %s] %s" % [receipt.amount, order.id, @user.email, card.model&.id.to_s || 'N/A', transaction.errors.inspect]
+                Rails.logger.error "Transaction record NOT created: [amount: %.2f, order: %i, user: %s, stored card: %s] %s" % [receipt.amount, order.id, @user.email, card.model&.id.to_s || 'N/A', transaction.errors.inspect]
                 raise TransactionError, transaction.errors.inspect
             end
 
@@ -571,9 +573,9 @@ class Sdn::Cart
             unless billing_data['payment_method'] == 'charge_account'
                 order.credit_card_id = @card_to_charge.model.id
                 if order.save
-                    $LOG.info "Card saved to order: [card: %i, order: %i]" % [ @card_to_charge.model.id, order.id ]
+                    Rails.logger.info "Card saved to order: [card: %i, order: %i]" % [ @card_to_charge.model.id, order.id ]
                 else
-                    $LOG.error "Card NOT saved to order: [card: %i, order: %i] %s" % [ @card_to_charge.model.id, order.id, order.errors.inspect ]
+                    Rails.logger.error "Card NOT saved to order: [card: %i, order: %i] %s" % [ @card_to_charge.model.id, order.id, order.errors.inspect ]
                 end
             end
         end
@@ -608,9 +610,9 @@ class Sdn::Cart
         )
 
         if address.saved?
-            $LOG.info "Address (%s) %i saved for %s." % [type, address.id, @user.email]
+            Rails.logger.info "Address (%s) %i saved for %s." % [type, address.id, @user.email]
         else
-            $LOG.error "Address (%s) NOT saved for %s. | %s" % [type, @user.email, address.errors.inspect]
+            Rails.logger.error "Address (%s) NOT saved for %s. | %s" % [type, @user.email, address.errors.inspect]
         end
 
         return address
@@ -620,7 +622,7 @@ class Sdn::Cart
     # TODO: Add support for adding to existing order
     def create_order_with_stripe_invoice(order_items, intent, site_id, data = {})
         type = intent == 'buy' ? 'Sales' : 'Rental'
-        $LOG.info "Order creation initialized: [user: %s, cart: %i, type: %s, site: %i, items: %s]" % [@user.email, @cart_model.id, type, site_id, order_items]
+        Rails.logger.info "Order creation initialized: [user: %s, cart: %i, type: %s, site: %i, items: %s]" % [@user.email, @cart_model.id, type, site_id, order_items]
 
         # Confirm all items are from the supplied site_id
         items_site_ids = order_items.pluck(:site_id).uniq
@@ -657,9 +659,9 @@ class Sdn::Cart
         order.rush_order = self.shipping_data['rush_order']
 
         if order.save
-            $LOG.info "Order created [id: %i, type: %s, user: %s]" % [order.id, type, @user.email]
+            Rails.logger.info "Order created [id: %i, type: %s, user: %s]" % [order.id, type, @user.email]
         else
-            $LOG.error "Order not created [type: %s, user: %s] %s" % [type, @user.email, order.errors.inspect]
+            Rails.logger.error "Order not created [type: %s, user: %s] %s" % [type, @user.email, order.errors.inspect]
             raise OrderError, order.errors.inspect
         end
         create_order_lines_with_stripe_items(order, order_items, data, intent: intent, site_id: site_id, discount_percentage: @user&.user_group&.discount_percentage)    
@@ -736,9 +738,9 @@ class Sdn::Cart
 
 
         if order.save
-            $LOG.info "Order lines created [lines: %s, order: %i, intent: %s, user: %s]" % [order.order_lines.pluck(:id).join('/'), order.id, intent, @user.email]
+            Rails.logger.info "Order lines created [lines: %s, order: %i, intent: %s, user: %s]" % [order.order_lines.pluck(:id).join('/'), order.id, intent, @user.email]
         else
-            $LOG.error "Order lines NOT created [order: %i, intent: %s, user: %s] %s" % [order.id, intent, @user.email, order.errors.inspect]
+            Rails.logger.error "Order lines NOT created [order: %i, intent: %s, user: %s] %s" % [order.id, intent, @user.email, order.errors.inspect]
             raise OrderLineError, order.errors.inspect
         end
 
@@ -753,9 +755,9 @@ class Sdn::Cart
         #     )
 
         #     if dw_line.saved?
-        #         $LOG.info "Damage waiver order line created [id: %i, amount: %.2f, order: %i, user: %s]" % [dw_line.id, waiver_amount, order.id, @user.email]
+        #         Rails.logger.info "Damage waiver order line created [id: %i, amount: %.2f, order: %i, user: %s]" % [dw_line.id, waiver_amount, order.id, @user.email]
         #     else
-        #         $LOG.error "Damage waiver order line NOT created [amount: %.2f, order: %i, user: %s] %s" % [waiver_amount, order.id, @user.email, dw_line.errors.inspect]
+        #         Rails.logger.error "Damage waiver order line NOT created [amount: %.2f, order: %i, user: %s] %s" % [waiver_amount, order.id, @user.email, dw_line.errors.inspect]
         #         raise OrderLineError, dw_line.errors.inspect
         #     end
         # end
@@ -782,13 +784,13 @@ class Sdn::Cart
                     )
 
                     if ppl.saved?
-                        $LOG.info "Product piece location record created: OnOrder [piece id: %i, ppl id: %i, order: %i, user: %s]" % [pp.id, ppl.id, order.id, @user.email]
+                        Rails.logger.info "Product piece location record created: OnOrder [piece id: %i, ppl id: %i, order: %i, user: %s]" % [pp.id, ppl.id, order.id, @user.email]
                     else
-                        $LOG.error "Product piece location record NOT created: OnOrder [piece id: %i, order: %i, user: %s] %s" % [pp.id, order.id, @user.email, ppl.errors.inspect]
+                        Rails.logger.error "Product piece location record NOT created: OnOrder [piece id: %i, order: %i, user: %s] %s" % [pp.id, order.id, @user.email, ppl.errors.inspect]
                         raise ProductPieceError, ppl.errors.inspect
                     end
                 rescue => error
-                    $LOG.error "Product piece location record NOT created. Because product pieces not exist.- SQL error (check PPL trigger): [piece id: %i, order: %i, user: %s]" % [pp.id, order.id, @user.email]
+                    Rails.logger.error "Product piece location record NOT created. Because product pieces not exist.- SQL error (check PPL trigger): [piece id: %i, order: %i, user: %s]" % [pp.id, order.id, @user.email]
                     raise error
                 end
             end
@@ -809,12 +811,12 @@ class Sdn::Cart
             )
 
             if catalog.save
-                $LOG.info "IHS catalog created: [order: %i, catalog: %i]" % [ order.id, catalog.id ]
+                Rails.logger.info "IHS catalog created: [order: %i, catalog: %i]" % [ order.id, catalog.id ]
             else
-                $LOG.debug "IHS catalog NOT created: [order: %i] %s" % [ order.id, catalog.errors.inspect ]
+                Rails.logger.debug "IHS catalog NOT created: [order: %i] %s" % [ order.id, catalog.errors.inspect ]
             end
         rescue => error
-            $LOG.error "IHS catalog NOT created: [order: %i] %s" % [ order.id, error.full_message ]
+            Rails.logger.error "IHS catalog NOT created: [order: %i] %s" % [ order.id, error.full_message ]
         end
     end
 
@@ -864,9 +866,9 @@ class Sdn::Cart
 
         begin
             $SAIL.create_arrivy_task(data)
-            $LOG.info "SAIL/Arrivy call successfuly [order: %i, data: %s]" % [order.id, data.inspect]
+            Rails.logger.info "SAIL/Arrivy call successfuly [order: %i, data: %s]" % [order.id, data.inspect]
         rescue => error
-            $LOG.error "SAIL/Arrivy call failed [order: %i, data: %s] %s" % [order.id, data.inspect, error.full_message]
+            Rails.logger.error "SAIL/Arrivy call failed [order: %i, data: %s] %s" % [order.id, data.inspect, error.full_message]
             raise SAILError, error.full_message
         end
     end

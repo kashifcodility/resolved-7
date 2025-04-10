@@ -130,8 +130,8 @@ class CartController < ApplicationController
     # Add item to user's cart
     # Creates the cart if it doesn't exist
     def create
-        @cart = ::SDN::Cart.new(current_user)
-        product = Product.first(id: params[:product_id], active: 'Active')
+        @cart = ::Sdn::Cart.new(current_user)
+        product = Product.where(id: params[:product_id], active: 'active')&.first
 
         begin
             @cart.add_item(product, params[:intent],params["room_id"], params[:quantity], params[:remaining_quantity])
@@ -139,7 +139,7 @@ class CartController < ApplicationController
             # session[:room_product].merge!(params[:product_id] => session[:room_product]["room_id"])
             msg = "\"%s\" added to cart." % [product.name]
             flash.notice = msg unless request.xhr?
-        rescue ::SDN::Cart::CartError => e
+        rescue ::Sdn::Cart::CartError => e
             success = false
             msg = e.message
             flash.alert = msg unless request.xhr?
@@ -157,7 +157,7 @@ class CartController < ApplicationController
         begin
             Cart.destroy_item_from_cart!(@cart, params[:uniq_id], id)
             flash.notice = "\"%s\" removed from cart." % [product.name]
-        rescue ::SDN::CartException => e
+        rescue ::Sdn::CartException => e
             flash.alert = e.message
         end
 
@@ -243,7 +243,7 @@ class CartController < ApplicationController
             cart = Cart.first(user_id: current_user.id)
             cart.update(items: [])
             flash.notice = "Cart emptied."
-        rescue ::SDN::CartException => e
+        rescue ::Sdn::CartException => e
             flash.alert = e.message
         end
 
@@ -381,18 +381,18 @@ class CartController < ApplicationController
             begin
                 # NOTE: Requires billing info correctly saves prior to being called
                 @cart.verify_and_tokenize_card(credit_card)
-            rescue ::SDN::Card::MissingDetails => error
+            rescue ::Sdn::Card::MissingDetails => error
                 errors << 'Missing credit card details.'
-            rescue ::SDN::Card::InvalidDetails => error
+            rescue ::Sdn::Card::InvalidDetails => error
                 errors << error.message
-            rescue ::SDN::Card::GatewayError => error
+            rescue ::Sdn::Card::GatewayError => error
                 errors << error.message
             end
             return errors if errors.any?
         else # Saved card number
             begin
                 @cart.verify_and_load_saved_card(params['payment_method'])
-            rescue ::SDN::Card::DetailsError
+            rescue ::Sdn::Card::DetailsError
                 errors << 'Invalid Credit Card selected.'
             end
             return errors if errors.any?
@@ -519,18 +519,18 @@ class CartController < ApplicationController
         when 'new'
             begin
                 @cart.verify_and_tokenize_card(credit_card)
-            rescue ::SDN::Card::MissingDetails => error
+            rescue ::Sdn::Card::MissingDetails => error
                 $LOG.debug error.message
                 errors << 'Missing credit card details.'
-            rescue ::SDN::Card::InvalidDetails => error
+            rescue ::Sdn::Card::InvalidDetails => error
                 errors << error.message
-            rescue ::SDN::Card::GatewayError => error
+            rescue ::Sdn::Card::GatewayError => error
                 errors << error.message
             end
         else # Saved card number
             begin
                 @cart.verify_and_load_saved_card(params['payment_method'])
-            rescue ::SDN::Card::DetailsError
+            rescue ::Sdn::Card::DetailsError
                 errors << 'Invalid Credit Card selected.'
             end
         end

@@ -44,7 +44,7 @@ module ApplicationHelper
 
     # Redirects user to login modal
     def require_login
-        unless logged_in?
+        unless user_signed_in?
             url = root_path
             return redirect_to( url + 'login')
         end
@@ -90,7 +90,7 @@ module ApplicationHelper
     def cart_items_count(cart)
         quantity = 0
         cart.items.each do |item|
-          quantity += item['quantity'].to_i
+          quantity += item[:quantity].to_i
         end if cart.present? && cart.items.count > 0
         quantity
     end
