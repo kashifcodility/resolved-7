@@ -150,7 +150,7 @@ class Product < ApplicationRecord
     validates :product, length: { maximum: 50 }
     validates :sku, length: { maximum: 50 }
     validates :status, length: { maximum: 30 }
-    validates :smoking, :pets, :owner_occupied, :children, :reserved, :box, :for_rent, :for_sale, :action_required, inclusion: { in: [true, false] }
+    validates :smoking, :pets, :owner_occupied, :children, :reserved, :box, :for_rent, :for_sale, inclusion: { in: [true, false] }
     validates :storage_price, :catalog_price, :sdn_cost, :income, :depth, :width, :height, :weight, :sale_price, :rental_value, :preferred_price, :executive_price, :list_price, :delivery_surcharge, :deacq_price, numericality: true, allow_nil: true
     validates :long_description, :product_restrictions, :delete_reason, :reserve_reason, length: { maximum: 5000 }, allow_nil: true
   
@@ -321,14 +321,30 @@ class Product < ApplicationRecord
     #       for the same product have differing site ID's, this could produce
     #       inconsistent results.
     def self.get_sites(product_ids)
-        product_site_ids = Barcode.all(fields: [ :product_id, :site_id ], product_id: Array(product_ids), unique: true, order: nil)
-        sites = Site.all(fields: [ :id, :site ], id: product_site_ids.pluck(:site_id).uniq)
+        # product_site_ids = Barcode.all(fields: [ :product_id, :site_id ], product_id: Array(product_ids), unique: true, order: nil)
+        # sites = Site.all(fields: [ :id, :site ], id: product_site_ids.pluck(:site_id).uniq)
+
+
+        # Fetch distinct Barcode records with specified fields
+        product_site_ids = Barcode.select(:product_id, :site_id)
+        .where(product_id: product_ids)
+        .distinct
+
+        # Extract unique site_ids from product_site_ids
+        unique_site_ids = product_site_ids.pluck(:site_id).uniq
+
+        # Fetch Sites by those unique site_ids and select specific fields
+        sites = Site.where(id: unique_site_ids).select(:id, :site)
+
+
+
 
         # Skips invalid products with site ID's (generally due to an issue with barcodes table having invalid site ID)
         product_site_ids_pids = product_site_ids.pluck(:product_id)
         split_site_pids = product_site_ids_pids.select { |e| product_site_ids_pids.count(e) > 1 }.uniq
-        $LOG.debug "Products found with split barcode site ID's: [#{split_site_pids.join(', ')}]" if split_site_pids.any?
-        product_site_ids.delete_if { |e| e.product_id.among?(split_site_pids) && !e.site_id.among?(sites.pluck(:id)) }
+        Rails.logger.debug "Products found with split barcode site ID's: [#{split_site_pids.join(', ')}]" if split_site_pids.any?
+        # binding.pry
+        product_site_ids.to_a.delete_if { |e| split_site_pids.include?(e.product_id) && sites.pluck(:id).include?(!e.site_id) } if product_site_ids.present?
 
         return product_site_ids.map do |product|
             site = sites.find{ |e| e.id == product.site_id }
@@ -379,9 +395,9 @@ class Product < ApplicationRecord
     def reserve!(user_id)
         self.product_reservation = ProductReservation.new(user_id: user_id)
         if self.save
-            $LOG.info "Product %i reserved by %i." % [self.id, user_id]
+            Rails.logger.info "Product %i reserved by %i." % [self.id, user_id]
         else
-            $LOG.error "Product %i NOT reserved by %i. | %s" % [self.id, user_id, self.errors.inspect]
+            Rails.logger.error "Product %i NOT reserved by %i. | %s" % [self.id, user_id, self.errors.inspect]
         end
     end
 
@@ -442,7 +458,7 @@ class Product < ApplicationRecord
             self.for_sale = true
             pel.new_value = "rent_sell"
         else
-            $LOG.error "Invalid status supplied: [product: %i, status: %s]" % [  ]
+            Rails.logger.error "Invalid status supplied: [product: %i, status: %s]" % [  ]
         end
 
         if dirty_attributes.keys.map{ |k| k.name }&.any?{ |k| [:reserved, :for_rent, :for_sale].include?(k) }
@@ -457,19 +473,19 @@ class Product < ApplicationRecord
             pel.old_value = 'rent_sell' if !o_reserved and o_for_rent and o_for_sale
 
             if save
-                $LOG.info "Product status changed: [product: %i, private: %s, rent: %s, sale: %s, user: %s]" % [ id, reserved.to_s, for_rent.to_s, for_sale.to_s, user.email ]
+                Rails.logger.info "Product status changed: [product: %i, private: %s, rent: %s, sale: %s, user: %s]" % [ id, reserved.to_s, for_rent.to_s, for_sale.to_s, user.email ]
                 if pel.save
-                    $LOG.info "Product Edited: [product: %i, private: %s, rent: %s, sale: %s, user: %s]" % [ id, reserved.to_s, for_rent.to_s, for_sale.to_s, user.email ]
+                    Rails.logger.info "Product Edited: [product: %i, private: %s, rent: %s, sale: %s, user: %s]" % [ id, reserved.to_s, for_rent.to_s, for_sale.to_s, user.email ]
                 else
-                    $LOG.error "Product Not Edited: [product: %i, private: %s, rent: %s, sale: %s, user: %s] %s" % [ id, reserved.to_s, for_rent.to_s, for_sale.to_s, user.email, pel.errors.inspect ]
+                    Rails.logger.error "Product Not Edited: [product: %i, private: %s, rent: %s, sale: %s, user: %s] %s" % [ id, reserved.to_s, for_rent.to_s, for_sale.to_s, user.email, pel.errors.inspect ]
                 end
                 return true
             else
-                $LOG.error "Product status NOT changed: [product: %i, private: %s, rent: %s, sale: %s, user: %s] %s" % [ id, reserved.to_s, for_rent.to_s, for_sale.to_s, user.email, errors.inspect ]
+                Rails.logger.error "Product status NOT changed: [product: %i, private: %s, rent: %s, sale: %s, user: %s] %s" % [ id, reserved.to_s, for_rent.to_s, for_sale.to_s, user.email, errors.inspect ]
                 return false
             end
         else
-            $LOG.info "Product status already set: [product: %i, private: %s, rent: %s, sale: %s, user: %s] %s" % [ id, reserved.to_s, for_rent.to_s, for_sale.to_s, user.email]
+            Rails.logger.info "Product status already set: [product: %i, private: %s, rent: %s, sale: %s, user: %s] %s" % [ id, reserved.to_s, for_rent.to_s, for_sale.to_s, user.email]
             return true
         end
     end
@@ -834,9 +850,9 @@ class Product < ApplicationRecord
         new = p.product = p.product.encode("UTF-8", invalid: :replace, undef: :replace, replace: "")
 
         if p.save
-            $LOG.info "Name character encoding updated for product: %i [old: %s, new: %s]" % [ product_id, old, new ]
+            Rails.logger.info "Name character encoding updated for product: %i [old: %s, new: %s]" % [ product_id, old, new ]
         else
-            $LOG.info "Name character encoding NOT updated for product: %i [old: %s, new: %s] %s" % [ product_id, old, new, p.errors.inspect ]
+            Rails.logger.info "Name character encoding NOT updated for product: %i [old: %s, new: %s] %s" % [ product_id, old, new, p.errors.inspect ]
         end
 
         return p.product
@@ -894,6 +910,14 @@ class Product < ApplicationRecord
         return all() unless query
         return all(id: query&.to_i) |
                all(:product.like => "%#{query}%")
+    end
+
+    def sku
+        self[:SKU]
+    end
+
+    def sku=(value)
+        self[:SKU] = value
     end
 
     private

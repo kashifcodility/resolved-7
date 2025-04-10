@@ -51,7 +51,7 @@ class User < ApplicationRecord
   has_many :reseller_licenses
   has_many :orders
   has_many :rooms
-  has_many :user_wishlists, class_name: "UserWishlist", foreign_key: :user_id
+  has_many :wishlist, class_name: "UserWishlist", foreign_key: :user_id
   has_many :payment_logs, class_name: "PaymentLog", foreign_key: :user_id
   has_many :commissions, foreign_key: :customer_id
   has_many :user_permission_assignments

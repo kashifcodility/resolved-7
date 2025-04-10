@@ -18,14 +18,15 @@ class Cart < ApplicationRecord
     # property :checkout, Json, default: {}, lazy: false
 
     # timestamps :at
+    # after_initialize :initialize_items
 
     belongs_to :user
     belongs_to :address, optional: true
     alias_method :shipping_address, :address
-    belongs_to :tax_authority
+    belongs_to :tax_authority, optional: true
 
-    # serialize :items, Array
-    # serialize :checkout, Hash
+    # serialize :items, JSON
+    # serialize :checkout, JSON
 
     # Add item to cart
     def add_item(product, intent, room_id, quantity, self_rental_commission=false)
@@ -46,17 +47,29 @@ class Cart < ApplicationRecord
 
         product.added_to_cart = Time.zone.now
         product.save
-
-        self.items ||= []
-        self.items.map!(&:symbolize_keys) << {
-            id: product.id,
-            uniq_id: SecureRandom.hex,
-            intent: intent,
-            price: price,
-            room_id: room_id,
-            quantity: quantity,
-        }
-
+        cart_items = eval(self.items)
+        # self.items ||= []
+        # binding.pry
+        if cart_items.present?
+            cart_items << {
+                id: product.id,
+                uniq_id: SecureRandom.hex,
+                intent: intent,
+                price: price,
+                room_id: room_id,
+                quantity: quantity,
+            }
+        else
+            cart_items = [{
+                id: product.id,
+                uniq_id: SecureRandom.hex,
+                intent: intent,
+                price: price,
+                room_id: room_id,
+                quantity: quantity,
+            }]
+        end        
+        self.items = cart_items
         self.subtotal = self.calculate_subtotal
     end
 
@@ -67,15 +80,16 @@ class Cart < ApplicationRecord
     # TODO: Convert this to an OpenStruct
     def get_items
         return [] unless self.items.present?
-
-        cart_product_ids = items.pluck('id')
+        cart_items = eval(self.items)
+        cart_product_ids = cart_items.pluck(:id)
 
         product_sites = Product.get_sites(cart_product_ids)
         product_main_images = Product.get_main_images(cart_product_ids)
         # product_models = Product.all(fields: [ :id, :active, :product ], id: cart_product_ids)
 
-        all_items =  items.map do |i|
-            product = Product.first(id: i['id'])
+        all_items =  cart_items.map do |i|
+            # binding.pry
+            product = Product.find_by(id: i[:id])
             cart_product = i
             cart_product.merge({
                 active:         product.active,
@@ -93,7 +107,13 @@ class Cart < ApplicationRecord
     # Item exists in cart?
     def item_in_cart?(product)
         id = product.is_a?(Product) ? product.id : product.to_i
-        self.items.find { |i| i['id'] == id }.present?
+        # self.items.find { |i| i['id'] == id }.present?
+        cart_items = eval(self.items) 
+
+        # binding.pry
+        
+        cart_items.present? && cart_items.any? { |item| item[:id] == id }
+
     end
 
     def item_quantity_remaining?(quantity, remaining_quantity, product)
@@ -157,7 +177,8 @@ class Cart < ApplicationRecord
     # Subtotal of all the items
     # TODO: Nuke this - don't think it's used, but need to confirm
     def calculate_subtotal
-        self.items.pluck(:price).map(&:to_d).sum.round(2)
+        cart_items = eval(self.items)
+        cart_items.pluck(:price).map(&:to_d).sum.round(2)
     end
 
     def has_rent_items?

@@ -618,6 +618,9 @@ function add_to_cart(remaining_quantity, product_id, intent, room) {
             url: add_to_cart_path(),
             type: 'POST',
             data: { remaining_quantity: remaining_quantity, intent: intent, product_id: product_id, room_id: room_id, quantity: quantity },
+            headers: {
+                'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')  // Adding CSRF token to request headers
+            },
             success: function(response) {
                 if (response.message !== "Item quantity not available.") {
                     $('#qty_of_items').text(cart_items + quantity);
@@ -662,7 +665,7 @@ function refresh_cart_preview() {
     var cart_preview = document.getElementById('cart_preview')
     if(cart_preview) {
 	$.ajax({
-	    url: Routes.cart_preview_path(),
+	    url: cart_preview_path(),
 	    type: 'GET',
 	    beforeSend: function(){},
 	    complete: function(){},

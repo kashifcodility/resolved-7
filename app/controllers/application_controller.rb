@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
 
   include ApplicationHelper
 
-  # before_action :get_cart
+  before_action :get_cart
   # before_action :load_order_status
 
   helper :all # import them all into views
@@ -114,10 +114,11 @@ class ApplicationController < ActionController::Base
 
            
   def get_cart
-      binding.pry
+    #   binding.pry
       if current_user && current_user.cart
           
-          @cart = ::SDN::Cart.new(current_user)
+          @cart = ::Sdn::Cart.new(current_user)
+          
       end
   end
 
