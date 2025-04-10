@@ -86,8 +86,8 @@ class Sdn::Cart
 
     # Returns items grouped by site
     def items_by_site
-        cart_items = items
-        sites = Site.all(id: cart_items.pluck(:site_id))
+        cart_items = eval(@cart_model.items)    
+        sites = Site.where(id: cart_items.pluck(:site_id))
         return @items_by_site = sites.map do |site|
             OpenStruct.new(
                 id:     site.id,

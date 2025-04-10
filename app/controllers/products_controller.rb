@@ -9,6 +9,7 @@ class ProductsController < ApplicationController
     SOFA_CATEGORY_ID = 17
 
     def index    
+        
         if params[:_x]
             unset = params[:_x].split(',')
             new_filters = session[:filters]
