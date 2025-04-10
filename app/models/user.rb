@@ -196,7 +196,7 @@ class User < ApplicationRecord
         id: c.id,
         label: c.display_short(label_default: true),
         last_four: c.last_four,
-        type: c.type.capitalize,
+        type: c.card_type.capitalize,
         exp_month: c.month,
         exp_year: c.year,
         default?: c.default?,

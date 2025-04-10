@@ -10,10 +10,10 @@ class Fee < ApplicationRecord
     # property :period, String, length: 10
 
     def self.self_rental_commission
-        self.first(fee: 'Self Rental Commission').amount.to_d / 100
+        self.where(fee: 'Self Rental Commission')&.first.amount.to_d / 100
     end
 
     def self.damage_waiver
-        self.first(fee: 'Damage Waiver').amount.to_d / 100
+        self.where(fee: 'Damage Waiver')&.first.amount.to_d / 100
     end
 end
