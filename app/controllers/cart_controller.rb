@@ -172,26 +172,29 @@ class CartController < ApplicationController
         product = Product.find(params[:id])
         pieces_count = product.product_pieces.map{|p| p.id if p.order_line_id == 0 }.compact.count           
         quantity = 0; price_total = 0; price_sub_total = 0;
-        c = Cart.find(current_user&.cart&.id)
+        c = current_user&.cart if current_user.present?
+        cart_items = eval(c.items)
         new_items = []
         product_available_quantity = product.quantity if product.present?
-        total_quantity_in_cart = c.items.select { |item| item["id"] == product&.id }.sum { |item| item["quantity"].to_i }
+        total_quantity_in_cart = cart_items.select { |item| item[:id] == product&.id }.sum { |item| item[:quantity].to_i }
         if params[:action_type] == 'increase' && total_quantity_in_cart < product.quantity
             if product && pieces_count == params[:quantity].to_i
                 render json: { message: "Product can't be added due to low quantity" }
                 return
             end       
-            c.items.each do |i|
-              quantity += i['quantity'].to_i
-              product = Product.find(i['id'])
-              if i["uniq_id"] == params[:uid]
-                price_sub_total = price_sub_total + ((i['price'].to_f) * (i['quantity'].to_i + 1))
-                new_items << {"uniq_id" => i["uniq_id"], "id"=> i['id'], "intent"=> i['intent'], "price"=> i['price'], "room_id" => i['room_id'], "quantity" => params[:quantity].to_i + 1}
+            cart_items.each do |i|
+              quantity += i[:quantity].to_i
+              product = Product.find(i[:id])
+              if i[:uniq_id] == params[:uid]
+                price_sub_total = price_sub_total + ((i[:price].to_f) * (i[:quantity].to_i + 1))
+                new_items << {id: i[:id], uniq_id: i[:uniq_id] ,intent:  i[:intent], price: i[:price], quantity: params[:quantity].to_i + 1, room_id: i[:room_id] }
+                
+                # {"uniq_id" => i["uniq_id"], "id"=> i['id'], "intent"=> i['intent'], "price"=> i['price'], "room_id" => i['room_id'], "quantity" => params[:quantity].to_i + 1}
               else
-                price_sub_total = price_sub_total + ((i['price'].to_f) * (i['quantity'].to_i))
+                price_sub_total = price_sub_total + ((i[:price].to_f) * (i[:quantity].to_i))
                 new_items << i                
               end          
-            end if c.items.size > 0 
+            end if cart_items.size > 0 
             price_total = price_sub_total + 200.00
             c.update(items: new_items)
             render json: { cart_items: quantity + 1, new_quantity: params[:quantity].to_i + 1 , sub_total: format('%.2f', price_sub_total) , price_total: format('%.2f', price_total) }
@@ -203,15 +206,16 @@ class CartController < ApplicationController
                 render json: { cart_items: params[:items].to_i - 1, message: "Removed.", sub_total: format('%.2f', price_sub_total) , price_total: format('%.2f', price_total) }
                 return
             end
-            c.items.each do |i|              
-              if i['uniq_id'] == params[:uid]
-                price_sub_total = price_sub_total + ((i['price'].to_f) * (i['quantity'].to_i - 1))
-                new_items << {"uniq_id"=> i['uniq_id'], "id"=> i['id'], "intent"=> i['intent'], "price"=> i['price'], "room_id" => i['room_id'], "quantity" => params[:quantity].to_i - 1}
+            cart_items.each do |i|              
+              if i[:uniq_id] == params[:uid]
+                price_sub_total = price_sub_total + ((i[:price].to_f) * (i[:quantity].to_i - 1))
+                new_items << {id: i[:id], uniq_id: i[:uniq_id] ,intent:  i[:intent], price: i[:price], quantity: params[:quantity].to_i - 1, room_id: i[:room_id] }
+                # {"uniq_id"=> i['uniq_id'], "id"=> i['id'], "intent"=> i['intent'], "price"=> i['price'], "room_id" => i['room_id'], "quantity" => params[:quantity].to_i - 1}
               else
-                price_sub_total = price_sub_total + ((i['price'].to_f) * (i['quantity'].to_i))
+                price_sub_total = price_sub_total + ((i[:price].to_f) * (i[:quantity].to_i))
                 new_items << i  
               end          
-            end if c.items.size > 0 
+            end if cart_items.size > 0 
             price_total = price_sub_total + 200.00
             c.update(items: new_items)
             render json: { cart_items: params[:items].to_i - 1, new_quantity: params[:quantity].to_i - 1 , sub_total: format('%.2f', price_sub_total) , price_total: format('%.2f', price_total) }
@@ -221,15 +225,16 @@ class CartController < ApplicationController
     end    
 
     def update_cart
-        c = Cart.find(current_user&.cart&.id)
+        c = current_user&.cart if current_user.present?
         new_items = []
-        c.items.each do |i|
-          if i['uniq_id'] == params[:product_id].split('select_cart_').last
-            new_items << {"id"=> i['id'], "uniq_id"=> i["uniq_id"] ,"intent"=> i['intent'], "price"=> i['price'], "quantity"=> i['quantity'], "room_id" => params[:room_id] }
+        cart_items = eval(c.items)  
+        cart_items.each do |i|
+          if i[:uniq_id] == params[:product_id].split('select_cart_').last
+            new_items << {id: i[:id], uniq_id: i[:uniq_id] ,intent:  i[:intent], price: i[:price], quantity: i[:quantity], room_id: params[:room_id] }
           else
             new_items << i  
           end          
-        end if c.items.size > 0 
+        end if cart_items.size > 0 
         c.update(items: new_items)
     
         # session[:room_product].delete(params[:product_id])
