@@ -1,5 +1,5 @@
-require 'sdn/db'
-require 'intercom'
+# require 'sdn/db'
+# require 'intercom'
 
 # Manages SDN Orders
 #
@@ -11,7 +11,7 @@ require 'intercom'
 #       the origin of the error and then pass it up the chain, doing DB transactions along the way.
 #       It's a bit verbose those. Work on DRYing it up.
 #
-class SDN::Order
+class Sdn::Order
 
     module Exceptions
         class Error < RuntimeError
@@ -57,7 +57,7 @@ class SDN::Order
         rescue OrderError => error
             raise error
         rescue => error
-            $LOG.error "Products NOT added to order - rolled back: [products: %s, order: %i, user: %s] %s" % [ products.inspect, order_id, user.email, error.full_message ]
+            Rails.logger.error "Products NOT added to order - rolled back: [products: %s, order: %i, user: %s] %s" % [ products.inspect, order_id, user.email, error.full_message ]
             raise OrderError.new(error.message, user_message: "Error adding products to order.")
         end
     end
@@ -65,9 +65,9 @@ class SDN::Order
     # Adds product and all required fields to order
     # TODO: Add price adjustments for discounts/own inventory?
     # TODO: Write tests
-    def add_product(product_model, price: nil, email_receipt: false, user_override: nil, product_hash: product_hash)
+    def add_product(product_model, price: nil, email_receipt: false, user_override: nil, product_hash: product)
         # if product_model.on_open_order?
-        #     $LOG.debug "Item NOT added to order - exists on open order: [product: %i, user: %s]" % [ product_model.id, user&.email ]
+        #     Rails.logger.debug "Item NOT added to order - exists on open order: [product: %i, user: %s]" % [ product_model.id, user&.email ]
         #     raise ProductNotRentable.new("Product is on open order.", user_message: :message) if product_model.on_open_order?
         # end                       #now product has many pieces, so need to manage by pieces.
 
@@ -76,7 +76,7 @@ class SDN::Order
         begin
             $DB.transaction do |t|
 
-                create_order_line(product: product_model, base_price: price, product_hash: product_hash)
+                create_order_line(product: product_model, base_price: price, product_hash: product)
                 create_product_piece_locations(product: product_model)
                 # refresh_damage_waiver will calculate after discussion.
                 ReceiptMailer.new.send_customer_add_to_order_receipt(self, product_model).deliver if email_receipt
@@ -86,14 +86,14 @@ class SDN::Order
         rescue OrderError => error
             raise error
         rescue => error
-            $LOG.error "Product NOT added to order - rolled back: [product: %i, order: %i, user: %s] %s" % [ product_model&.id, order_id, user.email, error.full_message ]
+            Rails.logger.error "Product NOT added to order - rolled back: [product: %i, order: %i, user: %s] %s" % [ product_model&.id, order_id, user.email, error.full_message ]
             raise OrderError.new(error.message, user_message: "Error adding product to order.")
         end
     end
 
     # Creates an order line
     # TODO: Write tests
-    def create_order_line(product:, base_price:, taxed: true, room_id: nil, floor_id: nil, description: nil, product_hash: product_hash)
+    def create_order_line(product:, base_price:, taxed: true, room_id: nil, floor_id: nil, description: nil, product_hash: p)
 
         begin
             $DB.transaction do
@@ -133,11 +133,11 @@ class SDN::Order
                         end
     
                     end
-                    $LOG.info "Order line created: [line: %i, order: %i, user: %s]" % [ line.id, order_id, user.email ]
+                    Rails.logger.info "Order line created: [line: %i, order: %i, user: %s]" % [ line.id, order_id, user.email ]
                     return line
                 else
                     
-                    $LOG.error "Order line NOT created: [order: %i, user: %s] %s" % [ order_id, user.email, line&.errors.inspect ]
+                    Rails.logger.error "Order line NOT created: [order: %i, user: %s] %s" % [ order_id, user.email, line&.errors.inspect ]
                     raise OrderError.new(line.errors.inspect, user_message: "Error creating order line.")
                 end
 
@@ -145,7 +145,7 @@ class SDN::Order
         rescue OrderError => error
             raise error
         rescue => error
-            $LOG.error "Order line NOT created - rolled back: [product: %i, order: %i, user: %s] %s" % [ product&.id, order_id, user.email, error.full_message ]
+            Rails.logger.error "Order line NOT created - rolled back: [product: %i, order: %i, user: %s] %s" % [ product&.id, order_id, user.email, error.full_message ]
             raise OrderError.new(error.message, user_message: "Error creating order line.")
         end
     end
@@ -166,7 +166,7 @@ class SDN::Order
         rescue OrderError => error
             raise error
         rescue => error
-            $LOG.error "Product piece locations NOT created - rolled back: [product: %i, order: %i, user: %s] %s" % [ product&.id, order_id, user.email, error.full_message ]
+            Rails.logger.error "Product piece locations NOT created - rolled back: [product: %i, order: %i, user: %s] %s" % [ product&.id, order_id, user.email, error.full_message ]
             raise OrderError.new(error.message, user_message: "Error putting #{product&.name} on order.")
         end
     end
@@ -183,7 +183,7 @@ class SDN::Order
         rescue OrderError => error
             raise error
         rescue => error
-            $LOG.error "Damage waiver NOT refreshed - rolled back: #{error.full_message}"
+            Rails.logger.error "Damage waiver NOT refreshed - rolled back: #{error.full_message}"
             raise OrderError.new(error.message, user_message: "Error updating order's damage waiver.")
         end
     end
@@ -205,10 +205,10 @@ class SDN::Order
                 )
 
                 if ppl.saved?
-                    $LOG.info "PPL created: [ppl: %i, piece: %i, product: %i, order: %i, user: %s]" % [ ppl.id, piece.id, piece.product_id, order_id, user.email ]
+                    Rails.logger.info "PPL created: [ppl: %i, piece: %i, product: %i, order: %i, user: %s]" % [ ppl.id, piece.id, piece.product_id, order_id, user.email ]
                     return ppl
                 else
-                    $LOG.error "PPL NOT created: [piece: %i, product: %i, order: %i, user: %s] %s" % [ piece.id, piece.product_id, order_id, user.email, ppl&.errors.inspect ]
+                    Rails.logger.error "PPL NOT created: [piece: %i, product: %i, order: %i, user: %s] %s" % [ piece.id, piece.product_id, order_id, user.email, ppl&.errors.inspect ]
                     raise OrderError.new(ppl&.errors.inspect, user_message: "Error putting barcode on hold.")
                 end
 
@@ -216,7 +216,7 @@ class SDN::Order
         rescue OrderError => error
             raise error
         rescue => error
-            $LOG.error "PPL NOT created - rolled back: [piece: %i, product: %i, order: %i, user: %s] %s" % [ piece.id, piece.product_id, order_id, user.email, error.full_message ]
+            Rails.logger.error "PPL NOT created - rolled back: [piece: %i, product: %i, order: %i, user: %s] %s" % [ piece.id, piece.product_id, order_id, user.email, error.full_message ]
             raise OrderError.new(error.message, user_message: "Error putting barcode on hold.")
         end
     end
@@ -237,7 +237,7 @@ class SDN::Order
         rescue OrderError => error
             raise error
         rescue => error
-            $LOG.error "Order NOT cancelled - rolled back: [order: %i, user: %s] %s" % [ order_id, user.email, error.full_message ]
+            Rails.logger.error "Order NOT cancelled - rolled back: [order: %i, user: %s] %s" % [ order_id, user.email, error.full_message ]
             raise OrderError.new(error.message, user_message: "Error cancelling order.")
         end
     end
@@ -259,7 +259,7 @@ class SDN::Order
             $DB.transaction do
 
                 if model.void?
-                    $LOG.debug "Order has already been voided: [order: #{order_id}]"
+                    Rails.logger.debug "Order has already been voided: [order: #{order_id}]"
                     raise OrderError.new("Order already voided.", user_message: :message)
                 end
                 # Void the order lines
@@ -276,7 +276,7 @@ class SDN::Order
                 end
                 # Change order status to void
                 model.status = 'Void'
-                $LOG.info "Order voided: [order: %i, voided by: %s, user: %s]" % [ order_id, voided_by&.email, user.email ] if model.save
+                Rails.logger.info "Order voided: [order: %i, voided by: %s, user: %s]" % [ order_id, voided_by&.email, user.email ] if model.save
 
                 if email_confirmation
                     ReceiptMailer.new.send_customer_cancellation_confirmation(self).deliver
@@ -289,7 +289,7 @@ class SDN::Order
         rescue OrderError => error
             raise error
         rescue => error
-            $LOG.error "Order NOT voided - rolled back: [order: %i, user: %s] %s" % [ order_id, user.email, error.full_message ]
+            Rails.logger.error "Order NOT voided - rolled back: [order: %i, user: %s] %s" % [ order_id, user.email, error.full_message ]
             raise OrderError.new(error.message, user_message: "Error voiding order.")
         end
     end
@@ -308,9 +308,9 @@ class SDN::Order
                     o.destage_date = date
                     o.status = "Destage"
                     if o.save
-                        $LOG.info "Destage date set for order: [order: %i, date: %s]" % [ order_id, date ]
+                        Rails.logger.info "Destage date set for order: [order: %i, date: %s]" % [ order_id, date ]
                     else
-                        $LOG.error "Destage date NOT set for order: [order: %i, date: %s] %s" [ order_id, date, o.errors.inspect ]
+                        Rails.logger.error "Destage date NOT set for order: [order: %i, date: %s] %s" [ order_id, date, o.errors.inspect ]
                         raise OrderError.new("Couldn't set destage date for order #{order_id}", user_message: :message)
                     end
                 end
@@ -327,7 +327,7 @@ class SDN::Order
         rescue OrderError => error
             raise error
         rescue => error
-            $LOG.error "Order destage NOT requested - rolled back: [order: %i, user: %s] %s" % [ order_id, user.email, error.full_message ]
+            Rails.logger.error "Order destage NOT requested - rolled back: [order: %i, user: %s] %s" % [ order_id, user.email, error.full_message ]
             raise OrderError.new(error.message, user_message: "Error requesting destage.")
         end
     end
@@ -360,9 +360,9 @@ class SDN::Order
 
         begin
             $SAIL.create_arrivy_task(data)
-            $LOG.info "SAIL/Arrivy call successful [order: %i, data: %s]" % [model.id, data.inspect]
+            Rails.logger.info "SAIL/Arrivy call successful [order: %i, data: %s]" % [model.id, data.inspect]
         rescue => error
-            $LOG.error "SAIL/Arrivy call failed [order: %i, data: %s] %s" % [model.id, data.inspect, error.full_message]
+            Rails.logger.error "SAIL/Arrivy call failed [order: %i, data: %s] %s" % [model.id, data.inspect, error.full_message]
             raise SAILError, error.full_message
         end
     end
@@ -393,7 +393,7 @@ class SDN::Order
     #  - ownership_check  makes sure supplied card model belongs to order owner
     def update_credit_card(card_model, ownership_check: true)
         if ownership_check && card_model.user_id != user.id
-            $LOG.debug "Credit card does NOT belong to order owner: [card owner: %i, order owner: %i]" % [ card_model.user_id, user.id ]
+            Rails.logger.debug "Credit card does NOT belong to order owner: [card owner: %i, order owner: %i]" % [ card_model.user_id, user.id ]
             raise UpdateCreditCardError.new("Card and order do not have the same owner.", user_message: :message)
         end
 
@@ -417,9 +417,9 @@ class SDN::Order
                 hold.updated_by = employee.id
 
                 if hold.save
-                    $LOG.info "Order hold toggled: [hold: %i, order: %i, hold: %s, user: %s]" % [ hold.id, order_id, new_state, employee&.email ]
+                    Rails.logger.info "Order hold toggled: [hold: %i, order: %i, hold: %s, user: %s]" % [ hold.id, order_id, new_state, employee&.email ]
                 else
-                    $LOG.error "Order hold NOT toggled: [hold: %s, order: %i, hold: %s, user: %s] %s" % [ hold.id, order_id, new_state, employee&.email, hold.errors.inspect ]
+                    Rails.logger.error "Order hold NOT toggled: [hold: %s, order: %i, hold: %s, user: %s] %s" % [ hold.id, order_id, new_state, employee&.email, hold.errors.inspect ]
                     raise OrderHoldError.new("Error saving hold state.", user_message: :message)
                 end
 
@@ -437,7 +437,7 @@ class SDN::Order
         rescue OrderError => error
             raise error
         rescue => error
-            $LOG.error "Order hold NOT toggled - rolled back: [order: %i, action: %s, user: %s] %s" % [ order_id, onoff, employee&.email, error.full_message ]
+            Rails.logger.error "Order hold NOT toggled - rolled back: [order: %i, action: %s, user: %s] %s" % [ order_id, onoff, employee&.email, error.full_message ]
             raise OrderHoldError.new(error.message, user_message: "Unable to update hold.")
         end
     end
@@ -459,7 +459,7 @@ class SDN::Order
         begin
             return model&.tax_authority&.total_rate.to_f
         rescue => error
-            $LOG.debug "Order tax rate not found: [order: %i] %s" % [ order_id, error.full_message ]
+            Rails.logger.debug "Order tax rate not found: [order: %i] %s" % [ order_id, error.full_message ]
             return 0
         end
     end

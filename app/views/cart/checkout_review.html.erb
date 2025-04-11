@@ -126,10 +126,10 @@
                                     <p>
                                         <% if @cart.shipping_data['shipping_method'] == 'delivery' %>
                                             <%#= @cart.shipping_data['delivery_date']&.to_date&.strftime('%A, %b. %-d') %>
-                                            <%= @cart.shipping_data['delivery_date']&.to_date.strftime('%m/%d/%Y') %>
+                                            <%= Date.strptime(@cart.shipping_data['delivery_date'], '%m-%d-%Y') if @cart.shipping_data['delivery_date'].present?  %>
                                         <% else %>
-                                        <%binding.pry%>
-                                        <%= @cart.shipping_data['pickup_date']&.to_date.strftime('%m/%d/%Y') %>
+                                        <%#binding.pry%>
+                                        <%= Date.strptime(@cart.shipping_data['pickup_date'], '%m-%d-%Y') if @cart.shipping_data['pickup_date'].present? %>
                                             <%#= "#{@cart.shipping_data['pickup_date']} #{@cart.shipping_data['pickup_time']}"&.to_time&.strftime('%A, %b. %-d at %-l:%M') %>
                                         <% end %>
                                     </p>
@@ -265,4 +265,3 @@
 </div>
 <!-- BUTTONS PROCEED AND BACK  ENDS -->
 
-<%= javascript_include_tag "checkout_review.js" %>

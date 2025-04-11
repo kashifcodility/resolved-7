@@ -257,6 +257,7 @@ class CartController < ApplicationController
 
     # Checkout form to collect billing and shipping info
     def checkout_form
+        # binding.pry
         @rush_order = params['rush_order']
         user_must_save_card?
         @user_must_fill_profile = current_user.company_name.blank? || current_user.shipping_address_id.blank?
@@ -272,8 +273,9 @@ class CartController < ApplicationController
     end
 
     def checkout_form_handler
+
         # @rush_order = 
-        @cart.shipping_data['rush_order'] = params['rush_order'].to_i
+        # @cart.shipping_data['rush_order'] = params['rush_order'].to_i
         
         errors = []
         errors += validate_and_save_company_profile
@@ -285,7 +287,7 @@ class CartController < ApplicationController
             flash.now[:alert] = errors
             return checkout_form
         end
-        # binding.pry
+        binding.pry
         return redirect_to(checkout_review_path)
     end
 
@@ -305,11 +307,13 @@ class CartController < ApplicationController
                 city:       params[:company_city],
                 state:      params[:company_state],
                 zipcode:    params[:company_zipcode],
-                table_name: 'users',
-                table_id:   current_user.id,
+                # table_name: 'users',
+                # table_id:   current_user.id,
             )
+            company_address[:table_name] = 'users'
+            company_address[:table_id] = current_user.id
             current_user.shipping_address = company_address
-
+            #  binding.pry    
             if current_user.save
                 Rails.logger.info "Company profile saved [user: %s] %s" % [ current_user.email, params.inspect ]
             else
@@ -323,83 +327,97 @@ class CartController < ApplicationController
     def validate_and_save_shipping_info
 
         checkout_data = {
-  billing: {
-    project_name: "homiao",
-    shipping_contact_name: "WASIF",
-    shipping_contact_phone: "0900000000",
-    new_construction: "1",
-    street_number: "",
-    route: "",
-    shipping_address: "charar e -221`",
-    shipping_city: "Lahore",
-    shipping_state: "IN",
-    shipping_zipcode: "220000",
-    shipping_method: "pickup",
-    delivery_home_type: "",
-    delivery_levels: "",
-    delivery_special_considerations: "",
-    rush_order: "1",
-    delivery_date: "",
-    pickup_date: "2025-04-11",
-    pickup_time: "09:00",
-    payment_method: "8335",
-    new_card_address1: "449 AA Dha Lahore",
-    new_card_city: "Lahore",
-    new_card_state: "IA",
-    new_card_zipcode: "54000",
-    charge_account: "",
-    token: "1736761446",
-    pn_ref: "cus_RZtzbjRIrQx9fe",
-    card_type: "Visa",
-    last_four: "4242",
-    exp_month: "4",
-    exp_year: "2045",
-    label: "kashif card",
-    card_address1: "",
-    card_city: "",
-    card_state: "",
-    card_zipcode: nil,
-    card_address_id: nil
-  },
-  delivery: {},
-  rush_order: 1,
-  tax_authority: 14854,
-  tax_loc_code: nil,
-  tax_rate: "0.0",
-  refresh_taxes: false,
-  shipping: {
-    project_name: "homiao",
-    shipping_contact_name: "WASIF",
-    shipping_contact_phone: "0900000000",
-    new_construction: "1",
-    street_number: "",
-    route: "",
-    shipping_address: "charar e -221`",
-    shipping_city: "Lahore",
-    shipping_state: "IN",
-    shipping_zipcode: "220000",
-    shipping_method: "pickup",
-    delivery_home_type: "",
-    delivery_levels: "",
-    delivery_special_considerations: "",
-    rush_order: "1",
-    delivery_date: "",
-    pickup_date: "2025-04-11",
-    pickup_time: "09:00",
-    payment_method: "8335",
-    new_card_address1: "449 AA Dha Lahore",
-    new_card_city: "Lahore",
-    new_card_state: "IA",
-    new_card_zipcode: "54000",
-    cc_name: "",
-    cc_label: "",
-    charge_account: ""
-  }
-}
+            billing: {
+                project_name:                 params[:project_name],
+                shipping_contact_name:       params[:shipping_contact_name],
+                shipping_contact_phone:      params[:shipping_contact_phone],
+                new_construction:            params[:new_construction],
+                street_number:               params[:street_number],
+                route:                       params[:route],
+                shipping_address:            params[:shipping_address],
+                shipping_city:               params[:shipping_city],
+                shipping_state:              params[:shipping_state],
+                shipping_zipcode:            params[:shipping_zipcode],
+                shipping_method:             params[:shipping_method],
+                delivery_home_type:          params[:delivery_home_type],
+                delivery_levels:             params[:delivery_levels],
+                delivery_special_considerations: params[:delivery_special_considerations],
+                rush_order:                  params[:rush_order],
+                delivery_date:               params[:delivery_date],
+                pickup_date:                 params[:pickup_date],
+                pickup_time:                 params[:pickup_time],
+                payment_method:              params[:payment_method],
+                new_card_address1:           params[:new_card_address1],
+                new_card_city:               params[:new_card_city],
+                new_card_state:              params[:new_card_state],
+                new_card_zipcode:            params[:new_card_zipcode],
+                charge_account:              params[:charge_account],
+                
+                # Optional static or pre-filled fields
+                token:                       nil,
+                pn_ref:                      current_user&.stripe_customer_id,
+                card_type:                   nil,
+                last_four:                   nil,
+                exp_month:                   nil,
+                exp_year:                    nil,
+                label:                       nil,
+                card_address1:               nil,
+                card_city:                   nil,
+                card_state:                  nil,
+                card_zipcode:                nil,
+                card_address_id:             nil
+            },
+
+            delivery: {},
+
+            rush_order: params[:rush_order],
+            tax_authority: nil,       # Add from context if available
+            tax_loc_code: nil,
+            tax_rate: "0.0",
+            refresh_taxes: false,
+
+            shipping: {
+                project_name:                 params[:project_name],
+                shipping_contact_name:       params[:shipping_contact_name],
+                shipping_contact_phone:      params[:shipping_contact_phone],
+                new_construction:            params[:new_construction],
+                street_number:               params[:street_number],
+                route:                       params[:route],
+                shipping_address:            params[:shipping_address],
+                shipping_city:               params[:shipping_city],
+                shipping_state:              params[:shipping_state],
+                shipping_zipcode:            params[:shipping_zipcode],
+                shipping_method:             params[:shipping_method],
+                delivery_home_type:          params[:delivery_home_type],
+                delivery_levels:             params[:delivery_levels],
+                delivery_special_considerations: params[:delivery_special_considerations],
+                rush_order:                  params[:rush_order],
+                delivery_date:               params[:delivery_date],
+                pickup_date:                 params[:pickup_date],
+                pickup_time:                 params[:pickup_time],
+                payment_method:              params[:payment_method],
+                new_card_address1:           params[:new_card_address1],
+                new_card_city:               params[:new_card_city],
+                new_card_state:              params[:new_card_state],
+                new_card_zipcode:            params[:new_card_zipcode],
+                cc_name:                     params[:cc_name],
+                cc_label:                    params[:cc_label],
+                charge_account:              params[:charge_account]
+            }
+        }
+
+        cart = current_user.cart
+        cart.checkout = checkout_data
+        if cart.save
+           return []   
+        else
+            errors = []
+            errors << cart.errors.full_messages 
+        end    
 
 
 
-        binding.pry
+        # binding.pry
 
               
     end
@@ -593,6 +611,7 @@ class CartController < ApplicationController
     end
 
     def user_must_save_card?
+        # binding.pry
         @user_must_save_card = @cart.has_rent_items? && !current_user.has_valid_credit_card?
     end
 
