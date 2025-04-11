@@ -2,7 +2,7 @@ class Address < ApplicationRecord
   self.table_name = 'addresses'
 
   # Set default values
-  after_initialize :set_defaults, if: :new_record?
+#   after_initialize :set_defaults, if: :new_record?
 
   # ActiveRecord already defines an id column by default
   # For active column, use an enum to define status values
