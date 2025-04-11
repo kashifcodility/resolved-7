@@ -482,7 +482,11 @@
                         
                         <!-- Terms Agreement -->
                         <div class="form_checkbox">
-                            <%= check_box_tag(:agree_to_terms, 'yes', params[:agree_to_terms] == 'yes' || @cart.checkout_data['billing']['agree_to_terms'] == 'yes') %>
+
+
+
+
+                            <%#= check_box_tag(:agree_to_terms, 'yes', params[:agree_to_terms] == 'yes' || @cart.checkout_data['billing']['agree_to_terms'] == 'yes') %>
                             <label for="agree_to_terms">I have read and agree to the <a href="#termsOfService1" data-toggle="modal">Terms of Service</a></label>
                         </div>
                     </div>
@@ -492,7 +496,7 @@
                     <!-- Charge Account -->
                     <div class="input_w_label">
                         <label for="charge_account">Charge Account Number</label>
-                        <%= text_field_tag(:charge_account, params[:charge_account] || @cart.checkout_data['billing']['charge_account'] || nil, class: 'required_field') %>
+                        <%= text_field_tag(:charge_account, params[:charge_account] || @cart.billing_data['charge_account'] || nil, class: 'required_field') %>
                     </div>
                 </div>
 

@@ -31,7 +31,7 @@ class Cart < ApplicationRecord
     # Add item to cart
     def add_item(product, intent, room_id, quantity, self_rental_commission=false)
         # if product.on_open_order?
-        #     $LOG.debug "Item NOT added to cart - exists on open order: [product: %i, intent: %s, user: %s]" % [ product.id, intent, user&.email ]
+        #     Rails.logger.debug "Item NOT added to cart - exists on open order: [product: %i, intent: %s, user: %s]" % [ product.id, intent, user&.email ]
         #     Return false
         # end
 
@@ -47,7 +47,7 @@ class Cart < ApplicationRecord
 
         product.added_to_cart = Time.zone.now
         product.save
-        cart_items = eval(self.items)
+        cart_items = eval(self.items) if self.items.present?
         # self.items ||= []
         # binding.pry
         if cart_items.present?
@@ -108,7 +108,7 @@ class Cart < ApplicationRecord
     def item_in_cart?(product)
         id = product.is_a?(Product) ? product.id : product.to_i
         # self.items.find { |i| i['id'] == id }.present?
-        cart_items = eval(self.items) 
+        cart_items = eval(self.items) if self.items.present?
 
         # binding.pry
         
@@ -127,7 +127,7 @@ class Cart < ApplicationRecord
         self.items.delete_if { |i| i['id'] == id.to_i }
         self.calculate_subtotal
         if self.save
-            $LOG.info "Product %i successfully removed from cart." % [id]
+            Rails.logger.info "Product %i successfully removed from cart." % [id]
 
             product = Product.get(id)
             product.added_to_cart = nil
@@ -135,7 +135,7 @@ class Cart < ApplicationRecord
             
             return true
         else
-            $LOG.error "Product %i NOT removed from cart. | %s" % [id, self.errors.inspect]
+            Rails.logger.error "Product %i NOT removed from cart. | %s" % [id, self.errors.inspect]
             return false
         end
     end
@@ -145,7 +145,7 @@ class Cart < ApplicationRecord
         remianing_items = cart.items.delete_if { |i| i['uniq_id'] == uniq_id }
         cart_model = cart.instance_variable_get(:@cart_model)
         if cart_model.update(items: remianing_items)
-            $LOG.info "Product %i successfully removed from cart." % [product_id]
+            Rails.logger.info "Product %i successfully removed from cart." % [product_id]
 
             product = Product.get(product_id)
             product.added_to_cart = nil
@@ -153,7 +153,7 @@ class Cart < ApplicationRecord
 
             return true
         else
-            $LOG.error "Product %i NOT removed from cart. | %s" % [product_id, self.errors.inspect]
+            Rails.logger.error "Product %i NOT removed from cart. | %s" % [product_id, self.errors.inspect]
             return false
         end
     end
@@ -161,13 +161,13 @@ class Cart < ApplicationRecord
     # Destroy the cart model and wipe out user's product reservations
     # Theoretically, the wiping of reservations shouldn't be used. Safeguard.
     def destroy!
-        errant_reservations = ProductReservation.all(user: self.user)
+        errant_reservations = ProductReservation.where(user: self.user)
         er_count = errant_reservations.count
         if er_count > 0
             if errant_reservations.destroy!
-                $LOG.info "Destroyed %i errant product reservations for user %s (cart %i)." % [er_count, self.user.email, self.id]
+                Rails.logger.info "Destroyed %i errant product reservations for user %s (cart %i)." % [er_count, self.user.email, self.id]
             else
-                $LOG.error "Error destroying %i errant product reservations for user %s (cart %i). | %s" % [er_count, self.user.email, self.id, errant_reservations.errors.inspect]
+                Rails.logger.error "Error destroying %i errant product reservations for user %s (cart %i). | %s" % [er_count, self.user.email, self.id, errant_reservations.errors.inspect]
             end
         end
 

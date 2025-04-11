@@ -17,7 +17,7 @@ class RootController < ApplicationController
     # https://timlentse.github.io/2015/12/06/How-to-mount-a-rails-app-in-a-subdirectory-with-NGINX.html
 
     def index
-        
+        # binding.pry
         if params[:auth_user_id].present? && params[:auth_code].present?
            user = User.first(id: params[:auth_user_id])
            user_authentication = UserAuthentication.last(user_id: params[:auth_user_id])
@@ -30,7 +30,7 @@ class RootController < ApplicationController
            end 
            
         end    
-        cart_items = eval(current_user&.cart&.items) if current_user.present?
+        cart_items = eval(current_user&.cart&.items) if current_user.cart.present?
         cart_items.each do |item|
             product = Product.find(item[:id])   
             if product.quantity == 0

@@ -92,7 +92,7 @@ class CartController < ApplicationController
     # Shows user's cart
     def index
         return render unless @cart
-
+# binding.pry
         @items_by_site = @cart.items_by_site
 
         if @cart.items_in_multiple_regions?
@@ -274,18 +274,18 @@ class CartController < ApplicationController
     def checkout_form_handler
         # @rush_order = 
         @cart.shipping_data['rush_order'] = params['rush_order'].to_i
-        # binding.pry
+        
         errors = []
         errors += validate_and_save_company_profile
         errors += validate_credit_card_add_or_not
         errors += validate_and_save_shipping_info unless errors.any?
-        errors += validate_and_save_payment_info unless errors.any?
+        # errors += validate_and_save_payment_info unless errors.any?
 
         if errors.any?
             flash.now[:alert] = errors
             return checkout_form
         end
-
+        # binding.pry
         return redirect_to(checkout_review_path)
     end
 
@@ -311,9 +311,9 @@ class CartController < ApplicationController
             current_user.shipping_address = company_address
 
             if current_user.save
-                $LOG.info "Company profile saved [user: %s] %s" % [ current_user.email, params.inspect ]
+                Rails.logger.info "Company profile saved [user: %s] %s" % [ current_user.email, params.inspect ]
             else
-                $LOG.debug "Company profile NOT saved [user: %s] %s" % [ current_user.email, current_user.errors.inspect ]
+                Rails.logger.debug "Company profile NOT saved [user: %s] %s" % [ current_user.email, current_user.errors.inspect ]
             end
         end
 
@@ -321,48 +321,87 @@ class CartController < ApplicationController
     end
 
     def validate_and_save_shipping_info
-        errors = []
-        method = params[:shipping_method]
-        params[:delivery_date] = Date.strptime(params[:delivery_date], '%m-%d-%Y').strftime('%Y-%m-%d') if params[:delivery_date].present?
-        
-        params[:pickup_date] = Date.strptime(params[:pickup_date], '%m-%d-%Y').strftime('%Y-%m-%d') if params[:pickup_date].present?
 
-        # Validate shipping fields
-        errors += validate_required_fields(params, REQUIRED_SHIPPING_FIELDS.union(method == 'delivery' ? REQUIRED_DELIVERY_FIELDS : REQUIRED_PICKUP_FIELDS))
-        return errors if errors.any?
+        checkout_data = {
+  billing: {
+    project_name: "homiao",
+    shipping_contact_name: "WASIF",
+    shipping_contact_phone: "0900000000",
+    new_construction: "1",
+    street_number: "",
+    route: "",
+    shipping_address: "charar e -221`",
+    shipping_city: "Lahore",
+    shipping_state: "IN",
+    shipping_zipcode: "220000",
+    shipping_method: "pickup",
+    delivery_home_type: "",
+    delivery_levels: "",
+    delivery_special_considerations: "",
+    rush_order: "1",
+    delivery_date: "",
+    pickup_date: "2025-04-11",
+    pickup_time: "09:00",
+    payment_method: "8335",
+    new_card_address1: "449 AA Dha Lahore",
+    new_card_city: "Lahore",
+    new_card_state: "IA",
+    new_card_zipcode: "54000",
+    charge_account: "",
+    token: "1736761446",
+    pn_ref: "cus_RZtzbjRIrQx9fe",
+    card_type: "Visa",
+    last_four: "4242",
+    exp_month: "4",
+    exp_year: "2045",
+    label: "kashif card",
+    card_address1: "",
+    card_city: "",
+    card_state: "",
+    card_zipcode: nil,
+    card_address_id: nil
+  },
+  delivery: {},
+  rush_order: 1,
+  tax_authority: 14854,
+  tax_loc_code: nil,
+  tax_rate: "0.0",
+  refresh_taxes: false,
+  shipping: {
+    project_name: "homiao",
+    shipping_contact_name: "WASIF",
+    shipping_contact_phone: "0900000000",
+    new_construction: "1",
+    street_number: "",
+    route: "",
+    shipping_address: "charar e -221`",
+    shipping_city: "Lahore",
+    shipping_state: "IN",
+    shipping_zipcode: "220000",
+    shipping_method: "pickup",
+    delivery_home_type: "",
+    delivery_levels: "",
+    delivery_special_considerations: "",
+    rush_order: "1",
+    delivery_date: "",
+    pickup_date: "2025-04-11",
+    pickup_time: "09:00",
+    payment_method: "8335",
+    new_card_address1: "449 AA Dha Lahore",
+    new_card_city: "Lahore",
+    new_card_state: "IA",
+    new_card_zipcode: "54000",
+    cc_name: "",
+    cc_label: "",
+    charge_account: ""
+  }
+}
 
-        shipping_date = method == 'delivery' ? params[:delivery_date] : params[:pickup_date]
-        shipping_time = method == 'delivery' ? '00:00' : params[:pickup_time]
 
-        # Validate scheduling date range
-        # TODO: Add time validation
-        begin
-            # errors << 'Scheduling date is too soon.' if shipping_date.to_date < (method == 'delivery' ? scheduling_date_delivery_min : scheduling_date_pickup_min)
-        rescue => error
-            errors << 'Invalid scheduling date requested.'
-        end
-        return errors if errors.any?
 
-        # Check if delivery address has changed from what's stored in DB and calc new taxes if so
-        # TODO: Move this method to the Cart
-        # TODO: Add validation checking for if address is invalid
-        old_address = @cart.checkout_data['shipping']&.slice('shipping_address', 'shipping_city', 'shipping_state', 'shipping_zipcode')
-        new_address = params.slice(:shipping_address, :shipping_city, :shipping_state, :shipping_zipcode).to_unsafe_hash
-        unless old_address == new_address
-            address = {
-                line1:   params['shipping_address'],
-                city:    params['shipping_city'],
-                state:   params['shipping_state'],
-                country: params['shipping_country'],
-                zipcode: params['shipping_zipcode'],
-            }
-            @cart.calculate_tax(address)
-        end
+        binding.pry
 
-        # Save shipping info to session
-        @cart.fill_checkout(params.except(:authenticity_token, :controller, :action, :commit).to_unsafe_hash, 'shipping')
-
-        return []
+              
     end
 
     def validate_and_save_payment_info
@@ -372,7 +411,7 @@ class CartController < ApplicationController
         # TODO: Validate payment fields before filling checkout
         @cart.fill_checkout(params.except(:authenticity_token, :controller, :action, :commit).to_unsafe_hash, 'billing')
         @cart.fill_checkout({cc_save: '1'}, 'billing') if user_must_save_card?
-
+        binding.pry
         case method
         when 'charge_account'
             
@@ -397,6 +436,7 @@ class CartController < ApplicationController
         else # Saved card number
             begin
                 @cart.verify_and_load_saved_card(params['payment_method'])
+                binding.pry
             rescue ::Sdn::Card::DetailsError
                 errors << 'Invalid Credit Card selected.'
             end
@@ -449,6 +489,8 @@ class CartController < ApplicationController
 
     # Review checkout before processing order
     def checkout_review
+        # binding.pry
+        # ppppppppppp
         return redirect_to(cart_path) if checkout_disabled?
         return render
     end
@@ -525,7 +567,7 @@ class CartController < ApplicationController
             begin
                 @cart.verify_and_tokenize_card(credit_card)
             rescue ::Sdn::Card::MissingDetails => error
-                $LOG.debug error.message
+                Rails.logger.debug error.message
                 errors << 'Missing credit card details.'
             rescue ::Sdn::Card::InvalidDetails => error
                 errors << error.message
@@ -634,7 +676,7 @@ class CartController < ApplicationController
                 country: params['country'],
                 zipcode: params['zipcode'],
             }
-            @cart.calculate_tax(address)
+            #@cart.calculate_tax(address)
         end
 
         if errors.any?
@@ -660,9 +702,9 @@ class CartController < ApplicationController
         if current_user.dirty?
             current_user.is_signup_complete = true unless current_user.is_signup_complete
             if current_user.save
-                $LOG.info "User profile updated from billing info: [user: #{current_user.email}]"
+                Rails.logger.info "User profile updated from billing info: [user: #{current_user.email}]"
             else
-                $LOG.error "User profile NOT updated from billing info: [user: #{current_user.email}] #{current_user.errors.inspect}"
+                Rails.logger.error "User profile NOT updated from billing info: [user: #{current_user.email}] #{current_user.errors.inspect}"
             end
         end
     end
