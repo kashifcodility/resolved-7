@@ -30,7 +30,7 @@ class RootController < ApplicationController
            end 
            
         end    
-        cart_items = eval(current_user&.cart&.items) if current_user.cart.present?
+        cart_items = eval(current_user&.cart&.items) if current_user&.cart&.present?
         cart_items.each do |item|
             product = Product.find(item[:id])   
             if product.quantity == 0
