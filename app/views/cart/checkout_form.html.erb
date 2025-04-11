@@ -470,6 +470,7 @@
                         <!-- CC Save -->
                         <div class="form_checkbox">
                             <% if @user_must_save_card %>
+                            
                                 <%= check_box_tag(:cc_save, nil, true, disabled: true) %>
                                 <label for="cc_save">A valid credit card is required to stay on file during your rental.</label>
                             <% else %>

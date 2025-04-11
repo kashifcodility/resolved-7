@@ -195,6 +195,8 @@ class SessionsController < ApplicationController
     # Signs a user out but keeps their session in the DB
     # To completely destroy the session, use #destroy
     def logout
+        sign_out(@current_user) 
+        # binding.pry
         session[:user_id] = @current_user = nil
         if session['god']
             session[:god] = nil
