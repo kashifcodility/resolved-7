@@ -2,9 +2,10 @@
 # require 'sdn/card'
 
 
+require 'json'
 
 require 'stripe'
-# SDN Cart/Checkout Library
+# Sdn Cart/Checkout Library
 #
 #
 # TODO: Implement better exception throwing
@@ -251,6 +252,7 @@ class Sdn::Cart
     # Fills/updates checkout with state
     # Ran on submission of each checkout step to save progress
     def fill_checkout(params, section_name=nil)
+        binding.pry
         checkout ||= {}
         checkout[section_name] ||= {} if section_name
 
@@ -264,7 +266,7 @@ class Sdn::Cart
         @cart_model.checkout&.deep_stringify_keys!&.deep_merge!(checkout)
         @cart_model.save
 
-        if @cart_model.saved?
+        if @cart_model.persisted?
             Rails.logger.info "Saved checkout state for cart %i (user %s)." % [@cart_model.id, @user.email]
             return true
         else
@@ -275,23 +277,30 @@ class Sdn::Cart
 
     # Get checkout data
     def checkout_data(section_name=nil)
-        data = @cart_model.checkout || {}
-        data['billing'] ||= {}
-        data['delivery'] ||= {}
-        data = data[section_name] if section_name && data.key?(section_name)
-        return data
+        # binding.pry
+        # ddddddddddd
+        data = @cart_model.checkout.present? ? eval(@cart_model.checkout) : {}
+        # data['billing'] ||= {}
+        # data['delivery'] ||= {}
+        filtered_data = section_name == 'shipping' ? data[:shipping] : data[:billing]
+        if filtered_data.present?
+            filtered_data.with_indifferent_access 
+        else
+            {}.with_indifferent_access
+        end    
+        
     end
 
     def billing_data()   checkout_data('billing');   end
     def delivery_data()  checkout_data('shipping');  end
-    def shipping_data()  delivery_data();            end
+    def shipping_data()  delivery_data();  end
 
     # Calculates the tax and tax location
     # 1) Assembles avatax transaction lines & gets transaction from AvaTax
     # 2) Creates new TaxAuthority record
     # 3) Saves TaxAuthority ID and tax location code to cart's `checkout`
     # TODO: Add exceptions and integrity checking
-    def calculate_tax(address)
+    def calculate_tax(address) # need to handle or may not be due to using stripe
         avatax_transaction = $AVALARA.create_transaction(items, address)
 
         tax_authority = $AVALARA.fill_tax_authority_model_with_transaction_response(avatax_transaction, TaxAuthority.new)
@@ -343,7 +352,7 @@ class Sdn::Cart
             # begin
             #     d = billing_data.merge(delivery_data)
             #     cc_name = d['cc_name'].split(' ')
-            #     card = ::SDN::Card.new(@user).from_hash({
+            #     card = ::Sdn::Card.new(@user).from_hash({
             #         token:      d['token'],
             #         pn_ref:     d['pn_ref'],
             #         card_type:  d['card_type'],
@@ -362,7 +371,7 @@ class Sdn::Cart
             #     card_model.visible = !!billing_data['cc_save']
 
             #     if card_model.save
-            #         @card_to_charge = ::SDN::Card.new(@user).from_model(card_model)
+            #         @card_to_charge = ::Sdn::Card.new(@user).from_model(card_model)
             #         Rails.logger.info "Credit card created: %i [last 4: %s, user: %s]" % [card_model.id, card_model.last_four, @user.email]
             #     else
             #         Rails.logger.error "Credit card NOT created: [last 4:: %s, user: %s] %s" % [card_model.last_four, @user.email, card_model.errors.inspect]
@@ -372,7 +381,7 @@ class Sdn::Cart
             #     raise error
             # end
         elsif billing_data['payment_method'] != 'charge_account'
-            @card_to_charge = ::SDN::Card.new(@user).from_model(CreditCard.first(user: @user, id: billing_data['payment_method']))
+            @card_to_charge = ::Sdn::Card.new(@user).from_model(CreditCard.first(user: @user, id: billing_data['payment_method']))
             unless @card_to_charge
                 Rails.logger.debug "Invalid credit card selected"
                 raise CreditCardError.new('Invalid credit card selected')
@@ -410,7 +419,7 @@ class Sdn::Cart
     # TODO: Raise exceptions instead of boolean
     # NOTE: CC name is split so that "Joe Albert Fuckhead III" is: first=Joe; last=Albert Fuckhead III
     def verify_and_tokenize_card(cc)
-        card = ::SDN::Card.new(@user).from_new_details(
+        card = ::Sdn::Card.new(@user).from_new_details(
             name:         cc['cc_name'],
             number:       cc['cc_number'],
             verification: cc['cc_verification'],
@@ -431,8 +440,8 @@ class Sdn::Cart
     # TODO: Add exceptions
     def verify_and_load_saved_card(card_id)
         begin
-            card = ::SDN::Card.new(@user).from_model(CreditCard.first(id: card_id, user: @user))
-        rescue ::SDN::Card::DetailsError => error
+            card = ::Sdn::Card.new(@user).from_model(CreditCard.where(id: card_id, user: @user)&.first)
+        rescue ::Sdn::Card::DetailsError => error
             Rails.logger.error error.message
             raise error
         end
@@ -513,7 +522,7 @@ class Sdn::Cart
                 updated_with: 'CartReceipt',
             )
 
-            if cac.saved?
+            if cac.persisted?
                 Rails.logger.info "Charge account charge created: [charge id: %i, amount: %.2f, order: %i, user: %s]" % [cac.id, total, order.id, @user.email]
                 receipt[:success?] = true
                 receipt[:type] = 'charge'
@@ -562,7 +571,7 @@ class Sdn::Cart
                 stored_card_id:     card.model&.id,
             )
 
-            if transaction.saved?
+            if transaction.persisted?
                 Rails.logger.info "Transaction record created: %i [amount: %.2f, order: %i, user: %s, stored card: %s]" % [transaction.id, receipt.amount, order.id, @user.email, card.model&.id.to_s || 'N/A']
             else
                 Rails.logger.error "Transaction record NOT created: [amount: %.2f, order: %i, user: %s, stored card: %s] %s" % [receipt.amount, order.id, @user.email, card.model&.id.to_s || 'N/A', transaction.errors.inspect]
@@ -609,7 +618,7 @@ class Sdn::Cart
             mobile_phone: billing['shipping_mobile_phone'],
         )
 
-        if address.saved?
+        if address.persisted?
             Rails.logger.info "Address (%s) %i saved for %s." % [type, address.id, @user.email]
         else
             Rails.logger.error "Address (%s) NOT saved for %s. | %s" % [type, @user.email, address.errors.inspect]
@@ -754,7 +763,7 @@ class Sdn::Cart
         #         description: 'Damage Waiver',
         #     )
 
-        #     if dw_line.saved?
+        #     if dw_line.persisted?
         #         Rails.logger.info "Damage waiver order line created [id: %i, amount: %.2f, order: %i, user: %s]" % [dw_line.id, waiver_amount, order.id, @user.email]
         #     else
         #         Rails.logger.error "Damage waiver order line NOT created [amount: %.2f, order: %i, user: %s] %s" % [waiver_amount, order.id, @user.email, dw_line.errors.inspect]
@@ -783,7 +792,7 @@ class Sdn::Cart
                         created_by: @user.id,
                     )
 
-                    if ppl.saved?
+                    if ppl.persisted?
                         Rails.logger.info "Product piece location record created: OnOrder [piece id: %i, ppl id: %i, order: %i, user: %s]" % [pp.id, ppl.id, order.id, @user.email]
                     else
                         Rails.logger.error "Product piece location record NOT created: OnOrder [piece id: %i, order: %i, user: %s] %s" % [pp.id, order.id, @user.email, ppl.errors.inspect]

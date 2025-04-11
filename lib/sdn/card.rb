@@ -1,5 +1,5 @@
-require 'active_merchant'
-require 'sdn/db'
+# require 'active_merchant'
+# require 'sdn/db'
 
 # SDN Credit Card Library
 #
@@ -25,7 +25,7 @@ require 'sdn/db'
 #
 # TODO: Consolidate card output (see charge method's response)
 
-class SDN::Card
+class Sdn::Card
 
     # TODO: Add tests for user_message
     # TODO: Abstract exceptions to global exceptions w/ user message
@@ -54,18 +54,38 @@ class SDN::Card
     attr_reader :token, :last_pn_ref, :card_type, :last_four, :exp_month, :exp_year, :model,
                 :first_name, :last_name, :address1, :city, :state, :zip
 
-    const_def :CONFIG_FILE, "config/payleap.yml"
+    # const_def :CONFIG_FILE, "config/payleap.yml"
 
-    const_def :REQUIRED_DETAILS, [ :first_name, :last_name, :number, :verification, :exp_month, 
-                                   :exp_year, :address1, :city, :state, :zip ]
+    # const_def :REQUIRED_DETAILS, [ :first_name, :last_name, :number, :verification, :exp_month, 
+    #                                :exp_year, :address1, :city, :state, :zip ]
 
-    const_def :CENSORED_FIELDS,      [ :number, :verification ]
-    const_def :CENSORED_REPLACEMENT, '[NOT SHOWN]'
+    # const_def :CENSORED_FIELDS,      [ :number, :verification ]
+    # const_def :CENSORED_REPLACEMENT, '[NOT SHOWN]'
 
-    const_def :PAYLEAP_ERROR_CODES, { '208' => 'Card expired', '207' => 'Card declined', '210' => 'Card rejected', 'unknown' => 'Unknown card error', }
+    # const_def :PAYLEAP_ERROR_CODES, { '208' => 'Card expired', '207' => 'Card declined', '210' => 'Card rejected', 'unknown' => 'Unknown card error', }
 
-    const_def :THROTTLE_NUM, 10 # number of requests per...
-    const_def :THROTTLE_TIME, 30 # time in seconds
+    # const_def :THROTTLE_NUM, 10 # number of requests per...
+    # const_def :THROTTLE_TIME, 30 # time in seconds
+
+
+
+    REQUIRED_DETAILS = [
+        :first_name, :last_name, :number, :verification, :exp_month,
+        :exp_year, :address1, :city, :state, :zip
+    ].freeze
+
+    CENSORED_FIELDS = [:number, :verification].freeze
+    CENSORED_REPLACEMENT = '[NOT SHOWN]'.freeze
+
+    PAYLEAP_ERROR_CODES = {
+        '208' => 'Card expired',
+        '207' => 'Card declined',
+        '210' => 'Card rejected',
+        'unknown' => 'Unknown card error'
+    }.freeze
+
+    THROTTLE_NUM = 10
+    THROTTLE_TIME = 30
 
     
     # Initializes payment gateway
@@ -78,17 +98,17 @@ class SDN::Card
         @dry_run = dry_run
 
         if dry_run || !Rails.env.production?
-            $LOG.info "Payment Gateway mode: TEST"
-            ActiveMerchant::Billing::Base.mode = :test
+            # $LOG.info "Payment Gateway mode: TEST"
+            # ActiveMerchant::Billing::Base.mode = :test
         else
-            $LOG.info "Payment Gateway mode: PRODUCTION - real transactions are happening"            
+            # $LOG.info "Payment Gateway mode: PRODUCTION - real transactions are happening"            
         end
 
-        config = ::SDN::Config.load(SDNROOT / CONFIG_FILE)
-        @payment_gateway = ActiveMerchant::Billing::PayleapGateway.new(
-            login: config[:login],
-            password: config[:password],
-        )
+        # config = ::SDN::Config.load(SDNROOT / CONFIG_FILE)
+        # @payment_gateway = ActiveMerchant::Billing::PayleapGateway.new(
+        #     login: config[:login],
+        #     password: config[:password],
+        # )
     end
 
     # Accepts fresh card details and creates token from gateway
@@ -123,7 +143,7 @@ class SDN::Card
         $LOG.info "New card details valid and set: [user: %s, details: %s]" % [ @user.email, censored(details) ]
         
         tokenized = verify_and_tokenize!(details)
-        set_tokenized_details(tokenized)
+        set_tokenized_details(**tokenized)
 
         return self
     end
@@ -206,7 +226,7 @@ class SDN::Card
     def from_hash(hash)
         validate_expiration_date(hash[:exp_month], hash[:exp_year])
 
-        set_tokenized_details(hash)
+        set_tokenized_details(**hash)
 
         return self
     end
@@ -220,11 +240,11 @@ class SDN::Card
         rescue InvalidDetails => error
             raise InvalidDetails, "#{error.message} [user: %s, card: %s]" % [@user.email, model.id]
         end
-
-        set_tokenized_details({
+        # binding.pry
+        set_tokenized_details(**{
             token:     model.info_key,
             pn_ref:    model.customer_key,
-            card_type: model.type,
+            card_type: model.card_type,
             last_four: model.last_four,
             exp_month: model.month,
             exp_year:  model.year,

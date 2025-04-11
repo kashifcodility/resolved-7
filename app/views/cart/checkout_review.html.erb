@@ -128,6 +128,7 @@
                                             <%#= @cart.shipping_data['delivery_date']&.to_date&.strftime('%A, %b. %-d') %>
                                             <%= @cart.shipping_data['delivery_date']&.to_date.strftime('%m/%d/%Y') %>
                                         <% else %>
+                                        <%binding.pry%>
                                         <%= @cart.shipping_data['pickup_date']&.to_date.strftime('%m/%d/%Y') %>
                                             <%#= "#{@cart.shipping_data['pickup_date']} #{@cart.shipping_data['pickup_time']}"&.to_time&.strftime('%A, %b. %-d at %-l:%M') %>
                                         <% end %>
