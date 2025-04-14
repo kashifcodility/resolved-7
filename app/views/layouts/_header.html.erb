@@ -93,7 +93,7 @@
                         </div>                        
                      <% elsif current_user %>
                         <div class="header_icon" data-toggle="modal" data-target="#myModal3">
-                           <%= image_tag( (user_signed_in? && current_user.logo_path.present?) ? current_user.logo_url : "new_icons/header_user.svg", alt: 'Profile Photo', class: 'user_photo_icon') %>
+                           <%#= image_tag( (user_signed_in? && current_user&.logo_path.present?) ? current_user.logo_url : "new_icons/header_user.svg", alt: 'Profile Photo', class: 'user_photo_icon') %>
                            <p>Account</p>
                         </div>
                      <% else %>
@@ -225,7 +225,7 @@
 
                      <% if user_signed_in? %>
                         <div class="account_user">
-                           <%= image_tag( (user_signed_in? && current_user.logo_path.present?) ? current_user.logo_url : "new_icons/account.svg", alt: 'Profile Photo', class: 'user_photo_icon') %>
+                           <%#= image_tag( (user_signed_in? && current_user.logo_path.present?) ? current_user.logo_url : "new_icons/account.svg", alt: 'Profile Photo', class: 'user_photo_icon') %>
                            <div class="separator10"></div>
                            <p><%= current_user.full_name %></p>
                            <a href="#" class="edit_account_btn" data-toggle="modal" data-target="#edit_profile"><%=image_tag("new_icons/edit.svg", alt:"edit") %></a>

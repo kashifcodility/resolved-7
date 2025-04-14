@@ -162,7 +162,9 @@ class OrderLine < ApplicationRecord
 
     # Scope for unvoided lines that represent products
     def self.product_lines
-        all( :product.not => nil, conditions: [ 'LOWER(`order_lines`.`void`) = ?', 'no' ] )
+        OrderLine
+                .where.not(product: nil)
+                .where('LOWER(order_lines.void) = ?', 'no')
     end
 
     def self.not_voided

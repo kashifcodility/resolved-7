@@ -200,7 +200,7 @@ class Barcode < ApplicationRecord
         # j = "INNER JOIN `products` ON `barcodes`.`product_id` = `products`.`id` "
         j = ""
         w = "TRUE "
-        group = "`products`.`id` "
+        group = "`products`.`id`,`orders`.`id` "
         h = "TRUE "
 
         p = []
@@ -209,7 +209,9 @@ class Barcode < ApplicationRecord
             s = "COUNT(DISTINCT `products`.`id`) "
             group = "NULL"
         else
-            s = "`products`.`id` AS product_id"
+            # s = "`products`.`id` AS product_id"
+            s = "`products`.`id` AS product_id, `orders`.`id` AS order_id"
+
         end
 
         # if o[:show_on_frontend_only]

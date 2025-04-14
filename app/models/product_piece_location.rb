@@ -51,7 +51,7 @@ class ProductPieceLocation < ApplicationRecord
       in_transit: 'InTransit',
       pulled: 'Pulled'
     }
-    enum table_name_enum: { bins: 'bins', orders: 'orders' }
+    enum table_name: { bins: 'bins', orders: 'orders' }
     enum void: { yes: 'yes', no: 'no' }, _default: :no
   
     # Validations

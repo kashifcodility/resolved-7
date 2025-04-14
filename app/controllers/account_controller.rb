@@ -5,9 +5,11 @@ class AccountController < ApplicationController
     before_action :require_login
 
     def index
-        @profile = OpenStruct.new(current_user.to_hash.slice(:first_name, :last_name, :billing_address, :telephone, :email).merge({
+        @profile = OpenStruct.new(
+            current_user.slice(:first_name, :last_name, :billing_address, :telephone, :email)
+            .merge({
             image_url:                current_user.logo_url,
-            join_year:                current_user.joined_at.year.to_s,
+            join_year:                current_user.join_date.year.to_s,
             full_name:                current_user.full_name,
             tax_exempt?:              current_user.tax_exempt?,
             tax_exemption_expires_on: current_user.tax_exemption_expires_on,
@@ -15,16 +17,16 @@ class AccountController < ApplicationController
             damage_waiver_exempt?:    current_user.damage_waiver_exempt?,
             damage_waiver_expires_on: current_user.damage_waiver_expires_on,
             damage_waiver_expired_on: current_user.damage_waiver_expired_on,
-            address:                  OpenStruct.new(current_user.billing_address&.to_hash&.slice(:address1, :address2, :city, :state, :zipcode)),
-            credit_cards:             CreditCard.all(user: current_user).visible.map { |cc|
+            address:                  OpenStruct.new(current_user.billing_address&.slice(:address1, :address2, :city, :state, :zipcode)),
+            credit_cards:             current_user.credit_cards.visible.map { |cc|
                 OpenStruct.new(
                    id:          cc.id,
-                   type:        cc.type.capitalize,
+                   type:        cc.card_type.capitalize,
                    last_4:      cc.last_four,
                    month:       cc.month,
                    year:        cc.year, default?: cc.default?,
                    label:       cc.label,
-                   order_count: Order.all(credit_card: cc).active.count,
+                   order_count: Order.where(credit_card: cc).active.count,
                )},
         }))
 
@@ -36,6 +38,20 @@ class AccountController < ApplicationController
         # )})
 
         render
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     end
 
     # New password form
