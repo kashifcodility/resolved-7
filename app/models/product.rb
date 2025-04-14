@@ -586,14 +586,14 @@ class Product < ApplicationRecord
           WHERE id IN (#{colors});
         ACTIVECOLORS
 
- # Execute the raw SQL query
- result = ActiveRecord::Base.connection.execute(sql)
+        # Execute the raw SQL query
+        result = ActiveRecord::Base.connection.execute(sql)
 
- # Convert the result into an array of hashes
- result_hashes = result.map { |row| { id: row[0], label: row[1] } }
+        # Convert the result into an array of hashes
+        result_hashes = result.map { |row| { id: row[0], label: row[1] } }
 
- # Return the result as an array of OpenStruct objects
- result_hashes.map { |row| OpenStruct.new(row) }
+        # Return the result as an array of OpenStruct objects
+        result_hashes.map { |row| OpenStruct.new(row) }
     end
 
     def self.get_active_sizes(sizes)
@@ -890,9 +890,8 @@ class Product < ApplicationRecord
 
     # Gets recently returned products
     def self.recently_returned(amount: 10, site_id: site)
-        binding.pry
         filters = {
-            site_id:           site,
+            site_id:           site_id,
             intent:            "rent",
             sort:              'rrp',
             hide_reserved:     true,
@@ -901,9 +900,9 @@ class Product < ApplicationRecord
             hide_hidden_bin:   true,
             hide_ps_bins:      true,
         }
-        all_product_ids = Barcode.available_product_ids(filters)
+        all_product_ids = Barcode.available_product_ids(**filters)
         product_ids = all_product_ids[0, amount]
-        return Product.all(id: product_ids)
+        return Product.where(id: product_ids)
     end
 
     def self.search_id_name(query)

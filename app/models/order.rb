@@ -150,7 +150,7 @@ class Order < ApplicationRecord
     belongs_to :address
     belongs_to :billing_address, class_name: 'Address', foreign_key: :bill_to_address_id, optional: true
     belongs_to :credit_card, optional: true
-    
+    alias_method :shipping_address, :address
     # Order Dates
     validates :ordered_date, presence: true
     
@@ -210,7 +210,7 @@ class Order < ApplicationRecord
     def self.not_voided()  where(conditions: ["LOWER(status) != 'void'"])  end
     def self.open()        where(status: 'Open')     end
     def self.renting()     where(status: 'Renting')  end
-    def self.active()      where(:status.not => [ 'Complete', 'Void' ])  end
+    def self.active()      where.not(status: ['Complete', 'Void'])  end
 
     def cancellable_by_customer?(at: Time.zone.now)
         open? && rental? && frozen?(at: at)
@@ -658,22 +658,42 @@ class Order < ApplicationRecord
     # Gets the shipped date for an order
     # TODO: Fix needless subquery... this was copied from legacy?
     def self.ship_date(order_id)
-        result = $DB.select <<-FOO
-            SELECT
-                (SELECT ll.created
-                    FROM product_piece_locations AS ll
-                    WHERE ll.table_name = 'orders'
-                        AND ll.table_id = o.id
-                        AND ll.log_type = 'Shipped'
-                        AND ll.void    != 'yes'
-                    ORDER BY ll.id DESC
-                    LIMIT 1
-                ) AS ship_date
-            FROM orders AS o
-            WHERE o.id = #{order_id}
-            LIMIT 1
-        FOO
-        return result&.first
+        # result = $DB.select <<-FOO
+        #     SELECT
+        #         (SELECT ll.created
+        #             FROM product_piece_locations AS ll
+        #             WHERE ll.table_name = 'orders'
+        #                 AND ll.table_id = o.id
+        #                 AND ll.log_type = 'Shipped'
+        #                 AND ll.void    != 'yes'
+        #             ORDER BY ll.id DESC
+        #             LIMIT 1
+        #         ) AS ship_date
+        #     FROM orders AS o
+        #     WHERE o.id = #{order_id}
+        #     LIMIT 1
+        # FOO
+        # return result&.first
+
+
+        order = Order.find_by(id: order_id)
+  
+        return nil unless order
+# binding.pry
+        # Find the most recent product piece location record where shipped and not voided
+        shipped_location = order.product_piece_locations
+                                    .where(log_type: 'Shipped')
+                                    .where.not(void: 'yes')
+                                    .order(created: :desc)
+                                    .limit(1)
+                                    .first
+
+        # Return the shipping date if found
+        shipped_location&.created
+
+
+
+
     end
 
     # Gets the earliest ship date for an order

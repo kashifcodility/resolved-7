@@ -18,7 +18,7 @@
                             <!-- USERS PHOTO -->
                             <section>
                                 <div class="users_photo">
-                                    <%= image_tag( (user_signed_in? && current_user.logo_path.present?) ? current_user.logo_url : "new_icons/account.svg", alt: 'Profile Photo', class: 'user_photo_icon') %>
+                                    <%#= image_tag( (user_signed_in? && current_user.logo_path.present?) ? current_user.logo_url : "new_icons/account.svg", alt: 'Profile Photo', class: 'user_photo_icon') %>
                                     <div class="separator10"></div>
                                     <input type="file" name="photo">
                                 </div>

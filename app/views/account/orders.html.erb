@@ -28,6 +28,7 @@ end
 <%end%>
 <div id="project_detail_page"></div>
 <!-- PAGE for JS --><div id="project_listing_page"></div>
+
 <style>
    .notification_dot {
       position: relative;
@@ -50,6 +51,8 @@ end
    }
 </style>
 
+
+
 <!-- ALL PROJECTS PAGE - app -->
 
 <div class="new_layout project_listing_page">
@@ -68,7 +71,7 @@ end
                 </div>
             </div>
 
-            <% if @orders.any? %>
+            <% if @orders&.any? %>
                 <div class="app_workspace">
                     <div>
                         <h3 class="global_page_section_title"><%= raw(filter_label) %></h3>
@@ -106,7 +109,7 @@ end
                                         </section>
                                     </div>
                                     <div class="proj_quick_view_description">
-                                        <% if OrderQuery.first(order_id: order.id, is_read: false).present? %>
+                                        <% if OrderQuery.where(order_id: order.id, is_read: false).present? %>
                                             <div class="notification_dot"></div>
                                         <% end%>
                                         <div class="proj_description_container">
@@ -229,7 +232,7 @@ end
                                     </div>
                                 </div> 
                             </a>
-                        <% end %>
+                        <% end if @recently_returned.present?%>
 
                     </div>
                     <div class="separator20"></div>
@@ -275,7 +278,7 @@ end
 </div>
 
 
-<%= javascript_include_tag "user_account" %>
+<%#= javascript_include_tag "user_account" %>
 
 <script>
     function cancelOrder(order_id){
@@ -289,5 +292,5 @@ end
     });
 </script>
 
-<%= javascript_include_tag "project_detail_page.js" %>
-<%= javascript_include_tag "edit_project_name.js" %>
+<%#= javascript_include_tag "project_detail_page.js" %>
+<%#= javascript_include_tag "edit_project_name.js" %>
