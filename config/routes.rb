@@ -43,7 +43,7 @@ Rails.application.routes.draw do
 
   # Information
   get  'about',         to: 'info#index',                   as: 'about'
-  delete '/delete_room/:id',      to: 'rooms#destroy',          as: 'remove_room'
+  get '/delete_room/:id',      to: 'rooms#destroy',          as: 'remove_room'
   get  '/new_room',     to: 'rooms#new',                    as: 'new_room'
   get  '/rooms',        to: 'rooms#index',                  as: 'all_rooms'
   get  '/rooms/:id/edit',  to: 'rooms#edit',                as: 'edit_room'

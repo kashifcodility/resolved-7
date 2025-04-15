@@ -168,42 +168,41 @@ class OrderLine < ApplicationRecord
     end
 
     def self.not_voided
-        all( conditions: [ "LOWER(void) = 'no'" ] )
-    end
-
-    def self.voided
-        all( conditions: [ "LOWER(void) = 'yes'" ] )
-    end
-
-    # Scope for all lines that represent products
-    def self.all_product_lines
-        all( :product.not => nil )
-    end
-
-    def self.non_product_lines
-        all( product: nil, conditions: [ 'LOWER(void) = ?', 'no' ] )
-    end
-
-    # Scope for all lines that represent damage waiver
-    def self.damage_waiver
-        all( description: 'Damage Waiver' )
-    end
-
-    def self.shipped
-        all( OrderLine.detail.shipped_at.not => nil )
-    end
-
-    def self.not_shipped
-        all( OrderLine.detail.shipped_at => nil )
-    end
-
-    def self.returned
-        all( OrderLine.detail.returned_at.not => nil )
-    end
-
-    def self.not_returned
-        all( OrderLine.detail.returned_at => nil )
-    end
+        where("LOWER(void) = ?", 'no')
+      end
+      
+      def self.voided
+        where("LOWER(void) = ?", 'yes')
+      end
+      
+      def self.all_product_lines
+        where.not(product: nil)
+      end
+      
+      def self.non_product_lines
+        where(product: nil).where("LOWER(void) = ?", 'no')
+      end
+      
+      def self.damage_waiver
+        where(description: 'Damage Waiver')
+      end
+      
+      def self.shipped
+        joins(:detail).where.not(order_line_details: { shipped_at: nil })
+      end
+      
+      def self.not_shipped
+        joins(:detail).where(order_line_details: { shipped_at: nil })
+      end
+      
+      def self.returned
+        joins(:detail).where.not(order_line_details: { returned_at: nil })
+      end
+      
+      def self.not_returned
+        joins(:detail).where(order_line_details: { returned_at: nil })
+      end
+      
 
     def self.search_description_product(query)
         return all() unless query
