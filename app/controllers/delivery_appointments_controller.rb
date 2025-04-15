@@ -1,10 +1,10 @@
 class DeliveryAppointmentsController < ApplicationController
 
   def index
-    if current_user.type == "Employee"
+    if current_user.user_type == "Employee"
       @delivery_appointments = DeliveryAppointment.all
     else
-      @delivery_appointments = DeliveryAppointment.all(user_id: current_user.id)
+      @delivery_appointments = DeliveryAppointment.where(user_id: current_user.id)
     end
   end
 

@@ -552,7 +552,7 @@ class AccountController < ApplicationController
 
     def accounting_payments
         year = params[:year] || Time.zone.today.year
-        month = params[:month]&.to_i.among?(*(1..12)) ? params[:month] : Time.zone.today.month
+        month = (1..12).include?(params[:month]&.to_i) ? params[:month] : Time.zone.today.month
         return redirect_to(account_accounting_payments_path + "?year=#{year}&month=#{month}") unless params[:month]
         beginning_of_month = "#{year}-#{month}-01".to_date
         end_of_month = beginning_of_month.end_of_month
@@ -567,7 +567,7 @@ class AccountController < ApplicationController
         @items_renting = 0
         @products = []
 
-        product_models = Product.all(id: products.pluck('id'))
+        product_models = Product.where(id: products.pluck('id'))
 
         products.each do |product|
             model = product_models.find{ |p| p.id == product.id }
@@ -648,7 +648,7 @@ class AccountController < ApplicationController
 
     def accounting_income
         year = params[:year] || Time.zone.today.year
-        month = params[:month]&.to_i.among?(*(1..12)) ? params[:month] : Time.zone.today.month
+        month = (1..12).include?(params[:month]&.to_i) ? params[:month] : Time.zone.today.month
         return redirect_to(account_accounting_income_path + "?year=#{year}&month=#{month}") unless params[:month]
         beginning_of_month = "#{year}-#{month}-01".to_date
         end_of_month = beginning_of_month.end_of_month
@@ -663,7 +663,7 @@ class AccountController < ApplicationController
         @items_renting = 0
         @products = []
 
-        product_models = Product.all(id: products.pluck('id'))
+        product_models = Product.where(id: products.pluck('id'))
 
         products.each do |product|
             model = product_models.find{ |p| p.id == product.id }

@@ -23,7 +23,7 @@
                                 <th>Delivery or Will Call</th>
                                 <th>Approx Budget</th>
                                 <th>Status</th>
-                                <%if current_user.type == "Employee"%>
+                                <%if current_user.user_type == "Employee"%>
                                   <th>Action</th>
                                 <%end%>
                             </tr>
@@ -38,7 +38,7 @@
                                     <td><%= delivery_appointment.delivery %></td>
                                     <td><%= number_to_currency(delivery_appointment.approx_budget) %></td>                  
                                     <td><%= delivery_appointment.status == false ? "Not approved" : "Approved" %></td>
-                                    <%if current_user.type == "Employee"%>
+                                    <%if current_user.user_type == "Employee"%>
                                       <td><%= link_to "Edit", edit_delivery_appointment_path(delivery_appointment.id) %></td>
                                     <%end%>
                                 </tr>
