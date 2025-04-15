@@ -44,7 +44,7 @@ class User < ApplicationRecord
   has_many :products, foreign_key: :customer_id
   belongs_to :shipping_address, class_name: "Address", optional: true
   belongs_to :billing_address, class_name: "Address", optional: true
-
+  belongs_to :membership_level, optional: true
   has_many :user_membership_levels
   belongs_to :site, optional: true
   has_one :cart
@@ -52,7 +52,7 @@ class User < ApplicationRecord
   has_many :orders
   has_many :rooms
   has_many :wishlist, class_name: "UserWishlist", foreign_key: :user_id
-  has_many :payment_logs, class_name: "PaymentLog", foreign_key: :user_id
+  has_many :payments, class_name: "PaymentLog", foreign_key: :user_id
   has_many :commissions, foreign_key: :customer_id
   has_many :user_permission_assignments
 

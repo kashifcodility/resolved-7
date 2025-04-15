@@ -603,14 +603,14 @@ class Product < ApplicationRecord
           WHERE id IN (#{sizes});
         ACTIVESIZES
 
- # Execute the raw SQL query
- result = ActiveRecord::Base.connection.execute(sql)
+        # Execute the raw SQL query
+        result = ActiveRecord::Base.connection.execute(sql)
 
- # Convert the result into an array of hashes
- result_hashes = result.map { |row| { id: row[0], label: row[1] } }
+        # Convert the result into an array of hashes
+        result_hashes = result.map { |row| { id: row[0], label: row[1] } }
 
- # Return the result as an array of OpenStruct objects
- result_hashes.map { |row| OpenStruct.new(row) }
+        # Return the result as an array of OpenStruct objects
+        result_hashes.map { |row| OpenStruct.new(row) }
     end
     
     def self.get_active_materials(materials)
@@ -620,14 +620,14 @@ class Product < ApplicationRecord
           WHERE id IN (#{materials});
         ACTIVEMATERIALS
 
- # Execute the raw SQL query
- result = ActiveRecord::Base.connection.execute(sql)
+        # Execute the raw SQL query
+        result = ActiveRecord::Base.connection.execute(sql)
 
- # Convert the result into an array of hashes
- result_hashes = result.map { |row| { id: row[0], label: row[1] } }
+        # Convert the result into an array of hashes
+        result_hashes = result.map { |row| { id: row[0], label: row[1] } }
 
- # Return the result as an array of OpenStruct objects
- result_hashes.map { |row| OpenStruct.new(row) }
+        # Return the result as an array of OpenStruct objects
+        result_hashes.map { |row| OpenStruct.new(row) }
     end
     
     def self.get_materials
@@ -639,14 +639,14 @@ class Product < ApplicationRecord
         AND yo.active = 'active';
         MATERIALS
 
- # Execute the raw SQL query
- result = ActiveRecord::Base.connection.execute(sql)
+        # Execute the raw SQL query
+        result = ActiveRecord::Base.connection.execute(sql)
 
- # Convert the result into an array of hashes
- result_hashes = result.map { |row| { id: row[0], label: row[1] } }
+        # Convert the result into an array of hashes
+        result_hashes = result.map { |row| { id: row[0], label: row[1] } }
 
- # Return the result as an array of OpenStruct objects
- result_hashes.map { |row| OpenStruct.new(row) }
+        # Return the result as an array of OpenStruct objects
+        result_hashes.map { |row| OpenStruct.new(row) }
     end
 
     def self.get_sizes
@@ -658,18 +658,18 @@ class Product < ApplicationRecord
         AND yo.active = 'active';
         SIZES
 
- # Execute the raw SQL query
- result = ActiveRecord::Base.connection.execute(sql)
+        # Execute the raw SQL query
+        result = ActiveRecord::Base.connection.execute(sql)
 
- # Convert the result into an array of hashes
- result_hashes = result.map { |row| { id: row[0], label: row[1] } }
+        # Convert the result into an array of hashes
+        result_hashes = result.map { |row| { id: row[0], label: row[1] } }
 
- # Return the result as an array of OpenStruct objects
- result_hashes.map { |row| OpenStruct.new(row) }
+        # Return the result as an array of OpenStruct objects
+        result_hashes.map { |row| OpenStruct.new(row) }
     end
 
     def self.available_products(site_id)
-        $DB.select <<-FOO
+        sql =  <<-FOO
             SELECT * FROM (SELECT p.id, p.product AS name, p.description, p.width, p.height, p.depth, p.for_sale, p.for_rent,p.reserved,
                 rent_per_month, sale_price, sale_price*1.6 AS retail,
                 yp.product_id, p.created, p.type, p.quantity,p.box,
@@ -697,6 +697,8 @@ class Product < ApplicationRecord
             WHERE site = #{site_id}
             ORDER BY rent_per_month ASC, sale_price ASC
         FOO
+        result = ActiveRecord::Base.connection.execute(sql)
+        result_hashes = result.map { |row| row }
     end
 
     # Gets the product status that's displayed in user's inventory
@@ -804,7 +806,7 @@ class Product < ApplicationRecord
 
         # Gets historical commissions if date requested is prior to current month
         if date.strftime('%Y-%m') == Date.today.strftime('%Y-%m')
-            return $DB.select <<-FOO
+            sql =  <<-FOO
                 SELECT p.id, p.product, ol.base_price, i.image,
                     DATE_FORMAT(l.created,'%b %d, %Y') AS start_date,
                     DATE_FORMAT(l2.created,'%b %d, %Y') AS end_date,
@@ -813,11 +815,19 @@ class Product < ApplicationRecord
                 FROM products p
                 INNER JOIN (SELECT MAX(id) AS id, product_id FROM product_pieces GROUP BY product_id) pp ON pp.product_id = p.id
                 INNER JOIN product_piece_locations l ON l.product_piece_id = pp.id AND l.log_type = 'Shipped' AND l.log_status = 'Posted' AND l.void != 'yes'
-                INNER JOIN orders o ON o.id = l.table_id AND l.table_name = 'orders' AND o.type = 'Rental'
+                INNER JOIN orders o ON o.id = l.table_id AND l.table_name = 'orders' AND o.order_type = 'Rental'
                 INNER JOIN order_lines ol ON ol.order_id = o.id AND ol.product_id = p.id AND ol.void != 'yes' AND (l.order_line_id IS NULL OR l.order_line_id = ol.id)
                 LEFT JOIN product_piece_locations l2 ON l2.product_piece_id = l.product_piece_id AND l2.table_name = 'orders' AND l2.log_type = 'Returned' AND l2.log_status = 'Posted' AND l2.void != 'yes' AND l2.id > l.id AND (l2.order_line_id IS NULL OR l2.order_line_id = ol.id)
                 LEFT JOIN product_piece_locations l2neg ON l2neg.product_piece_id = l2.product_piece_id AND l2neg.table_name = 'orders' AND l2neg.log_type = 'Returned' AND l2neg.log_status = 'Posted' AND l2neg.void != 'yes' AND l2neg.id > l.id AND l2neg.id < l2.id AND (l2neg.order_line_id IS NULL OR l2neg.order_line_id = ol.id)
-                LEFT JOIN (SELECT image_id,product_id FROM product_images GROUP BY product_id ORDER BY image_order ASC) AS pi ON pi.product_id = p.id
+                LEFT JOIN (
+                    SELECT pi1.product_id, pi1.image_id
+                    FROM product_images pi1
+                    INNER JOIN (
+                        SELECT product_id, MIN(image_order) AS min_order
+                        FROM product_images
+                        GROUP BY product_id
+                    ) pi2 ON pi1.product_id = pi2.product_id AND pi1.image_order = pi2.min_order
+                ) AS pi ON pi.product_id = p.id
                 LEFT JOIN image_library i ON i.id = pi.image_id
                 LEFT JOIN users AS u ON u.id = p.customer_id
                 WHERE o.user_id <> p.customer_id
@@ -826,8 +836,10 @@ class Product < ApplicationRecord
                 AND p.customer_id = #{user_id}
                 AND ((MONTH(l.created) <= #{month} OR YEAR(l.created) < #{year}) AND (l2.created IS NULL OR (MONTH(l2.created) >= #{month} AND YEAR(l2.created) >= #{year}))) AND (YEAR(l.created) <= #{year} AND (l2.created IS NULL OR YEAR(l2.created) >=#{year}))
             FOO
+            result = ActiveRecord::Base.connection.execute(sql)
+            result_hashes = result.map { |row| row }
         else
-            return $DB.select <<-FOO
+            sql =  <<-FOO
                 SELECT p.id, p.product, FORMAT(c.commission,2) AS commission, i.image, c.base_price,
                     DATE_FORMAT(c.start_date,'%b %d, %Y') AS start_date,
                     DATE_FORMAT(c.end_date,'%b %d, %Y') AS end_date,
@@ -840,6 +852,8 @@ class Product < ApplicationRecord
                 LEFT JOIN image_library i ON i.id = pi.image_id
                 WHERE c.cycle = '#{date}' AND c.customer_id = #{user_id} AND c.type = 'RENT'
             FOO
+            result = ActiveRecord::Base.connection.execute(sql)
+            result_hashes = result.map { |row| row }
         end
     end
 

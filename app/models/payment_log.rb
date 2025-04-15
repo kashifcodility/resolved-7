@@ -32,6 +32,7 @@
 
 class PaymentLog < ApplicationRecord
     # Associations
+    self.table_name = "payment_log"
     belongs_to :user
     belongs_to :payment_type, foreign_key: 'payment_type_id'
     belongs_to :credit_card, foreign_key: 'stored_card_id'
