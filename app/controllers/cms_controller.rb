@@ -80,10 +80,10 @@ class CmsController < ApplicationController
 
     private
     def update_description(page, title, url=nil)
-        Cms.first(page: page, title: @title).update(description: params["#{@title}"], file_url: url)
+        Cms.where(page: page, title: @title).update(description: params["#{@title}"], file_url: url)
     end
 
     def get_cms_fields(page, title)
-        Cms.first(page: page, title: title)
+        Cms.where(page: page, title: title).first
     end
 end
