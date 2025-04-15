@@ -1,5 +1,5 @@
-require 'sdn/card'
-require 'sdn/order'
+# require 'sdn/card'
+# require 'sdn/order'
 
 class RoomsController < ApplicationController
     before_action :require_login
@@ -14,7 +14,7 @@ class RoomsController < ApplicationController
     end
 
     def create
-        current_position = Room.all(user_id: current_user&.id).map(&:position).max || 0
+        current_position = Room.where(user_id: current_user&.id).map(&:position).max || 0
         room = current_user.rooms.new(name: params[:name], zone: 'NULL', 
                                   token: params[:name], position: current_position + 1)
         if room.save
@@ -40,7 +40,7 @@ class RoomsController < ApplicationController
 
     def destroy
       room = Room.find(params[:id])
-      ol = OrderLine.first(room_id: room.id)
+      ol = OrderLine.where(room_id: room.id)&.first
       if ol.blank?
         room.destroy
         redirect_to "/rooms", notice: "Room deleted successfully."

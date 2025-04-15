@@ -672,7 +672,7 @@ class Product < ApplicationRecord
         sql =  <<-FOO
             SELECT * FROM (SELECT p.id, p.product AS name, p.description, p.width, p.height, p.depth, p.for_sale, p.for_rent,p.reserved,
                 rent_per_month, sale_price, sale_price*1.6 AS retail,
-                yp.product_id, p.created, p.type, p.quantity,p.box,
+                yp.product_id, p.created, p.product_type, p.quantity,p.box,
                 (SELECT name FROM yuxi_categories WHERE id = yp.category_id) AS category_type,
                 (SELECT id FROM user_wishlist WHERE product_id = p.id AND user_id = 3149 LIMIT 0,1) AS wishlist,
                 (SELECT label FROM yuxi_options WHERE tag = 'COLOR' AND id = yp.color_id) AS color,
@@ -712,10 +712,10 @@ class Product < ApplicationRecord
                 p.id,
                 CASE
                     WHEN loc.log_type IN ('Available','Received') THEN 'Available'
-                    WHEN o.type = 'Sales' THEN 'Purchased'
-                    WHEN o.type = 'Rental' THEN 'Rented'
-                    WHEN o.type = 'Return' THEN 'Rented'
-                    WHEN o.type = 'TransferToShop' AND loc.log_type = 'Transfered' THEN 'Available'
+                    WHEN o.order_type = 'Sales' THEN 'Purchased'
+                    WHEN o.order_type = 'Rental' THEN 'Rented'
+                    WHEN o.order_type = 'Return' THEN 'Rented'
+                    WHEN o.order_type = 'TransferToShop' AND loc.log_type = 'Transfered' THEN 'Available'
                     ELSE 'Unavailable'
                 END AS status
             FROM products AS p
@@ -729,7 +729,7 @@ class Product < ApplicationRecord
             LEFT JOIN product_piece_locations sloc2 ON sloc2.product_piece_id = pc.id AND sloc2.table_name = 'orders' AND sloc.table_id = o2.id AND sloc2.log_status = 'Posted' AND sloc.log_type = 'Available' AND sloc2.void != 'yes' AND sloc2.id > sloc.id
             WHERE
                 loc2.id IS NULL
-                AND p.type != 'Store'
+                AND p.product_type != 'Store'
                 AND p.id #{constraint}
             GROUP BY p.id
         FOO
@@ -740,15 +740,15 @@ class Product < ApplicationRecord
     # Gets purchased products by user
     # TODO: Sale price should come from the order lines, not from the product sale price
     def self.purchased_products_for_user_inventory(user_id, status='NULL', offset=0, limit=100)
-        result = $DB.select <<-FOO
+        sql =  <<-FOO
             SELECT p.id,loc.created AS last_log_date,
                 IFNULL((SELECT att.attribute FROM product_attributes patt
                     LEFT JOIN attributes att ON att.id = patt.attribute_id
-                    WHERE att.type <> 'Bumped and Bruised' AND att.type <> 'Vignettes'
+                    WHERE att.attribute_type <> 'Bumped and Bruised' AND att.attribute_type <> 'Vignettes'
                         AND patt.product_id = p.id
                     GROUP BY patt.product_id), 'Uncategorized') as furniture_attribute,
                 CASE WHEN loc.log_type = 'Available' THEN 'Available'
-                    WHEN o.type = 'Sales' OR o.type = 'Rental' THEN
+                    WHEN o.order_type = 'Sales' OR o.order_type = 'Rental' THEN
                     CASE WHEN ol.void = 'yes' THEN 'Cancelled'
                             WHEN loc.log_type = 'OnOrder' THEN 'On Order'
                             WHEN loc.log_type = 'Pulled' AND o.service = 'Company' THEN 'Processed For Shipping'
@@ -758,8 +758,8 @@ class Product < ApplicationRecord
                             WHEN loc.log_type = 'Shipped' AND o.service = 'Self' THEN 'Picked-up'
                             WHEN loc.log_type = 'Returned' THEN 'Returned'
                             ELSE 'Unknown' END
-                    WHEN o.type = 'Return' THEN 'Available'
-                    WHEN o.type = 'TransferToShop' THEN 'Available'
+                    WHEN o.order_type = 'Return' THEN 'Available'
+                    WHEN o.order_type = 'TransferToShop' THEN 'Available'
                     ELSE 'Unavailable' END as status,
                 o.ordered_date,
                 ol.void, loc.log_type, CASE WHEN ol.void = 'no' THEN loc.created ELSE ol.voided_date END AS log_date,
@@ -774,22 +774,24 @@ class Product < ApplicationRecord
             LEFT JOIN orders o ON loc.table_id = o.id
             LEFT JOIN order_lines ol ON ol.order_id = o.id AND ol.product_id = p.id
             LEFT JOIN product_attributes patt ON patt. product_id = p.id
-            LEFT JOIN attributes att ON att.id = patt.attribute_id AND att.type <> 'Bumped and Bruised' AND att.type <> 'Vignettes'
+            LEFT JOIN attributes att ON att.id = patt.attribute_id AND att.attribute_type <> 'Bumped and Bruised' AND att.attribute_type <> 'Vignettes'
             LEFT JOIN product_piece_locations loc2 ON loc2.table_name = 'orders' AND loc.product_piece_id = pc.id
                 AND loc2.id = (SELECT MAX(id) FROM product_piece_locations l2 WHERE l2.product_piece_id = pc.id AND table_name = 'orders' AND log_status = 'Posted' AND (((#{status} IS NULL OR #{status} != 'Void') AND l2.void != 'yes') OR l2.void = 'yes'))
             LEFT JOIN orders o2 ON o2.id = loc2.table_id
             WHERE o.user_id = #{user_id}
-            AND (o.type = 'Sales')
+            AND (o.order_type = 'Sales')
             AND (NULL IS NULL OR
-                ('Uncategorized' = NULL AND (SELECT pa.id FROM product_attributes pa LEFT JOIN attributes a ON pa.attribute_id = a.id WHERE a.type = 'Furniture' AND pa.product_id = p.id) IS NULL
-                AND  (SELECT pa.id FROM product_attributes pa LEFT JOIN attributes a ON pa.attribute_id = a.id WHERE a.type = 'Accessory' AND pa.product_id = p.id) IS NULL ) OR
+                ('Uncategorized' = NULL AND (SELECT pa.id FROM product_attributes pa LEFT JOIN attributes a ON pa.attribute_id = a.id WHERE a.attribute_type = 'Furniture' AND pa.product_id = p.id) IS NULL
+                AND  (SELECT pa.id FROM product_attributes pa LEFT JOIN attributes a ON pa.attribute_id = a.id WHERE a.attribute_type = 'Accessory' AND pa.product_id = p.id) IS NULL ) OR
                         (SELECT pa.id FROM product_attributes pa LEFT JOIN attributes a ON pa.attribute_id = a.id WHERE a.id = NULL AND pa.product_id = p.id) IS NOT NULL)
             AND (#{status} IS NULL OR (loc.log_type = #{status} AND ol.void != 'yes') OR (#{status} = 'Void' AND ol.void = 'yes') OR (#{status} = 'OnOrder' AND loc.log_type IN ('OnOrder','Pulled','InTransit') AND ol.void != 'yes'))
             AND (NULL IS NULL OR o.id = NULL)
-            AND p.type != 'NonStock'
+            AND p.product_type != 'NonStock'
             GROUP BY p.id
             LIMIT #{offset}, #{limit}
         FOO
+        result = ActiveRecord::Base.connection.execute(sql)
+        result_hashes = result.map { |row| row }
     end
 
     # Gets rental income report for user
@@ -878,7 +880,7 @@ class Product < ApplicationRecord
         last_returned_at = $DB.select <<-FOO
             SELECT ppl.created
             FROM product_piece_locations AS ppl
-            INNER JOIN orders AS o ON (ppl.table_name = 'orders' AND ppl.table_id = o.id AND o.type = 'Rental' AND ppl.log_type = 'Returned')
+            INNER JOIN orders AS o ON (ppl.table_name = 'orders' AND ppl.table_id = o.id AND o.order_type = 'Rental' AND ppl.log_type = 'Returned')
             WHERE product_piece_id IN(SELECT id FROM product_pieces WHERE product_id = #{id}) AND ppl.void = 'no'
             ORDER BY ppl.id DESC LIMIT 1
         FOO

@@ -412,7 +412,10 @@ class AccountController < ApplicationController
             @offset = @per_page * (@page - 1)
         end
         user_id = current_user.id
-        @orders = Order.all(:limit => @per_page, :offset => @offset, :user_id => user_id, :status.not => 'void')
+        @orders = Order.where(user_id: user_id)
+                        .where.not(status: 'void')
+                        .limit(@per_page)
+                        .offset(@offset)
         @orders_count = @orders.count
         render
     end
@@ -778,9 +781,9 @@ class AccountController < ApplicationController
 
         my_inventory_product_ids = current_user.products.pluck('id')
  
-        my_purchased_products = Product.purchased_products_for_user_inventory(current_user.id)
-        my_purchased_product_ids = my_purchased_products.pluck('id')
-        my_purchased_product_models = Product.all(id: my_purchased_product_ids)
+        # my_purchased_products = Product.purchased_products_for_user_inventory(current_user.id)
+        # my_purchased_product_ids = my_purchased_products.pluck('id')
+        # my_purchased_product_models = Product.all(id: my_purchased_product_ids)
  
         my_favorite_product_ids = current_user&.favorites&.compact&.pluck('id') 
 
@@ -806,48 +809,47 @@ class AccountController < ApplicationController
         offset = (page - 1) * per_page
 
         # Paginate the products directly using limit and offset (only fetching necessary products for the current page)
-        @inventory_items = Product.all(
-        id: my_inventory_product_ids,  # Limit to user's inventory products
-        limit: per_page,
-        offset: offset
-        ).map do |product|
-        # Get current product status
-        current_product_status = product_statuses[product.id]&.status
+        products = Product.where(id: my_inventory_product_ids)
+                            .limit(per_page)
+                            .offset(offset)
+        @inventory_items = products.map do |product|
+            # Get current product status
+            current_product_status = product_statuses[product.id]&.status
 
-        # Determine the storage status based on the product's properties
-        storage_status = if product.reserved
-                            'Private'
-                        elsif product.for_rent && product.for_sale
-                            'Rent & Sell'
-                        elsif product.for_rent
-                            'Rent'
-                        else
-                            nil
-                        end
+            # Determine the storage status based on the product's properties
+            storage_status = if product.reserved
+                                'Private'
+                            elsif product.for_rent && product.for_sale
+                                'Rent & Sell'
+                            elsif product.for_rent
+                                'Rent'
+                            else
+                                nil
+                            end
 
-        # Create an OpenStruct for each product with necessary attributes
-        OpenStruct.new(
-            id: product.id,
-            name: product.name,
-            image_url: product&.images&.first&.cached_url,
-            earned_per_day: product.earned_per_day(user_commission_percent),
-            earned_per_month: product.earned_per_month(user_commission_percent),
-            price_per_day: product.rent_per_day,
-            price_per_month: product.rent_per_month,
-            sale_price: product.sale_price,
-            last_active_days: product.days_since_last_returned,
-            status: current_product_status,
-            width: product.width,
-            height: product.height,
-            depth: product.depth,
-            daily_storage_price: ((product.depth * product.width * product.height) / 1728) * 0.03,
-            location: product.site&.name,
-            storage_status: storage_status
-        )
+            # Create an OpenStruct for each product with necessary attributes
+            OpenStruct.new(
+                id: product.id,
+                name: product.name,
+                image_url: product&.images&.first&.cached_url,
+                earned_per_day: product.earned_per_day(user_commission_percent),
+                earned_per_month: product.earned_per_month(user_commission_percent),
+                price_per_day: product.rent_per_day,
+                price_per_month: product.rent_per_month,
+                sale_price: product.sale_price,
+                last_active_days: product.days_since_last_returned,
+                status: current_product_status,
+                width: product.width,
+                height: product.height,
+                depth: product.depth,
+                daily_storage_price: ((product.depth * product.width * product.height) / 1728) * 0.03,
+                location: product.site&.name,
+                storage_status: storage_status
+            )
         end
 
         # Calculate total pages (total items / items per page)
-        total_items = Product.count(id: my_inventory_product_ids)  # Count only the products in the user's inventory
+        total_items = Product.where(id: my_inventory_product_ids).size  # Count only the products in the user's inventory
         @total_pages = (total_items / per_page.to_f).ceil if total_items
         @total_pages ||= 1  # Ensure @total_pages has a default value if total_items is nil
 
@@ -872,25 +874,29 @@ class AccountController < ApplicationController
         # "My Purchased" data assembly
         # TODO: This merging of the fucked result set and their models should happen in the model method
        
-        @purchased_products = my_purchased_products.map do |product|
-            model = my_purchased_product_models.find{ |p| p.id == product.id }
-            OpenStruct.new(
-                id: product.id,
-                name: model.name,
-                image_url: product&.images&.first&.cached_url, 
-                # all_product_images&.find{ |pi| pi.product_id == product.id }&.image_url ,
-                sale_price: model.sale_price,
-                purchased_date: product.ordered_date&.to_date,
-            )
-        end
-
+        # @purchased_products = my_purchased_products.map do |product|
+        #     model = my_purchased_product_models.find{ |p| p.id == product.id }
+        #     OpenStruct.new(
+        #         id: product.id,
+        #         name: model.name,
+        #         image_url: product&.images&.first&.cached_url, 
+        #         # all_product_images&.find{ |pi| pi.product_id == product.id }&.image_url ,
+        #         sale_price: model.sale_price,
+        #         purchased_date: product.ordered_date&.to_date,
+        #     )
+        # end
+        @purchased_products = []
         # Favorites
         # TODO: Abstract this logic to product model (see products controller also)
         
-        favorite_product_ids = Barcode.available_product_ids({ favorites_user_id: current_user&.id })
+        favorite_product_ids = Barcode.available_product_ids(**{ favorites_user_id: current_user&.id })
         # product_images = Product.get_main_images(favorite_product_ids)
         flagged_products = Product.get_flags(favorite_product_ids)
-        favorite_products = Product.all(fields: [ :id, :product, :rent_per_month, :sale_price, :for_sale, :for_rent ], id: favorite_product_ids).sort_by!{ |e| favorite_product_ids.index e.id }
+        # favorite_products = Product.all(fields: [ :id, :product, :rent_per_month, :sale_price, :for_sale, :for_rent ], id: favorite_product_ids).sort_by!{ |e| favorite_product_ids.index e.id }
+        favorite_products = Product
+                            .where(id: favorite_product_ids)
+                            .select(:id, :product, :rent_per_month, :sale_price, :for_sale, :for_rent)
+                            .sort_by { |e| favorite_product_ids.index(e.id) }
         favorite_product_sites = Product.get_sites(favorite_product_ids)
         @favorites = favorite_products.map do |product|
             OpenStruct.new(
