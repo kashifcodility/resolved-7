@@ -899,6 +899,7 @@ class Product < ApplicationRecord
             hide_red_tag_bin:  true,
             hide_hidden_bin:   true,
             hide_ps_bins:      true,
+            from_product:      true,
         }
         all_product_ids = Barcode.available_product_ids(**filters)
         product_ids = all_product_ids[0, amount]

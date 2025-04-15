@@ -200,7 +200,13 @@ class Barcode < ApplicationRecord
         # j = "INNER JOIN `products` ON `barcodes`.`product_id` = `products`.`id` "
         j = ""
         w = "TRUE "
-        group = "`products`.`id`,`orders`.`id` "
+        # group = "`products`.`id`,`orders`.`id` "
+
+        if o[:from_product]
+            group = "`products`.`id`,`orders`.`id` "
+        else    
+            group = "`products`.`id` "
+        end
         h = "TRUE "
 
         p = []
@@ -209,8 +215,11 @@ class Barcode < ApplicationRecord
             s = "COUNT(DISTINCT `products`.`id`) "
             group = "NULL"
         else
-            # s = "`products`.`id` AS product_id"
-            s = "`products`.`id` AS product_id, `orders`.`id` AS order_id"
+            if o[:from_product]
+                s = "`products`.`id` AS product_id, `orders`.`id` AS order_id"
+            else    
+                s = "`products`.`id` AS product_id"
+            end
 
         end
 
@@ -272,7 +281,7 @@ class Barcode < ApplicationRecord
         end
 
         if o[:hide_private]
-            # binding.pry 
+            
             if o[:intent].present? && o[:intent].include?('buy') || o[:intent].present? && o[:intent].include?('rent')
                 w += "AND `products`.`for_%s` = TRUE " % [ o[:intent] == 'buy' ? 'sale' : 'rent' ]
             else
@@ -289,9 +298,8 @@ class Barcode < ApplicationRecord
             w += "AND `products`.`customer_id` = ? "
             p << o[:owner_user_id]
         end
-# binding.pry
+
         if o[:sort].present? && o[:sort].include?('plth') || o[:sort].present? && o[:sort].include?('phtl')
-            # binding.pry
             order = "`products`.`%s` %s, `products`.`product` ASC " % [ price_field, o[:sort] == 'plth' ? 'ASC' : 'DESC' ]
                
         elsif o[:sort] == 'rrp'
@@ -392,17 +400,13 @@ class Barcode < ApplicationRecord
             end
         end
         query = "SELECT #{s} FROM `products` #{j} WHERE (#{w}) GROUP BY #{group} HAVING #{h} ORDER BY #{order} LIMIT #{o[:offset]}, #{o[:limit]}"
-        # binding.pry
-        # return repository(:default).adapter.select(query, *p) 
         
         unless p.empty?
             return [2]
-            # binding.pry
-            # puts p.inspect+"SSSSSSSSSSSSSSSSSSSSSSSSS"
+
         end
         result = ActiveRecord::Base.connection.execute(query)
         array_ids = result.map { |row| row[0]  }
-        # binding.pry
         return array_ids
 
         # return $DB.select(query)  # return like [121,34234,343,342,32432,465,5467]
