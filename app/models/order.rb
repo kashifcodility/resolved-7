@@ -113,6 +113,7 @@
     # Order Type
     #
 
+    require 'aws-sdk-s3'
 
 class Order < ApplicationRecord
     # Thresholds for order freeze dates (Rental orders only)
@@ -675,6 +676,24 @@ class Order < ApplicationRecord
     ##
     ## Legacy SQL
     ##
+    
+
+    def self.upload_to_s3(file:, bucket:, filename:)
+        s3 = Aws::S3::Resource.new(
+        region: 'us-east-1',
+        credentials: Aws::Credentials.new(ENV['AWS_KEY_ID'], ENV['AWS_SECRET'])
+        )
+        binding.pry
+        obj = s3.bucket(bucket).object(filename)
+
+        success = obj.upload_file(file.path, acl: 'public-read')
+
+        if success
+            obj.public_url
+        else
+            nil
+        end
+    end
 
 
     # Gets the shipped date for an order

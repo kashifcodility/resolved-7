@@ -1477,15 +1477,18 @@ class AccountController < ApplicationController
                 s3_bucket = 'sdn-content'
 
                 # Perform the upload
-                upload_success = $AWS.s3.upload(
-                    params[:file].tempfile,
-                    bucket: s3_bucket,
-                    as: new_filename,
-                )
+                # upload_success = $AWS.s3.upload(
+                #     params[:file].tempfile,
+                #     bucket: s3_bucket,
+                #     as: new_filename,
+                # )
 
-                if upload_success
+                file_url = Order.upload_to_s3(file: params[:file].tempfile, bucket: s3_bucket, filename: new_filename)
+
+
+                if file_url
                     # Generate the file URL
-                    file_url = $AWS.s3.public_url_for(new_filename, bucket: s3_bucket)
+                    # file_url = $AWS.s3.public_url_for(new_filename, bucket: s3_bucket)
                     order_query.image_url = file_url
                 else
                     errors << 'Error uploading photo.'
