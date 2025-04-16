@@ -92,9 +92,9 @@ class CartController < ApplicationController
     # Shows user's cart
     def index
         return render unless @cart
-# binding.pry
+# 
         @items_by_site = @cart.items_by_site
-
+        
         if @cart.items_in_multiple_regions?
             flash.now[:alert] = "We're unable to process orders across multiple regions. Please only add items in Seattle area or Phoenix, but not both."
         end
@@ -106,7 +106,7 @@ class CartController < ApplicationController
 
         @items_by_site.each_with_index do |site, index|
             if (current_user&.user_group&.group_name == 'Diamond') || 
-               (current_user&.site&.site == "RE|Furnish" && current_user&.type == 'Employee') || 
+               (current_user&.site&.site == "RE|Furnish" && current_user&.user_type == 'Employee') || 
                (current_user&.site&.site != "RE|Furnish")
                 @items_by_site[index][:open_orders] = current_user.orders.open.rentals.for_site(site.id).map do |order|
                     OpenStruct.new( id: order.id, project: order.project_name.presence, address: order.address&.address1 )
@@ -287,7 +287,7 @@ class CartController < ApplicationController
             flash.now[:alert] = errors
             return checkout_form
         end
-        binding.pry
+       
         return redirect_to(checkout_review_path)
     end
 
@@ -429,7 +429,7 @@ class CartController < ApplicationController
         # TODO: Validate payment fields before filling checkout
         @cart.fill_checkout(params.except(:authenticity_token, :controller, :action, :commit).to_unsafe_hash, 'billing')
         @cart.fill_checkout({cc_save: '1'}, 'billing') if user_must_save_card?
-        binding.pry
+        
         case method
         when 'charge_account'
             
@@ -454,7 +454,7 @@ class CartController < ApplicationController
         else # Saved card number
             begin
                 @cart.verify_and_load_saved_card(params['payment_method'])
-                binding.pry
+                # binding.pry
             rescue ::Sdn::Card::DetailsError
                 errors << 'Invalid Credit Card selected.'
             end
@@ -521,7 +521,7 @@ class CartController < ApplicationController
         # else
         #     @cart.shipping_data['rush_order'] = 1
         # end
-        
+        # binding.pry
         @receipt = @cart.process(session[:room_product])
 
         @payment = @cart.billing_data

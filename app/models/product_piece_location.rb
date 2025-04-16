@@ -33,9 +33,11 @@
 class ProductPieceLocation < ApplicationRecord
     # Set the table name explicitly if different from the default
     self.table_name = 'product_piece_locations'
-  
+    # self.inheritance_column = :_type_disabled
+
     # Associations
     belongs_to :product_piece, optional: true # If the association is optional, you can specify it
+    belongs_to :order_line, optional: true
     # belongs_to :user, foreign_key: 'created_by', optional: true # If you have a user association
   
     # Enum fields (ActiveRecord equivalent to StringEnum)
@@ -60,6 +62,7 @@ class ProductPieceLocation < ApplicationRecord
     validates :log_type, presence: true
     validates :table_name, presence: true
     validates :table_id, presence: true
+    
   
     # Columns mapping
     # Please ensure that the column names match exactly with your database schema.
@@ -80,7 +83,7 @@ class ProductPieceLocation < ApplicationRecord
             end
         end
 
-        $LOG.info "Product piece locations for order line voided: %i [user: %s, ppl ids: %s]" % [ line_id, voided_by&.email, ppl_ids.join('/') ]
+        Rails.logger.info "Product piece locations for order line voided: %i [user: %s, ppl ids: %s]" % [ line_id, voided_by&.email, ppl_ids.join('/') ]
         return true
     end
 
@@ -104,14 +107,14 @@ class ProductPieceLocation < ApplicationRecord
         self.voided_by = voided_by&.id.to_s
 
         if self.save
-            $LOG.info "Product piece location voided: %i [user: %s]" % [ self.id, voided_by&.email ]
+            Rails.logger.info "Product piece location voided: %i [user: %s]" % [ self.id, voided_by&.email ]
             return self
         else
-            $LOG.error "Product piece location NOT voided: %i [user: %s] %s" % [ self.id, voided_by&.email, self.errors.inspect ]
+            Rails.logger.error "Product piece location NOT voided: %i [user: %s] %s" % [ self.id, voided_by&.email, self.errors.inspect ]
         end
     end
 
     def self.not_void
-        all(void: 'no')
+        where(void: 'no')
     end
 end

@@ -481,7 +481,7 @@ class Order < ApplicationRecord
     
     # Why is this necessary?
     def next_rental_renewal
-        return nil unless order_type == 'Rental' && status.among?('Open','Pulled','InTransit','Renting')
+        return nil unless order_type == 'Rental' && ['Open','Pulled','InTransit','Renting'].include?(status)
 
         return OpenStruct.new(
             date:   Order.next_rental_renewal_date(ordered_on, Order.ship_date(id)),

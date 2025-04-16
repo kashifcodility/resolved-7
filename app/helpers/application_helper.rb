@@ -95,7 +95,7 @@ module ApplicationHelper
         quantity
     end
     def product_status(id, line_id) 
-        ProductPiece.first(product_id: id, order_line_id: line_id)&.status
+        ProductPiece.where(product_id: id, order_line_id: line_id).first&.status
     end    
     def get_status(id)
       statuses = {}   
@@ -103,13 +103,13 @@ module ApplicationHelper
       product_pieces = JSON.parse(order&.order_log&.product_pieces)
       product_pieces.to_h if product_pieces.present?
       product_pieces.each do |key, value|
-         status = ProductPiece.first(id: value, product_id: key)&.status
+         status = ProductPiece.where(id: value, product_id: key).first&.status
          statuses[key] =  status == "Available" ? "Received" : status
       end  
       statuses
     end
     def reviewed?(order_id, product_id)
-      rating = Rating.first(order_id: order_id, product_id: product_id)
+      rating = Rating.where(order_id: order_id, product_id: product_id)&.first
       rating.present? ? true : false
     end    
 end

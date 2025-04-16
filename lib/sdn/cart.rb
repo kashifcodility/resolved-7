@@ -87,14 +87,14 @@ class Sdn::Cart
 
     # Returns items grouped by site
     def items_by_site
-        cart_items = eval(@cart_model.items)    
+        cart_items = @cart_model.get_items
         sites = Site.where(id: cart_items.pluck(:site_id))
         return @items_by_site = sites.map do |site|
             OpenStruct.new(
                 id:     site.id,
                 name:   site.site,
                 region: site.region,
-                items:  cart_items.select{ |e| e[:site_id] == site.id }
+                items:  cart_items.select { |item| item[:site_id] == site.id }
             )
         end
     end
@@ -110,8 +110,9 @@ class Sdn::Cart
     # TODO: Add integrity checks around removing reservations
     def remove_items(ids)
         # ids = @cart_model.items.pluck("uniq_id") if ids == "*" # get all the ids
-        ids = @cart_model.items.pluck("id") if ids == "*" # get all the ids
-        reservations = ProductReservation.all(product_id: ids, user_id: @user.id)
+        
+        ids = eval(@cart_model.items).pluck(:id) 
+        reservations = ProductReservation.where(product_id: ids, user_id: @user.id)
 
         Array(ids).each do |id|
             # Destroy the item in the cart
@@ -277,7 +278,6 @@ class Sdn::Cart
 
     # Get checkout data
     def checkout_data(section_name=nil)
-        # binding.pry
         # ddddddddddd
         data = @cart_model.checkout.present? ? eval(@cart_model.checkout) : {}
         # data['billing'] ||= {}
@@ -381,15 +381,15 @@ class Sdn::Cart
             #     raise error
             # end
         elsif billing_data['payment_method'] != 'charge_account'
-            @card_to_charge = ::Sdn::Card.new(@user).from_model(CreditCard.first(user: @user, id: billing_data['payment_method']))
-            unless @card_to_charge
-                Rails.logger.debug "Invalid credit card selected"
-                raise CreditCardError.new('Invalid credit card selected')
-            end
+            # @card_to_charge = ::Sdn::Card.new(@user).from_model(CreditCard.where(user: @user, id: billing_data['payment_method']))
+            # unless @card_to_charge
+            #     Rails.logger.debug "Invalid credit card selected"
+            #     raise CreditCardError.new('Invalid credit card selected')
+            # end
         end
 
         orders = self.create_orders(data)
-        types = orders.processed.pluck('type').uniq.map(&:downcase)
+        types = orders.processed.pluck(:order_type).uniq.map(&:downcase)
 
         receipt = OpenStruct.new(orders: orders, totals: totals, card: nil, order_types: types)
 
@@ -469,6 +469,7 @@ class Sdn::Cart
     #       exceptions are raised and the order is rolled back after the calls.
     def create_orders(data = {})
         @billing_address_model = @card_to_charge&.model&.address || @user.billing_address
+    
         @delivery_address_model = create_order_address('delivery')
 
         orders = OpenStruct.new( processed: [], failed: [], charges: [] )
@@ -482,7 +483,7 @@ class Sdn::Cart
                         # create_arrivy_task(order, intent: intent, site_id: site_id)
                         remove_items(items_by_intent.pluck('id'))
                         orders.processed << order
-                    end
+                end
                 # rescue => error
                 #     reason = error.user_message rescue 'Unknown'
                 #     product_ids = items_by_intent.pluck(:id).join(',') rescue ""
@@ -602,11 +603,10 @@ class Sdn::Cart
     def create_order_address(type)
         raise ArgumentError.new("Invalid address type.") unless (type == 'delivery' || type == 'billing')
         is_billing = type == 'billing'
-        billing = checkout_data['billing']
-        delivery = checkout_data['shipping']
+        billing = checkout_data('billing')
+        delivery = checkout_data('shipping')
 
-        address = Address.create(
-            table_name:   'orders',
+        address = Address.new(
             company:      @user.company_name,
             name:         billing['shipping_contact_name'],
             address1:     is_billing ? billing['address1'] : delivery['shipping_address'],
@@ -617,6 +617,10 @@ class Sdn::Cart
             phone:        billing['shipping_contact_phone'],
             mobile_phone: billing['shipping_mobile_phone'],
         )
+
+        address[:table_name] = 'orders'
+
+        address.save
 
         if address.persisted?
             Rails.logger.info "Address (%s) %i saved for %s." % [type, address.id, @user.email]
@@ -637,35 +641,38 @@ class Sdn::Cart
         items_site_ids = order_items.pluck(:site_id).uniq
         raise ArgumentError.new "Order items must match supplied site ID." unless (items_site_ids.size == 1 && items_site_ids.first == site_id)
 
-        billing = checkout_data['billing']
-        delivery = checkout_data['delivery']
+        billing = checkout_data('billing')
+        delivery = checkout_data('delivery')
 
         # TODO: Attach promo codes?
 
-        shipping_date = delivery_data['shipping_method'] == 'delivery' ? delivery_data['delivery_date'] : delivery_data['pickup_date']
-        pickup_time = delivery_data['pickup_time'] || '00:00:00'
-        due_date = "#{shipping_date} #{pickup_time}".to_datetime
+        shipping_date = billing['shipping_method'] == 'delivery' ? billing['delivery_date'] : billing['pickup_date']
+        pickup_time = billing['pickup_time'] || '00:00:00'
+        
+        due_date = DateTime.strptime("#{shipping_date} #{pickup_time}", "%m-%d-%Y %H:%M")
 
         # Create the order
         order = Order.new(
             user:             @user,
             site_id:          site_id,
-            type:             type,
+            order_type:       type,
+            rush_order:       billing['rush_order'].to_i,
             status:           'Open',
-            delivery_special_considerations:  checkout_data['billing']['delivery_special_considerations'],
-            dwelling:         checkout_data['billing']['delivery_home_type'],
-            parking:          checkout_data['billing']['delivery_parking'],
-            levels:           checkout_data['billing']['delivery_levels'],
-            project_name:     delivery_data['project_name'],
+            delivery_special_considerations:  billing['delivery_special_considerations'],
+            dwelling:         billing['delivery_home_type'],
+            parking:          billing['delivery_parking'],
+            levels:           billing['delivery_levels'],
+            project_name:     billing['project_name'],
             address:          @delivery_address_model,
             billing_address:  @billing_address_model,
-            tax_authority_id: checkout_data['tax_authority'],
-            tax_location_id:  checkout_data['tax_loc_code'],
+            # tax_authority_id: checkout_data['tax_authority'],  may be need to set in future
+             # tax_location_id:  checkout_data['tax_loc_code'],
             due_date:         due_date,
-            note:             "<table width='100%'><tr><td><b>Type of Dwelling:</b></td><td style='padding-left:40px'>#{(delivery_data[:dwelling_type] || delivery_data[:dwelling_other])}</td></tr><tr><td><b>Easily Accessed Parking:</b></td><td style='padding-left:40px'>#{delivery_data[:parking]}</td></tr><tr><td><b>Number of Levels:</b></td><td style='padding-left:40px'>#{delivery_data[:levels]}</td></tr></table>".html_safe,
-            service:          delivery_data['shipping_method'] == 'delivery' ? 'Company' : 'Self',
+            ordered_date:     Time.zone.now,
+            note:             "<table width='100%'><tr><td><b>Type of Dwelling:</b></td><td style='padding-left:40px'>#{(billing[:dwelling_type] || billing[:dwelling_other])}</td></tr><tr><td><b>Easily Accessed Parking:</b></td><td style='padding-left:40px'>#{billing[:parking]}</td></tr><tr><td><b>Number of Levels:</b></td><td style='padding-left:40px'>#{billing[:levels]}</td></tr></table>".html_safe,
+            service:          billing['shipping_method'] == 'delivery' ? 'Company' : 'Self',
         )
-        order.rush_order = self.shipping_data['rush_order']
+        
 
         if order.save
             Rails.logger.info "Order created [id: %i, type: %s, user: %s]" % [order.id, type, @user.email]
@@ -674,8 +681,10 @@ class Sdn::Cart
             raise OrderError, order.errors.inspect
         end
         create_order_lines_with_stripe_items(order, order_items, data, intent: intent, site_id: site_id, discount_percentage: @user&.user_group&.discount_percentage)    
-        create_product_piece_locations(order, order_items)
-        create_ihs_catalog(order) if intent == 'rent'
+        
+        
+        # create_product_piece_locations(order, order_items)
+        # create_ihs_catalog(order) if intent == 'rent' # no need currently, may be in future 
 
         return order
     end
@@ -690,6 +699,7 @@ class Sdn::Cart
             if discount_percentage.present?
                 discount = item[:price].to_f - (item[:price].to_f * discount_percentage.to_i / 100) 
             end    
+            
             ol = OrderLine.create(
                 product_id:  item[:id],
                 base_price:  item[:price],
@@ -697,9 +707,9 @@ class Sdn::Cart
                 quantity:    item[:quantity],
                 price:       discount || (item[:price].to_d * (1 + tax_rate)).round(4).to_f,
                 description: intent == 'buy' ? 'Resale' : nil,
-                type:        item[:intent],
+                line_type:   item[:intent],
                 room_id:     item[:room_id].present? ? item[:room_id].to_i : 20,
-                floor_id:    OrderLine.properties.find{ |e| e.name == :floor_id }.default,
+                floor_id:    Floor.first&.id,
             )
 
             OrderLineDetail.create(order_line_id: ol.id, ordered_at: Time.now)
@@ -707,7 +717,7 @@ class Sdn::Cart
             if ol.present?
                 item[:quantity].to_i.times do
 
-                    product_piece = ProductPiece.first(product_id: item[:id], order_line_id: 0, status: "Available")
+                    product_piece = ProductPiece.where(product_id: item[:id], order_line_id: 0, status: "Available")&.first
                     if product_piece.present? && product_piece.order_line_id == 0
                         product = product_piece.product
                         product.update(quantity: product.quantity.to_i - 1) if product.present?
@@ -730,7 +740,7 @@ class Sdn::Cart
 
         end
 
-        shipped_fee_total = (billing_data['shipping_method'] == "pickup" ? 0.0 : Order.default_shipping_fee) + (order.rush_order == true ? Order.default_rush_order_fee : 0.0)
+        # shipped_fee_total = (billing_data['shipping_method'] == "pickup" ? 0.0 : Order.default_shipping_fee) + (order.rush_order == true ? Order.default_rush_order_fee : 0.0)
         # Create an invoice item for the shipping fee
 
         # Stripe::InvoiceItem.create({
@@ -776,11 +786,11 @@ class Sdn::Cart
     # This is how the system keeps track of barcodes. We need to mark each barcode of a
     # product as 'OnOrder' so the ERP knows what to do and it's hidden from the frontend.
     def create_product_piece_locations(order, order_items)
-        order_items_models = Product.all(id: order_items.pluck(:id))
+        order_items_models = Product.where(id: order_items.pluck(:id))
 
         order_items_models.each do |item|
             item.product_pieces.each do |pp|
-                begin
+                # begin
                     next if pp.void?
 
                     ppl = ProductPieceLocation.create(
@@ -790,18 +800,22 @@ class Sdn::Cart
                         log_type: 'OnOrder',
                         log_status: 'Posted',
                         created_by: @user.id,
+                        created: Time.zone.now,
                     )
-
+                    binding.pry
+                    # ppl[:table_name] = 'orders'
+                    
+                    ppl.save
                     if ppl.persisted?
                         Rails.logger.info "Product piece location record created: OnOrder [piece id: %i, ppl id: %i, order: %i, user: %s]" % [pp.id, ppl.id, order.id, @user.email]
                     else
                         Rails.logger.error "Product piece location record NOT created: OnOrder [piece id: %i, order: %i, user: %s] %s" % [pp.id, order.id, @user.email, ppl.errors.inspect]
                         raise ProductPieceError, ppl.errors.inspect
                     end
-                rescue => error
-                    Rails.logger.error "Product piece location record NOT created. Because product pieces not exist.- SQL error (check PPL trigger): [piece id: %i, order: %i, user: %s]" % [pp.id, order.id, @user.email]
-                    raise error
-                end
+                # rescue => error
+                    # Rails.logger.error "Product piece location record NOT created. Because product pieces not exist.- SQL error (check PPL trigger): [piece id: %i, order: %i, user: %s]" % [pp.id, order.id, @user.email]
+                    # raise error
+                # end
             end
         end
     end
@@ -835,7 +849,7 @@ class Sdn::Cart
         full_name = delivery_data['shipping_contact_name'].split(' ')
         data = {
             site_id:         site_id,
-            order_type:      order.type,
+            order_type:      order.order_type,
             order_id:        order.id,
             delivery_method: delivery_data['shipping_method'],
             site_name:       order.site.name.downcase,

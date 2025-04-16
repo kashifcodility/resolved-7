@@ -45,6 +45,7 @@ class User < ApplicationRecord
   belongs_to :shipping_address, class_name: "Address", optional: true
   belongs_to :billing_address, class_name: "Address", optional: true
   belongs_to :membership_level, optional: true
+  belongs_to :user_group, optional: true
   has_many :user_membership_levels
   belongs_to :site, optional: true
   has_one :cart
