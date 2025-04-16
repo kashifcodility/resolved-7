@@ -46,7 +46,7 @@
                                         P<span class="smaller">rint</span>
                                         R<span class="smaller">eceipt</span>
                                     </a>
-                                    <%if @order_obj.order_lines.any? { |line| line.type == 'rent' } %>
+                                    <%if @order_obj.order_lines.any? { |line| line.line_type == 'rent' } %>
                                         <a target="_blank" href="<%= order_invoice_path(@order.id) %>">
                                             P<span class="smaller">rint</span>
                                             I<span class="smaller">nvoice</span>
@@ -353,7 +353,7 @@
                     <br>
 
                     <div class="card-body">
-                        <% queries = OrderQuery.all(order_id: @order.id) %>
+                        <% queries = OrderQuery.where(order_id: @order.id) %>
                         <% queries.each do |query| %>
                         <div class="query-block mb-3">
                             <strong><%= query.user.full_name %>:</strong> <%= query.message %>
@@ -649,7 +649,7 @@
             
         </div>
     </div>
-    <%if current_user&.type == "Employee" && (@order.status == "Loaded" || @order.status == "Destage")%>
+    <%if current_user&.user_type == "Employee" && (@order.status == "Loaded" || @order.status == "Destage")%>
         <div class="">
         <div class="main-div">
             <!-- First Button -->
@@ -1364,7 +1364,7 @@ $(document).ready(function() {
 </script> 
 
 
-<%= javascript_include_tag "project_detail_page.js" %>
-<%= javascript_include_tag "edit_stage_info.js" %>
-<%= javascript_include_tag "add_review.js" %>
-<%= javascript_include_tag "edit_project_name.js" %>
+<%#= javascript_include_tag "project_detail_page.js" %>
+<%#= javascript_include_tag "edit_stage_info.js" %>
+<%#= javascript_include_tag "add_review.js" %>
+<%#= javascript_include_tag "edit_project_name.js" %>

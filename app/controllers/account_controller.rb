@@ -83,7 +83,7 @@ class AccountController < ApplicationController
     
         order_id = params[:id].to_i
 
-        unless order_id.among?(current_user.orders.pluck('id'))
+        unless current_user.orders.pluck('id').include?(order_id)
             flash.alert = "Invalid order number."
             return redirect_to(account_path)
         end
@@ -92,12 +92,13 @@ class AccountController < ApplicationController
 
         # Kind of messy, but merges the manual SQL results with model calls
         # TODO: This needs to be cleaned up... it's a mess.
-        order = Order.get(order_id)
+        order = Order.find(order_id)
         @order_obj = order
         # order_products = Order.rental_order_details(current_user, order_id, status: 'OnOrder')
         @omodel = order   
         @products_form = []
         order_product_lines = lines = order.order_lines.map{|a| a if a.product_id != nil }.compact
+        # binding.pry
         @order = OpenStruct.new(
             id:                order.id,
             due_date:          order.due_date,
@@ -122,7 +123,7 @@ class AccountController < ApplicationController
             rush_order:       order.rush_order,
             destaged?:         order.destaged?,
             rent_starts_on:    order.rent_accrual_starts_on,
-            type:              order.type,
+            type:              order.order_type,
             shipping_type:     order.service,
             service:           (order.delivery? ? 'Delivery' : 'Will Call'),
             pickup?:           order.pickup?,
@@ -133,8 +134,8 @@ class AccountController < ApplicationController
             project_walk_through:            order.project_walk_through&.last&.id,
             full_name:         current_user.full_name,
             username:          current_user.username,
-            billing_address:   OpenStruct.new(order.billing_address&.to_hash),
-            shipping_address:  OpenStruct.new(order.shipping_address&.to_hash),
+            billing_address:   OpenStruct.new(order.billing_address.attributes),
+            shipping_address:  OpenStruct.new(order.shipping_address.attributes),
             products: order_product_lines.map{ |ol|
                     ol_model = ol
                     p_model = ol_model&.product
@@ -143,7 +144,7 @@ class AccountController < ApplicationController
                         id:                    p_model.id,
                         rating:                p_model.quality_rating,
                         sku:                   p_model.sku,
-                        type:                  ol.type,
+                        type:                  ol.line_type,
                         line_id:               ol.id,
                         bin:                   p_model&.bin&.bin, 
                         quantity:              ol.quantity,
@@ -187,7 +188,7 @@ class AccountController < ApplicationController
 
         @soonest_destage_date = Order.soonest_destage_date
 
-        @credit_cards = CreditCard.all(user: current_user).not_expired.visible
+        @credit_cards = CreditCard.where(user: current_user).not_expired.visible
         @billing_address = current_user.billing_address || {}
 
         # Generates future payment info

@@ -1,27 +1,20 @@
-# class OrderLineDetail
-#     include DataMapper::Resource
-
-#     storage_names[:default] = "order_lines_detail"
-
-#     property :order_line_id, Integer, field: 'order_lines_id', index: true, key: true
-#     belongs_to :order_line, child_key: [ :order_line_id  ]
-
-#     property :ordered_at,  DateTime, field: 'ordered',  allow_nil: true
-#     property :shipped_at,  DateTime, field: 'shipped',  allow_nil: true
-#     property :returned_at, DateTime, field: 'returned', allow_nil: true
-
 class OrderLineDetail < ApplicationRecord
-    # Associations
-    belongs_to :order_line, foreign_key: :order_line_id
+    self.table_name = "order_lines_detail"
+    self.primary_key = "order_lines_id"  # Assuming you're keeping this as PK
   
-    # Validations (optional)
-    validates :order_line_id, presence: true
-
+    belongs_to :order_line, foreign_key: "order_lines_id"
+  
+    # Aliases for consistency if needed
+    alias_attribute :order_line_id, :order_lines_id
+    alias_attribute :ordered_at, :ordered
+    alias_attribute :shipped_at, :shipped
+    alias_attribute :returned_at, :returned
+  
     def product
-        order_line&.product
+      order_line&.product
     end
-
+  
     def returned?
-        returned_at.present?
+      returned_at.present?
     end
 end

@@ -10,8 +10,8 @@ class OrderLine < ApplicationRecord
     belongs_to :floor
     has_many :extra_fees
     has_one :detail, class_name: 'OrderLineDetail', foreign_key: :order_line_id
-  
-    # Validations (optional, depending on your needs)
+    has_many :product_piece_locations
+        # Validations (optional, depending on your needs)
     validates :order_id, presence: true
     validates :quantity, numericality: { greater_than: 0 }
     validates :product_id, presence: true, if: -> { product.present? }
@@ -29,32 +29,68 @@ class OrderLine < ApplicationRecord
     # NOTE: Gets first product's product piece on order date
     # TODO: Update this to use the OrderLineDetail model
     def created_at(show_void: false)
+        # return unless product&.product_pieces
+        # filters = { table_name: 'orders', table_id: order_id, log_type: 'OnOrder', product_piece_id: product.product_pieces.pluck(:id), order: [ :id.asc ] }
+        # filters[:void] = 'no' unless show_void
+        # onorder_logs = ProductPieceLocation.all(filters)
+        # onorder_logs_piece_ids = onorder_logs.pluck(:product_piece_id)
+        # all_product_piece_ids = product.product_pieces.pluck(:id)
+
+        # unscanned_onorder_pieces = all_product_piece_ids - onorder_logs_piece_ids
+        # if onorder_logs.any? and unscanned_onorder_pieces.any?
+        #     Rails.logger.debug "Order line #created_at - not all barcodes have been scanned OnOrder: [line: %i, order: %i, piece(s): %s]" % [ id, order_id, unscanned_onorder_pieces.join(',') ]
+        # end
+
+        # return onorder_logs.first&.created_at
+
+
+
         return unless product&.product_pieces
-        filters = { table_name: 'orders', table_id: order_id, log_type: 'OnOrder', product_piece_id: product.product_pieces.pluck(:id), order: [ :id.asc ] }
-        filters[:void] = 'no' unless show_void
-        onorder_logs = ProductPieceLocation.all(filters)
-        onorder_logs_piece_ids = onorder_logs.pluck(:product_piece_id)
-        all_product_piece_ids = product.product_pieces.pluck(:id)
 
-        unscanned_onorder_pieces = all_product_piece_ids - onorder_logs_piece_ids
-        if onorder_logs.any? and unscanned_onorder_pieces.any?
-            $LOG.debug "Order line #created_at - not all barcodes have been scanned OnOrder: [line: %i, order: %i, piece(s): %s]" % [ id, order_id, unscanned_onorder_pieces.join(',') ]
-        end
+  # Build the base query for ProductPieceLocation
+  onorder_logs_query = ProductPieceLocation.where(
+    table_name: 'orders',
+    table_id: order_id,
+    log_type: 'OnOrder',
+    product_piece_id: product.product_pieces.select(:id)
+  )
 
-        return onorder_logs.first&.created_at
+  # Apply the void filter if needed
+  onorder_logs_query = onorder_logs_query.where(void: 'no') unless show_void
+
+  # Execute the query to get the result
+  onorder_logs = onorder_logs_query.order(:id)
+
+  # Get the product piece IDs for the current product
+  all_product_piece_ids = product.product_pieces.select(:id)
+
+  # Get the unscanned pieces by checking which product pieces are not in onorder_logs
+  unscanned_onorder_pieces = all_product_piece_ids.where.not(id: onorder_logs.select(:product_piece_id))
+
+  # If there are any unscanned pieces, log the message
+  if onorder_logs.exists? && unscanned_onorder_pieces.exists?
+    Rails.logger.debug "Order line #created_at - not all barcodes have been scanned OnOrder: [line: %i, order: %i, piece(s): %s]" % [id, order_id, unscanned_onorder_pieces.pluck(:id).join(',')]
+  end
+
+  # Return the created_at of the first onorder_log
+  onorder_logs.first&.created_at
     end
 
     # NOTE: Gets first product's product piece return date
     # TODO: Update this to use the OrderLineDetail model
     def returned_at
         return unless product&.product_pieces
-        returned_logs = ProductPieceLocation.all(table_name: 'orders', table_id: order_id, log_type: 'Returned', void: 'no', product_piece_id: product.product_pieces.pluck(:id), order: [ :id.desc ])
+        # returned_logs = ProductPieceLocation.all(table_name: 'orders', table_id: order_id, log_type: 'Returned', void: 'no', product_piece_id: product.product_pieces.pluck(:id), order: [ :id.desc ])
+        returned_logs = ProductPieceLocation
+  .where(table_name: 'orders', table_id: order_id, log_type: 'Returned', void: 'no')
+  .where(product_piece_id: product.product_pieces.pluck(:id))
+  .order(id: :desc)
         returned_logs_piece_ids = returned_logs.pluck(:product_piece_id)
         all_product_piece_ids = product.product_pieces.pluck(:id)
 
         unscanned_return_pieces = all_product_piece_ids - returned_logs_piece_ids
         if returned_logs.any? and unscanned_return_pieces.any?
-            $LOG.debug "Order line #returned_at - not all barcodes have been scanned Returned: [line: %i, order: %i, piece(s): %s]" % [ id, order_id, unscanned_return_pieces.join(',') ]
+            Rails.logger.debug "Order line #returned_at - not all barcodes have been scanned Returned: [line: %i, order: %i, piece(s): %s]" % [ id, order_id, unscanned_return_pieces.join(',') ]
             return
         end
 
@@ -70,7 +106,7 @@ class OrderLine < ApplicationRecord
 
         unscanned_shipped_pieces = all_product_piece_ids - shipped_logs_piece_ids
         if shipped_logs.any? and unscanned_shipped_pieces.any?
-            $LOG.debug "Order line #shipped_at - not all barcodes have been scanned Shipped: [line: %i, order: %i, piece(s): %s]" % [ id, order_id, unscanned_shipped_pieces.join(',') ]
+            Rails.logger.debug "Order line #shipped_at - not all barcodes have been scanned Shipped: [line: %i, order: %i, piece(s): %s]" % [ id, order_id, unscanned_shipped_pieces.join(',') ]
         end
 
         return shipped_logs.first&.created_at
@@ -80,7 +116,7 @@ class OrderLine < ApplicationRecord
         line = OrderLine.first(id: line_id, OrderLine.order.user_id => user&.id)
 
         unless line
-            $LOG.debug "Order line belonging to user NOT voided: %i [user: %s]" % [ line_id, user.email ]
+            Rails.logger.debug "Order line belonging to user NOT voided: %i [user: %s]" % [ line_id, user.email ]
             return false
         end
 
@@ -104,8 +140,8 @@ class OrderLine < ApplicationRecord
     end
 
     def void!(voided_by:)
-        unless self.voidable? || voided_by.type == 'Employee'
-            $LOG.debug "Order line NOT voided - not voidable: %i [user: %s, order: %i]" % [ self.id, voided_by&.email, self.order&.id ]
+        unless self.voidable? || voided_by.user_type == 'Employee'
+            Rails.logger.debug "Order line NOT voided - not voidable: %i [user: %s, order: %i]" % [ self.id, voided_by&.email, self.order&.id ]
             return false
         end
 
@@ -123,11 +159,11 @@ class OrderLine < ApplicationRecord
             self.voided_by = voided_by&.id
 
             if self.save && order.changed! && order.refresh_damage_waiver!
-                $LOG.info "Order line voided: %i [user: %s]" % [ self.id, voided_by&.email ]
+                Rails.logger.info "Order line voided: %i [user: %s]" % [ self.id, voided_by&.email ]
                 result = self
                 return true
             else
-                $LOG.debug "Order line NOT voided - DB error: %i [user: %s] %s" % [ self.id, voided_by&.email, self.errors.inspect ]
+                Rails.logger.debug "Order line NOT voided - DB error: %i [user: %s] %s" % [ self.id, voided_by&.email, self.errors.inspect ]
                 return false
             end
         end
@@ -188,19 +224,19 @@ class OrderLine < ApplicationRecord
       end
       
       def self.shipped
-        joins(:detail).where.not(order_line_details: { shipped_at: nil })
+        joins(:detail).where.not(order_lines_detail: { shipped_at: nil })
       end
       
       def self.not_shipped
-        joins(:detail).where(order_line_details: { shipped_at: nil })
+        joins(:detail).where(order_lines_detail: { shipped_at: nil })
       end
       
       def self.returned
-        joins(:detail).where.not(order_line_details: { returned_at: nil })
+        joins(:detail).where.not(order_lines_detail: { returned_at: nil })
       end
       
       def self.not_returned
-        joins(:detail).where(order_line_details: { returned_at: nil })
+        joins(:detail).where(order_lines_detail: { returned_at: nil })
       end
       
 

@@ -135,7 +135,7 @@ class ApplicationController < ActionController::Base
           compiled_filters.merge!(filters.fetch(@active_filter, filters[:default]))
       
           # ✅ Additional filter logic for :required case - moved from DM-style :ordered_date.not => nil
-          orders_scope = Order.where(compiled_filters)
+          orders_scope = Order.where(compiled_filters).order(id: :desc)
           orders_scope = orders_scope.where.not(ordered_date: nil) if @active_filter == :required
       
           # ✅ Sort by ID descending (from :order => :id.desc)

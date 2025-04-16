@@ -124,12 +124,13 @@ class Cart < ApplicationRecord
     end    
 
     def destroy_item!(id)
-        self.items.delete_if { |i| i['id'] == id.to_i }
+        cart_items = eval(self.items) if self.items.present?    
+        cart_items.delete_if { |i| i[:id] == id.to_i }
         self.calculate_subtotal
         if self.save
             Rails.logger.info "Product %i successfully removed from cart." % [id]
 
-            product = Product.get(id)
+            product = Product.find(id)
             product.added_to_cart = nil
             product.save
             
