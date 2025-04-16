@@ -115,7 +115,7 @@
                             
                             <%if line.type == "Sales" %>
                                 <td>Sale</td>
-                            <%elsif line.returned_on.nil? == FALSE %>
+                            <%elsif line.returned_on.nil? == false %>
                                 <td id="date_info"><%= (line.returned_on - line.started_on).to_i    %></td>
                             <%else %>
                                 <td id="date_info"><%= (Date.today - line.started_on).to_i rescue 0  %></td>

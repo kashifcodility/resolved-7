@@ -70,11 +70,11 @@ class AccountController < ApplicationController
     end
 
     def order_invoice
-        @order = Order.get(params[:ids].to_i)
+        @order = Order.where(id: params[:ids].to_i)&.first
     end
 
     def order_invoice_sale
-        @order = Order.get(params[:ids].to_i)
+        @order = Order.where(id: params[:ids].to_i)&.first
     end  
 
     # Shows specific order that user owns
@@ -286,21 +286,21 @@ class AccountController < ApplicationController
     def order_receipt
         @order_ids = params[:ids].split(',').map(&:to_i)
 
-        if current_user.type == "Employee"
-            orders = Order.all(id: @order_ids).not_voided
+        if current_user.user_type == "Employee"
+            orders = Order.where(id: @order_ids).not_voided
         else
-            orders = Order.all(id: @order_ids, user: current_user).not_voided
+            orders = Order.where(id: @order_ids, user: current_user).not_voided
         end
 
         return redirect_to(account_orders_path, alert: 'Invalid order.') if orders.empty?
 
         @related_orders = orders.first&.sibling_rental_orders(only_currently_renting: false, include_source: true)&.sort if orders.first.address&.present?
 
-        order_fees = OrderFee.all(order_id: @order_ids)
-        refund_log = RefundLog.all(line_id: @order_ids)
-        order_line = OrderLine.all(order_id: @order_ids)
-        extra_fees = ExtraFee.all(order_id: @order_ids)
-        transactions = Transaction.all(table_name: 'orders', table_id: @order_ids)
+        order_fees = OrderFee.where(order_id: @order_ids)
+        refund_log = RefundLog.where(line_id: @order_ids)
+        order_line = OrderLine.where(order_id: @order_ids)
+        extra_fees = ExtraFee.where(order_id: @order_ids)
+        transactions = Transaction.where(table_name: 'orders', table_id: @order_ids)
 
         payments = order_fees.select{ |of| of.amount > 0.02 }.map do |of|
             OpenStruct.new(
@@ -341,13 +341,13 @@ class AccountController < ApplicationController
                 OpenStruct.new(
                     id:          l.product_id,
                     name:        l.product&.product,
-                    type:        l.order.type,
+                    type:        l.order.order_type,
                     order:       l.order.id,
                     created_on:  l.created_at&.to_date,
                     shipped_on:  l.shipped_at&.to_date,
                     returned_on: l.returned_at&.to_date,
                     started_on:  ((l.created_at.to_date + 7 < l.shipped_at.to_date ? l.created_at.to_date : l.shipped_at.to_date) rescue l.created_at&.to_date),
-                    sales_price: l.order.type == 'Sales' ? l.price : 0,
+                    sales_price: l.order.order_type == 'Sales' ? l.price : 0,
                     base_price:  order_fees.map { |of| of.product_total(l.product_id) }.sum,
                 )
             },
@@ -388,7 +388,7 @@ class AccountController < ApplicationController
         )
 
         @order[:subtotal] = @order.product_lines.pluck(:base_price).sum + @order.product_lines.pluck(:sales_price).sum
-        @order[:tax_amount] = @order.subtotal * orders.first.tax_authority.total_rate if orders.first.type == 'Sales' # Assumes all orders are same tax authority/rate
+        @order[:tax_amount] = @order.subtotal * orders.first.tax_authority.total_rate if orders.first.order_type == 'Sales' # Assumes all orders are same tax authority/rate
         @order[:shipping] = @order.delivery_lines.pluck(:amount).sum + @order.destage_lines.pluck(:amount).sum
         @order[:extra_fees_total] = @order.extra_fees.pluck(:base_price).sum - @order.shipping
         @order[:total] = @order.subtotal + @order.tax_amount + @order.delivery_lines.pluck(:amount).sum + @order.destage_lines.pluck(:amount).sum + @order.waiver_lines.pluck(:amount).sum + @order.misc_lines.pluck(:amount).sum
