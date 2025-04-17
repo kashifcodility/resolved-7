@@ -299,10 +299,10 @@
                             <div class="separator5"></div>
                             <div>
                                 <% if @order.type == 'Sales' %>
-                                    <p style="font-weight: 600;">You have been charged <%= number_to_currency(@current_user.tax_exempt? ? @order.products.sum(&:sale_price) : @order.products.sum(&:sale_price)*(1+@order.tax_percent)) %></p>
+                                    <p style="font-weight: 600;">You have been charged <%= number_to_currency(@current_user.tax_exempt? ? @order.products.sum(&:sale_price) : @order.products.sum(&:sale_price)*(1+@order.tax_percent.to_f)) %></p>
                                     <div class="card-text ">
                                         <h6 class="text-success"><%= number_to_currency(@order.products.sum(&:sale_price))%> - Product</h6>
-                                        <h6 class="text-success"> <%= number_to_currency(@current_user.tax_exempt? ? 0 : (@order.products.sum(&:sale_price)*@order.tax_percent)) %> - Sales Tax </h6>
+                                        <h6 class="text-success"> <%= number_to_currency(@current_user.tax_exempt? ? 0 : (@order.products.sum(&:sale_price)*@order.tax_percent.to_f)) %> - Sales Tax </h6>
                                         <h6 class="text-success"> <%= number_to_currency(@past_payments.shipping) %> - Delivery &amp; Setup </h6>
                                         <h6 class="text-success"><%= @order.rush_order == true ? "$#{Order.default_rush_order_fee}" : "$0.00" %> - Rush Order</h6>
                                         <h6 class="text-success"><%= number_to_currency(@past_payments.other) %> - Other </h5>

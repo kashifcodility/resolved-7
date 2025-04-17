@@ -24,7 +24,7 @@ module QuickbooksOauth
     options = { site: 'https://appcenter.intuit.com/connect/oauth2', 
                 authorize_url: "https://appcenter.intuit.com/connect/oauth2", 
                 token_url: "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer" }
-    Quickbooks.sandbox_mode = Rails.env.develop? ? true : false 
+    Quickbooks.sandbox_mode = Rails.env.development? ? true : false 
     OAuth2::Client.new(ENV['OAUTH_CLIENT_ID'], ENV['OAUTH_CLIENT_SECRET'], options) 
 
   end
@@ -42,18 +42,18 @@ module QuickbooksOauth
       line_item.sales_line_item_detail.quantity = quantity
 
       if type == "rush order"  
-        # line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(20)
-        line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(1010000081) 
+        line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(20) if Rails.env == "development"
+        line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(1010000081) unless Rails.env == "development"
       elsif type == "shipping fee"
-        # line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(21) 
-        line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(1010000091) 
+        line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(21) if Rails.env == "development"
+        line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(1010000091) unless Rails.env == "development"
       elsif type == "rent"  
-        # line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(19) 
-        line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(4) 
+        line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(19) if Rails.env == "development"
+        line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(4) unless Rails.env == "development"
       else
-        # line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(10)   
-        line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(1010000001)   
-      end  
+        line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(10)   if Rails.env == "development"
+        line_item.sales_line_item_detail.item_ref = Quickbooks::Model::BaseReference.new(1010000001)   unless Rails.env == "development"
+      end   
 
       # line_item.sales_line_item_detail.description = detail
       invoice.line_items << line_item
@@ -106,7 +106,7 @@ module QuickbooksOauth
       total_invoice = 0.0
       invoice = Quickbooks::Model::Invoice.new
       order.order_lines.each do |ol|
-        if ol.type == 'rent'
+        if ol.line_type == 'rent'
           product = ol.product
           if recurring_invoice == true
             product_piece = ProductPiece.first(order_line_id: ol.id, status: 'Renting')
@@ -147,7 +147,7 @@ module QuickbooksOauth
       # Create the invoice
       invoice.txn_date = Date.today
       invoice.due_date = order.due_date
-      if recurring_invoice == true && Rails.env != "develop"
+      if recurring_invoice == true && Rails.env != "development"
         invoice_db = Invoice.last(order_id: order&.id)
         qbo_doc_number = invoice_db.qbo_doc_number&.split('-')&.last if invoice_db.present?
         if qbo_doc_number.present?
@@ -159,8 +159,8 @@ module QuickbooksOauth
           invoice.doc_number = new_qbo_doc_number 
         end    
       else
-        if Rails.env == "develop"
-          invoice.doc_number = "#{order.id}-dev"
+        if Rails.env == "development"
+          invoice.doc_number = "#{order.id}-dev11"
         else
           invoice.doc_number = order.id
         end    
@@ -237,7 +237,7 @@ module QuickbooksOauth
         total_invoice = 0.0
         # invoice = Quickbooks::Model::Invoice.new
         new_lines.each do |ol|
-          if ol.type == 'rent'
+          if ol.line_type == 'rent'
             product = ol.product
             total_invoice += ol&.price.to_f.round(2)
             create_invoice_items(invoice, ol&.price.to_f.round(2), "rent", product.product, ol.quantity)        

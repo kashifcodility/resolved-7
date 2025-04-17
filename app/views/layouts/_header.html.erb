@@ -65,7 +65,7 @@
             <div id="nav_right">
             
                   <div>
-                        <%if Rails.env == "develop"%>
+                        <%if Rails.env == "development"%>
                            <div class="header_icon" onclick="location.href='<%= user_signed_in? && current_user&.user_type == 'Employee' ? 'http://localhost/Warehouse2/?auth_user_id=' + current_user&.id.to_s + '&auth_code=' + session[:auth_code].to_s : 'http://localhost/Warehouse2/' %>'">
 
                               <%= image_tag("new_icons/traditional-barcode.png", alt: "Re|Port") %>
