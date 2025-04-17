@@ -481,7 +481,8 @@ class Sdn::Cart
                         order = create_order_with_stripe_invoice(items_by_intent, intent, site_id, data)
                         # orders.charges << charge_order(order, intent, site_id) #its for payleap gateway
                         # create_arrivy_task(order, intent: intent, site_id: site_id)
-                        remove_items(items_by_intent.pluck('id'))
+                        
+                        remove_items(items_by_intent.pluck(:id))
                         orders.processed << order
                 end
                 # rescue => error

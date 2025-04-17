@@ -7,7 +7,7 @@ class QuickbooksController < ApplicationController
         response_type: 'code',
         state: SecureRandom.hex(12),
         scope: 'com.intuit.quickbooks.accounting'
-      )
+      ), allow_other_host: true
   end
 
   def oauth_callback
