@@ -143,12 +143,12 @@ class Cart < ApplicationRecord
 
     # Remove item
     def self.destroy_item_from_cart!(cart, uniq_id, product_id)
-        remianing_items = cart.items.delete_if { |i| i['uniq_id'] == uniq_id }
+        remianing_items = cart.items.delete_if { |i| i[:uniq_id] == uniq_id }
         cart_model = cart.instance_variable_get(:@cart_model)
         if cart_model.update(items: remianing_items)
             Rails.logger.info "Product %i successfully removed from cart." % [product_id]
 
-            product = Product.get(product_id)
+            product = Product.find(product_id)
             product.added_to_cart = nil
             product.save
 

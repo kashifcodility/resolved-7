@@ -113,6 +113,7 @@
     # Order Type
     #
 
+    require 'aws-sdk-s3'
 
 class Order < ApplicationRecord
     # Thresholds for order freeze dates (Rental orders only)
@@ -206,8 +207,8 @@ class Order < ApplicationRecord
     def renting?()  status == 'Renting'        end
     def complete?() status == 'Complete'       end
     def void?()     status.downcase == 'void'  end
-    def can_be_reopened?()   status.among?('Pulled', 'InTransit', 'Renting') end
-    def self.not_voided()  where(conditions: ["LOWER(status) != 'void'"])  end
+    def can_be_reopened?() ['Pulled', 'InTransit', 'Renting'].include?(status) end
+    def self.not_voided()  where("LOWER(status) != ?", "void")    end
     def self.open()        where(status: 'Open')     end
     def self.renting()     where(status: 'Renting')  end
     def self.active()      where.not(status: ['Complete', 'Void'])  end
@@ -628,22 +629,44 @@ class Order < ApplicationRecord
     # `only_currently_renting` arg will filter out all orders not renting
     # `include_source` arg will include the order being searched against
     def sibling_rental_orders(only_currently_renting: true, include_source: false)
-        query = %{
-            SELECT orders.id FROM orders
-            LEFT JOIN addresses ON addresses.id = orders.address_id
-            WHERE (
-                orders.address_id = #{address_id}
-                OR addresses.address1 = ?
-            )
-            AND orders.user_id = #{user_id}
-            AND orders.id != #{id}
-            AND orders.order_type IN ('Rental', 'Sales')
-            AND orders.status NOT IN ('Void', 'Open')
-        }.squish
+        
 
-        order_ids = repository.adapter.select(query, address.address1)
+        # sql = ActiveRecord::Base.send(:sanitize_sql_array, [
+        # <<-SQL,
+        #     SELECT orders.id FROM orders
+        #     LEFT JOIN addresses ON addresses.id = orders.address_id
+        #     WHERE (
+        #     orders.address_id = :address_id
+        #     OR addresses.address1 = :address1
+        #     )
+        #     AND orders.user_id = :user_id
+        #     AND orders.id != :id
+        #     AND orders.order_type IN ('Rental', 'Sales')
+        #     AND orders.status NOT IN ('Void', 'Open');
+        # SQL
+        # { address_id: address_id, address1: address1, user_id: user_id, id: id }
+        # ])
+
+        # result = ActiveRecord::Base.connection.execute(sql)
+
+
+
+
+        
+        # order_ids = result.map { |row| row[0] }
+
+        order_ids = Order.joins("LEFT JOIN addresses ON addresses.id = orders.address_id")
+            .where(user_id: user_id)
+            .where.not(id: id)
+            .where(order_type: ['Rental', 'Sales'])
+            .where.not(status: ['Void', 'Open'])
+            .where("orders.address_id = :address_id OR addresses.address1 = :address1", address_id: address_id, address1: address1)
+            .select(:id)
+
+
 
         orders = only_currently_renting ? Order.where(id: order_ids).renting_rentals : Order.where(id: order_ids)
+        orders = orders.to_a
         orders << self if include_source
 
         return orders
@@ -653,6 +676,24 @@ class Order < ApplicationRecord
     ##
     ## Legacy SQL
     ##
+    
+
+    def self.upload_to_s3(file:, bucket:, filename:)
+        s3 = Aws::S3::Resource.new(
+        region: 'us-east-1',
+        credentials: Aws::Credentials.new(ENV['AWS_KEY_ID'], ENV['AWS_SECRET'])
+        )
+        binding.pry
+        obj = s3.bucket(bucket).object(filename)
+
+        success = obj.upload_file(file.path, acl: 'public-read')
+
+        if success
+            obj.public_url
+        else
+            nil
+        end
+    end
 
 
     # Gets the shipped date for an order

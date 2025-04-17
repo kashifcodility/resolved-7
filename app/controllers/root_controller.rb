@@ -37,7 +37,7 @@ class RootController < ApplicationController
                 begin
                     @cart.remove_items(product.id)
                     flash[:notice] = "Deleted #{product.name} due to unavailability from cart."
-                rescue ::SDN::CartException => e
+                rescue Exception => e
                     flash.alert = e.message
                 end
             end    

@@ -100,7 +100,16 @@ class OrderLine < ApplicationRecord
     # TODO: Update this to use the OrderLineDetail model
     def shipped_at
         return unless product&.product_pieces
-        shipped_logs = ProductPieceLocation.all(table_name: 'orders', table_id: order_id, log_type: 'Shipped', void: 'no', product_piece_id: product.product_pieces.pluck(:id), order: [ :id.asc ])
+        shipped_logs = ProductPieceLocation
+        .where(
+          table_name: 'orders',
+          table_id: order_id,
+          log_type: 'Shipped',
+          void: 'no',
+          product_piece_id: product.product_pieces.pluck(:id)
+        )
+        .order(id: :asc) 
+        # ProductPieceLocation.all(table_name: 'orders', table_id: order_id, log_type: 'Shipped', void: 'no', product_piece_id: product.product_pieces.pluck(:id), order: [ :id.asc ])
         shipped_logs_piece_ids = shipped_logs.pluck(:product_piece_id)
         all_product_piece_ids = product.product_pieces.pluck(:id)
 

@@ -152,12 +152,12 @@ class CartController < ApplicationController
     # Remove item from cart
     def destroy
         id = params[:id]
-        product = Product.get(id)
+        product = Product.find(id)
 
         begin
             Cart.destroy_item_from_cart!(@cart, params[:uniq_id], id)
             flash.notice = "\"%s\" removed from cart." % [product.name]
-        rescue ::Sdn::CartException => e
+        rescue Exception => e
             flash.alert = e.message
         end
 
@@ -248,7 +248,7 @@ class CartController < ApplicationController
             cart = Cart.where(user_id: current_user.id)&.first
             cart.update(items: [])
             flash.notice = "Cart emptied."
-        rescue ::Sdn::CartException => e
+        rescue  Exception => e
             flash.alert = e.message
         end
 
