@@ -482,7 +482,8 @@ class Sdn::Cart
                         # orders.charges << charge_order(order, intent, site_id) #its for payleap gateway
                         # create_arrivy_task(order, intent: intent, site_id: site_id)
                         
-                        remove_items(items_by_intent.pluck(:id))
+                        # remove_items(items_by_intent.pluck(:id)) #this line replace with line below
+                        @cart_model.update(items: {})    
                         orders.processed << order
                 end
                 # rescue => error
