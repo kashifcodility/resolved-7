@@ -260,16 +260,20 @@
 					success: function(response) {
 							// Update the quantity on success
 							let amount = parseFloat(response.price_total);
+							let sub_amount = parseFloat(response.sub_total);
 							let damage_amount = parseFloat(damage);
 							let total = (amount + damage_amount) - 500.00;
 							let total_amount = total.toFixed(2);
+							console.log(amount,'amount')
+							console.log(total,'total')
+							console.log(total_amount,'total_amount')
 							console.log(response,'res.......')
 							if (response.message === "Product can't be added due to low quantity"){
 									alert(response.message)
 							}  
 									if (response.message === "Removed."){
 											$('#qty_of_items').text(response.cart_items);
-											$('#cart-page-total').text(total_amount);
+											$('#cart-page-total').text(sub_amount.toFixed(2));
 											$('#cart-page-subtotal').text(response.sub_total);
 											$('#cart_page_item_' + itemUid).remove(); 
 											$('#select_cart_'+itemUid).remove(); 
@@ -278,7 +282,7 @@
 									$('#cart_item_quantity_' + itemUid).text(response.new_quantity);
 
 									// Optionally refresh the cart total or other UI elements
-									$('#cart-page-total').text(total_amount);
+									$('#cart-page-total').text(sub_amount.toFixed(2));
 									$('#cart-page-subtotal').text(response.sub_total);
 									$('#qty_of_items').text(response.cart_items);
 							}      
