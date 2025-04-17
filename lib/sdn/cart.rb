@@ -475,7 +475,7 @@ class Sdn::Cart
         orders = OpenStruct.new( processed: [], failed: [], charges: [] )
 
         items.group_by { |i| i[:site_id] }.each do |site_id, items_by_site|
-            items_by_site.group_by { |j| j[:intent] }.each do |intent, items_by_intent|
+            items_by_site.group_by { |j| j[:intent0] }.each do |intent, items_by_intent| # this is for buy/rent in same order
                 # begin
                 ActiveRecord::Base.transaction do |t|
                         order = create_order_with_stripe_invoice(items_by_intent, intent, site_id, data)
