@@ -261,7 +261,13 @@ class CartController < ApplicationController
         @rush_order = params['rush_order']
         user_must_save_card?
         @user_must_fill_profile = current_user.company_name.blank? || current_user.shipping_address_id.blank?
-        @credit_cards = current_user.valid_visible_credit_cards
+        if sdn_user.owner.present?
+            # binding.pry
+            @credit_cards = Array.wrap(current_user.owner&.credit_cards&.last)
+        else
+            @credit_cards = current_user.valid_visible_credit_cards
+        end 
+        
 
         # TODO: Add delivery calendar blackout dates
         @scheduling_date_pickup_min = scheduling_date_pickup_min
@@ -293,7 +299,7 @@ class CartController < ApplicationController
 
     def validate_credit_card_add_or_not
         errors = []
-        errors << 'Please add valid credit card.' if current_user.credit_cards.count == 0
+        errors << 'Please add valid credit card.' if current_user.credit_cards.count == 0 && current_user.owner&.credit_cards&.count == 0
         errors.any? ? errors : []
     end    
 

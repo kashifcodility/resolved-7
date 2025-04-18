@@ -61,6 +61,7 @@ module QuickbooksOauth
     
     def create_quickbooks_customer(user) 
       intuit_account = IntuitAccount.last
+      user = order_user&.owner.present? ? order_user.owner : order_user
       if intuit_account.present? 
         token = IntuitAccount.new.oauth_access_token 
         service = Quickbooks::Service::Customer.new 
@@ -135,7 +136,7 @@ module QuickbooksOauth
         total_invoice += Order.default_shipping_fee.round(2)
         create_invoice_items(invoice, Order.default_shipping_fee.round(2),'shipping fee', 'shipping fee', 1)
       end
-
+      user = order.user.owner.present? ? order.user.owner : order.user
       # qbo_doc_number = ''
       new_qbo_doc_number = ''
       # set customer reference
@@ -267,6 +268,19 @@ module QuickbooksOauth
       invoice = service.fetch_by_id(invoice_id)
       service.delete(invoice) if invoice.present?
 
+    end
+
+    def delete_quickbooks_line_item_from_invoice(product_name, invoice_id)
+      token = IntuitAccount.new.oauth_access_token 
+      service = Quickbooks::Service::Invoice.new
+      service.access_token = token 
+      service.company_id = IntuitAccount.last&.realm_id    
+                 
+      invoice = service.fetch_by_id(invoice_id)
+      if invoice.present?
+        invoice.line_items.reject!{|li| li.description == product_name}
+        service.update(invoice)
+      end  
     end
 
     def create_dispatch_track_order(order)

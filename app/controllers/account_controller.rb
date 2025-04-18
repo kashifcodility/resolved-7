@@ -469,12 +469,14 @@ class AccountController < ApplicationController
     def order_void_line
         order_id = params[:id].to_i
         line_id  = params[:line_id].to_i
+        ol = OrderLine.where(id: line_id)&.first
+        product_name = ol&.product&.product
         bin_name = params.select { |key, value| key.start_with?('bin_name_') }.values[0]
         bin = Bin.where(site_id: current_user&.site&.id, bin: bin_name)&.first
         bin = Bin.create(site_id: current_user&.site&.id, bin: bin_name, active: 'Active') if bin.blank? && bin_name.present?
-        puts bin.inspect+"BINSSSSSSSSSSSSSSSSSSS"
+        # puts bin.inspect+"BINSSSSSSSSSSSSSSSSSSS"
         product_pieces = ProductPiece.where(order_line_id: line_id)
-        puts product_pieces.inspect+"jjjjjjjjjjjjjjjj"
+        # puts product_pieces.inspect+"jjjjjjjjjjjjjjjj"
         # Attributes voiding to impersonator, if applicable
         if session[:god] === true
             voided_line = OrderLine.get(line_id).void!(voided_by: sdn_impersonator)
@@ -483,7 +485,15 @@ class AccountController < ApplicationController
         end
         
         if voided_line
-            product_pieces.map{ |piece| piece.update(bin_id: bin.id)} if bin.present? && product_pieces.present?
+
+            invoice_db = Invoice.where(order_id: ol&.order&.id)&.last
+            qbo_invoice_id = invoice_db&.qbo_invoice_id
+            stripe_invoice_id = invoice_db&.stripe_invoice_id
+            # product_pieces.map{ |piece| piece.update(bin_id: bin.id)} if bin.present? && product_pieces.present?
+            IntuitAccount.delete_quickbooks_line_item_from_invoice(product_name, qbo_invoice_id)
+            stripe_service = StripeInvoiceService.new(current_user, ol&.order)
+            stripe_service.delete_invoice_item(product_name, stripe_invoice_id)
+            product_pieces.map{ |piece| piece.update(bin_id: bin.id, status: 'Available')} if bin.present? && product_pieces.present?
             flash.notice = "Successfully removed \"%s\" from order #%i." % [ voided_line.product, order_id ]
         else
             flash.alert = "Invalid order line selected."

@@ -74,7 +74,7 @@ class Sdn::Order
             ActiveRecord::Base.transaction do
 
                 create_order_line(product: product_model, base_price: price, product_hash: product_hash)
-                create_product_piece_locations(product: product_model)
+                # create_product_piece_locations(product: product_model) #not working my be need in future
                 # refresh_damage_waiver will calculate after discussion.
                 ReceiptMailer.new.send_customer_add_to_order_receipt(self, product_model).deliver if email_receipt
                 OrderEditLog.add_product(model, product_model, user: user_override || user)
@@ -97,11 +97,21 @@ class Sdn::Order
                     base_price = (base_price * Fee.self_rental_commission).round(4).to_f rescue base_price&.to_f
                 end
 
-                discount_percentage = user&.user_group&.discount_percentage #according user group gold , diamond
+                if user.owner.present?
+                    discount_percentage = user.owner&.user_group&.discount_percentage #according user group gold , diamond
+                else
+                    discount_percentage = user&.user_group&.discount_percentage #according user group gold , diamond
+                end        
 
                 if discount_percentage.present?
                     discount_price = product_hash[:price].to_f - (product_hash[:price].to_f * discount_percentage.to_i / 100) 
                 end
+
+                # discount_percentage = user&.user_group&.discount_percentage #according user group gold , diamond
+
+                # if discount_percentage.present?
+                #     discount_price = product_hash[:price].to_f - (product_hash[:price].to_f * discount_percentage.to_i / 100) 
+                # end
 
                 line = ::OrderLine.create(
                     order_id:    order_id,
