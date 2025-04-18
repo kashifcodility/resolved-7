@@ -649,7 +649,7 @@
             
         </div>
     </div>
-    <%if current_user&.user_type == "Employee" && (@order.status == "Loaded" || @order.status == "Destage")%>
+    <%if current_user&.user_type.capitalize == "Employee" && (@order.status == "Loaded" || @order.status == "Destage")%>
         <div class="">
         <div class="main-div">
             <!-- First Button -->

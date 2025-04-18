@@ -121,7 +121,7 @@
 
 									<div class="row pb-3 mb-3">
 									    <div class="pl-3">
-										  <%if current_user&.user_type == "Employee"%>
+										  <%if current_user&.user_type.capitalize == "Employee"%>
                                               <a href="https://legacy.r-e-solved.com/Warehouse2/home.php?page=save_product&product_id=<%= product.id %>&auth_user_id=<%= current_user&.id.to_s %>&auth_code=<%= session[:auth_code].to_s %>" class="btn btn-primary" target="_blank"> Edit product </a>
                                           <%end%>
                                         </div>

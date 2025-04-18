@@ -273,10 +273,10 @@ class AccountController < ApplicationController
         
 
         if addr.save && order.save
-            $LOG.info "Order updated: [order: %i, user: %s]" % [ order_id, current_user.email ]
+            Rails.logger.info "Order updated: [order: %i, user: %s]" % [ order_id, current_user.email ]
             flash.notice = "Successfully updated project."
         else
-            $LOG.debug "Order NOT updated: [order: %i, user: %s] %s" % [ order_id, current_user.email, order.errors.inspect ]
+            Rails.logger.debug "Order NOT updated: [order: %i, user: %s] %s" % [ order_id, current_user.email, order.errors.inspect ]
             flash.error = "Error updating project. Please try again or contact support."
         end
 
@@ -286,7 +286,7 @@ class AccountController < ApplicationController
     def order_receipt
         @order_ids = params[:ids].split(',').map(&:to_i)
 
-        if current_user.user_type == "Employee"
+        if current_user.user_type.capitalize == "Employee"
             orders = Order.where(id: @order_ids).not_voided
         else
             orders = Order.where(id: @order_ids, user: current_user).not_voided
@@ -502,7 +502,7 @@ class AccountController < ApplicationController
         end
 
         begin
-            order = ::SDN::Order.from_model(order)
+            order = ::Sdn::Order.from_model(order)
             if session[:god] === true
                 order.void(voided_by: sdn_impersonator)
             else
@@ -513,7 +513,7 @@ class AccountController < ApplicationController
 
             flash.notice = "Successfully cancelled order #{order_id}"
             return redirect_to(account_orders_path)
-        rescue ::SDN::Order::OrderError => error
+        rescue ::Sdn::Order::OrderError => error
             flash.alert = "#{error.user_message}"
             return redirect_back(fallback_location: account_path)
         end
@@ -544,10 +544,10 @@ class AccountController < ApplicationController
         return redirect_back(fallback_location: account_orders_path, alert: 'Invalid order selected.') unless order
 
         begin
-            ::SDN::Order.from_model(order).request_destage(date: date, service: service, expedited: expedited, requested_by: current_user)
+            ::Sdn::Order.from_model(order).request_destage(date: date, service: service, expedited: expedited, requested_by: current_user)
 
             return redirect_back(fallback_location: account_orders_path, notice: 'Destage has successfully been requested.')
-        rescue ::SDN::Order::OrderError => error
+        rescue ::Sdn::Order::OrderError => error
             return redirect_back(fallback_location: account_orders_path, alert: error.user_message)
         rescue
             return redirect_back(fallback_location: account_orders_path, alert: 'An error has occurred. Please contact us.')
@@ -971,17 +971,17 @@ class AccountController < ApplicationController
         end
 
         if product.save
-            $LOG.info "Product status changed: [product: %i, private: %s, rent: %s, sale: %s, user: %s]" % [ product.id, product.reserved.to_s, product.for_rent.to_s, product.for_sale.to_s, current_user.email ]
+            Rails.logger.info "Product status changed: [product: %i, private: %s, rent: %s, sale: %s, user: %s]" % [ product.id, product.reserved.to_s, product.for_rent.to_s, product.for_sale.to_s, current_user.email ]
 
                 if product_edit_log.save
-                    $LOG.info "Product Edited: [product: %i, private: %s, rent: %s, sale: %s, user: %s]" % [ product.id, product.reserved.to_s, product.for_rent.to_s, product.for_sale.to_s, current_user.email ]
+                    Rails.logger.info "Product Edited: [product: %i, private: %s, rent: %s, sale: %s, user: %s]" % [ product.id, product.reserved.to_s, product.for_rent.to_s, product.for_sale.to_s, current_user.email ]
                 else
-                    $LOG.error "Product Not Edited: [product: %i, private: %s, rent: %s, sale: %s, user: %s] %s" % [ product.id, product.reserved.to_s, product.for_rent.to_s, product.for_sale.to_s, current_user.email, product_edit_log.errors.inspect ]
+                    Rails.logger.error "Product Not Edited: [product: %i, private: %s, rent: %s, sale: %s, user: %s] %s" % [ product.id, product.reserved.to_s, product.for_rent.to_s, product.for_sale.to_s, current_user.email, product_edit_log.errors.inspect ]
                 end
 
             return json_success('Status updated.')
         else
-            $LOG.error "Product status NOT changed: [product: %i, private: %s, rent: %s, sale: %s, user: %s] %s" % [ product.id, product.reserved.to_s, product.for_rent.to_s, product.for_sale.to_s, current_user.email, product.errors.inspect ]
+            Rails.logger.error "Product status NOT changed: [product: %i, private: %s, rent: %s, sale: %s, user: %s] %s" % [ product.id, product.reserved.to_s, product.for_rent.to_s, product.for_sale.to_s, current_user.email, product.errors.inspect ]
             return json_error('Error updating status.');
         end
     end
@@ -992,7 +992,7 @@ class AccountController < ApplicationController
         log_params = [ current_user&.email, product_id ]
 
         unless product
-            $LOG.debug "Favorite NOT created for user - invalid product: %s [product: %i]" % log_params
+            Rails.logger.debug "Favorite NOT created for user - invalid product: %s [product: %i]" % log_params
             return render(json: { success: false, message: "Invalid product." })
         end
 
@@ -1000,14 +1000,14 @@ class AccountController < ApplicationController
             favorite = UserWishlist.create(user_id: current_user.id, product_id: product.id)
 
             if favorite.saved?
-                $LOG.info "Favorite created for user: %s [product: %i, wishlist: %i]" % (log_params << favorite.id)
+                Rails.logger.info "Favorite created for user: %s [product: %i, wishlist: %i]" % (log_params << favorite.id)
                 return render(json: { success: true, message: "Favorite created." })
             else
-                $LOG.error "Favorite NOT created for user: %s [product: %i] %s" % (log_params << favorite.errors.inspect)
+                Rails.logger.error "Favorite NOT created for user: %s [product: %i] %s" % (log_params << favorite.errors.inspect)
                 return render(json: { success: false, message: "Error creating favorite." })
             end
         rescue => error
-            $LOG.error "Favorite NOT removed for user: %s [product: %i] %s" % (log_params << error.full_message)
+            Rails.logger.error "Favorite NOT removed for user: %s [product: %i] %s" % (log_params << error.full_message)
             return render(json: { success: false, message: "Error creating favorite." })
         end
 
@@ -1020,20 +1020,20 @@ class AccountController < ApplicationController
         log_params = [ current_user&.email, favorite&.id.to_i, product_id ]
 
         unless favorite
-            $LOG.debug "Favorite NOT removed for user - invalid product: %s [wishlist: %i, product: %i]" % log_params
+            Rails.logger.debug "Favorite NOT removed for user - invalid product: %s [wishlist: %i, product: %i]" % log_params
             return render(json: { success: false, message: "Invalid favorite." })
         end
 
         begin
             if favorite.destroy
-                $LOG.info "Favorite removed for user: %s [wishlist: %i, product: %i]" % log_params
+                Rails.logger.info "Favorite removed for user: %s [wishlist: %i, product: %i]" % log_params
                 return render(json: { success: true, message: "Favorite removed." })
             else
-                $LOG.error "Favorite NOT removed for user: %s [wishlist: %i, product: %i] %s" % (log_params << favorite.errors.inspect)
+                Rails.logger.error "Favorite NOT removed for user: %s [wishlist: %i, product: %i] %s" % (log_params << favorite.errors.inspect)
                 return render(json: { success: false, message: "Error removing favorite." })
             end
         rescue => error
-            $LOG.error "Favorite NOT removed for user: %s [wishlist: %i, product: %i] %s" % (log_params << error.full_message)
+            Rails.logger.error "Favorite NOT removed for user: %s [wishlist: %i, product: %i] %s" % (log_params << error.full_message)
             return render(json: { success: false, message: "Error removing favorite." })
         end
     end
@@ -1071,10 +1071,10 @@ class AccountController < ApplicationController
             company_name: params[:company_name],
         }
         if current_user.save
-            $LOG.info "Updated profile for %s." % [ current_user.email, current_user.inspect ]
+            Rails.logger.info "Updated profile for %s." % [ current_user.email, current_user.inspect ]
         else
             errors << 'Error updating profile.'
-            $LOG.error "Error updating profile for %s. | %s" % [ current_user.email, current_user.errors.inspect ]
+            Rails.logger.error "Error updating profile for %s. | %s" % [ current_user.email, current_user.errors.inspect ]
         end
 
         billing_address = Address.first_or_new(
@@ -1096,15 +1096,15 @@ class AccountController < ApplicationController
             if new_address
                 current_user.billing_address_id = billing_address.id
                 if current_user.save
-                    $LOG.info "New billing address saved to user. [user: %s, address: %i]" % [ current_user.email, billing_address.id ]
+                    Rails.logger.info "New billing address saved to user. [user: %s, address: %i]" % [ current_user.email, billing_address.id ]
                 else
-                    $LOG.debug "New billing address NOT saved to user. [user: %s, address: %i] %s" % [ current_user.email, billing_address.id, current_user.errors.inspect ]
+                    Rails.logger.debug "New billing address NOT saved to user. [user: %s, address: %i] %s" % [ current_user.email, billing_address.id, current_user.errors.inspect ]
                 end
             end
-            $LOG.info "Updated billing address for %s." % [ current_user.email ]
+            Rails.logger.info "Updated billing address for %s." % [ current_user.email ]
         else
             errors << 'Error updating profile.'
-            $LOG.error "Error updating billing address for %s. | %s" % [ current_user.email, current_user.billing_address.errors.inspect ]
+            Rails.logger.error "Error updating billing address for %s. | %s" % [ current_user.email, current_user.billing_address.errors.inspect ]
         end
 
         if errors.any?
@@ -1151,18 +1151,18 @@ class AccountController < ApplicationController
         # return redirect_to(account_path, alert: "Can't remove credit card until all associated orders have been updated with new payment details.") if Order.all(status: ['Open', 'Renting', 'Pulled', 'Pending', 'InTransit'], credit_card: credit_card).count > 0
 
         # unless credit_card
-        #     $LOG.debug "User %s tried deleting a credit card (ID %i) they don't own." % [ current_user.email, cc_id ]
+        #     Rails.logger.debug "User %s tried deleting a credit card (ID %i) they don't own." % [ current_user.email, cc_id ]
         #     flash.alert = "Error removing the credit card."
         #     return redirect_to(account_path)
         # end
 
         # last_4 = credit_card.last_four
         # if credit_card.disable!
-        #     $LOG.info "User %s disabled card (ID %i) ending with %s." % [ current_user.email, cc_id, last_4 ]
+        #     Rails.logger.info "User %s disabled card (ID %i) ending with %s." % [ current_user.email, cc_id, last_4 ]
         #     flash.notice = "Credit card successfully removed."
         #     return redirect_to(account_path)
         # else
-        #     $LOG.error "Failed disabling card (ID %i) ending with %i, for user %s. | %s" % [ cc_id, last_4, current_user.email, credit_card.errors.inspect ]
+        #     Rails.logger.error "Failed disabling card (ID %i) ending with %i, for user %s. | %s" % [ cc_id, last_4, current_user.email, credit_card.errors.inspect ]
         #     flash.alert = "Error removing credit card."
         #     return redirect_to(account_path)
         # end
@@ -1177,11 +1177,11 @@ class AccountController < ApplicationController
     # Creates the credit card
     def create_credit_card
         # begin  this code is using payleap that's why comment out. now using stripe.
-        #     card = ::SDN::Card.new(current_user).from_new_details(params.to_unsafe_hash.symbolize_keys)
+        #     card = ::Sdn::Card.new(current_user).from_new_details(params.to_unsafe_hash.symbolize_keys)
         #     card_model = card.to_model
         #     card_model.label = params[:label]
         #     unless card_model.save
-        #         $LOG.error "User credit card model NOT saved: [user: %s] %s" % [ current_user.email, card_model.errors.inspect ]
+        #         Rails.logger.error "User credit card model NOT saved: [user: %s] %s" % [ current_user.email, card_model.errors.inspect ]
         #         msg = "Error saving credit card. Please try again."
 
         #         if request.xhr?
@@ -1191,8 +1191,8 @@ class AccountController < ApplicationController
         #             return new_credit_card
         #         end
         #     end
-        # rescue ::SDN::Card::Exceptions::Error => error
-        #     $LOG.error "User credit card NOT created: [user: %s] %s" % [ current_user.email, error.message ]
+        # rescue ::Sdn::Card::Exceptions::Error => error
+        #     Rails.logger.error "User credit card NOT created: [user: %s] %s" % [ current_user.email, error.message ]
         #     if request.xhr?
         #         return json_error(error.user_message)
         #     else
@@ -1201,7 +1201,7 @@ class AccountController < ApplicationController
         #     end
         # end
 
-        # $LOG.info "User credit card created: %i [user: %s, type: %s, last 4: %s]" % [ card_model.id, current_user.email, card_model.type, card_model.last_four ]
+        # Rails.logger.info "User credit card created: %i [user: %s, type: %s, last 4: %s]" % [ card_model.id, current_user.email, card_model.type, card_model.last_four ]
 
         # msg = "Successfully added new #{card.card_type} card."
         # if request.xhr?
@@ -1302,7 +1302,7 @@ class AccountController < ApplicationController
         site = Site.first(id: new_site_id, active: 'Active')
 
         unless site
-            $LOG.debug "User %s changing default site to non-existent site (ID %i)." % [ current_user.email, new_site_id ]
+            Rails.logger.debug "User %s changing default site to non-existent site (ID %i)." % [ current_user.email, new_site_id ]
             flash.alert = "Error changing default location."
             return redirect_to(account_path)
         end
@@ -1310,11 +1310,11 @@ class AccountController < ApplicationController
         current_user.site_id = new_site_id
 
         if current_user.save
-            $LOG.info "User %s updated their default location to %s (%i)." % [ current_user.email, site.name, new_site_id ]
+            Rails.logger.info "User %s updated their default location to %s (%i)." % [ current_user.email, site.name, new_site_id ]
             flash.notice = "Default location successfully updated."
             return redirect_to(account_path)
         else
-            $LOG.error "Failed updating default location to %s (%i) for user %s. | %s" % [ site.name, new_site_id, current_user.email, current_user.errors.inspect ]
+            Rails.logger.error "Failed updating default location to %s (%i) for user %s. | %s" % [ site.name, new_site_id, current_user.email, current_user.errors.inspect ]
             flash.alert = "Error changing default location."
             return redirect_to(account_path)
         end
@@ -1350,7 +1350,7 @@ class AccountController < ApplicationController
         order_line.room_id = room_id
 
         if order_line.save
-            $LOG.info "Order line %i (Order %i) room updated to %s (%i)." % [order_line_id, order_id, room.name, room_id]
+            Rails.logger.info "Order line %i (Order %i) room updated to %s (%i)." % [order_line_id, order_id, room.name, room_id]
             if request.xhr?
                 order_show
                 return render(json: { success: true, html: render_to_string(partial: 'rooms', locals: { order: order_show }, layout: false), })
@@ -1359,7 +1359,7 @@ class AccountController < ApplicationController
                 return redirect_back(fallback_location: account_path)
             end
         else
-            $LOG.error "Error updating order line %i (Order %i) room to %s (%i). | %s" % [order_line_id, order_id, room.name, room_id, order_line.errors.inspect]
+            Rails.logger.error "Error updating order line %i (Order %i) room to %s (%i). | %s" % [order_line_id, order_id, room.name, room_id, order_line.errors.inspect]
             message = "Error updating the room for #{order_line.product.name}."
             if request.xhr?
                 return render(json: { success: false, message: message })
@@ -1378,7 +1378,7 @@ class AccountController < ApplicationController
         begin
             $DB.transaction do
 
-                order = ::SDN::Order.from_model(Order.get(order_id))
+                order = ::Sdn::Order.from_model(Order.get(order_id))
                 cc = CreditCard.get(card_id)
                 order.update_credit_card(cc)
 
@@ -1390,7 +1390,7 @@ class AccountController < ApplicationController
                 end
 
             end
-        rescue ::SDN::Order::Exceptions::UpdateCreditCardError => error
+        rescue ::Sdn::Order::Exceptions::UpdateCreditCardError => error
             if request.xhr?
                 return json_error(error.user_message)
             else
@@ -1408,14 +1408,14 @@ class AccountController < ApplicationController
             site_id    = params[:site_id].to_i
             product_id = params[:product_id]&.to_i
 
-            cart = ::SDN::Cart.new(current_user)
-            order_model = Order.get(order_id)
-            order = ::SDN::Order.from_model(order_model)
+            cart = ::Sdn::Cart.new(current_user)
+            order_model = Order.find(order_id)
+            order = ::Sdn::Order.from_model(order_model)
 
             if current_user&.user_group&.group_name != 'Diamond' &&
-               current_user&.type != 'Employee' && 
+               current_user&.user_type.capitalize != 'Employee' && 
                current_user&.site&.site == "RE|Furnish" &&
-               !current_user&.roles&.include?(Role.first(role: "Site Manager"))
+               !current_user&.roles&.include?(Role.find_by(role: "Site Manager"))
                 redirect_to cart_path, alert: "Order locked. items can't be added."
                 return
             elsif cart.items.map{|i| i[:site_id]}.size > 1  
@@ -1424,40 +1424,34 @@ class AccountController < ApplicationController
             end
 
             if product_id
-                products = [{ product: Product.get(product_id) }]
+                products = [{ product: Product.find(product_id) }]
             else
-                products = cart.items.select{ |e| e[:site_id] == site_id  }.map { |p| { product: Product.get(p['id']), price: p['price'], intent: p['intent'], room: p['room_id'], quantity: p['quantity'] } }
+                products = cart.items.select{ |e| e[:site_id] == site_id  }.map { |p| { product: Product.find(p[:id]), price: p[:price], intent: p[:intent], room: p[:room_id], quantity: p[:quantity] } }
             end
 
             product_ids = products.map{ |p| p[:product].id }
 
             unless order_model.user == current_user
-                $LOG.debug "Product NOT added to order - invalid order: [products: %i, order: %i, user: %i]" % [ product_ids.join('/'), order_id, current_user&.email ]
-                raise ::SDN::Order::Exceptions::OrderOwnershipInvalid
+                Rails.logger.debug "Product NOT added to order - invalid order: [products: %i, order: %i, user: %i]" % [ product_ids.join('/'), order_id, current_user&.email ]
+                raise ::Sdn::Order::Exceptions::OrderOwnershipInvalid
             end
 
-            $DB.transaction do  
-                order.add_products(products, email_receipt: true, user_override: sdn_impersonator || current_user)
-                cart.remove_items(product_ids) unless product_id
+            ActiveRecord::Base.transaction do
+                order.add_products(products, email_receipt: true, user_override:  current_user)
                 new_lines = order_model.order_lines
                 filtered_order_lines = new_lines.select{ |line| product_ids.include?(line.product_id) }
                 invoice_id = order_model&.invoices&.last&.qbo_invoice_id
                 IntuitAccount.update_quickbooks_invoice(invoice_id, filtered_order_lines) if invoice_id.present?
+                current_user.cart.update(items: {}) unless product_id
             end
 
             msg = "Successfully added #{product_ids.size} products to order #{order_id}."
             return json_success(msg) if request.xhr?
             path = cart.items.size > 0 ? cart_path : account_order_path(order_id)
             return redirect_to(path, notice: msg)
-        rescue ::SDN::Order::Exceptions::ProductNotRentable => error
-            msg = error.user_message
-        rescue ::SDN::Order::Exceptions::OrderOwnershipInvalid => error
-            msg = "Invalid order."
-        rescue ::SDN::Order::Exceptions::OrderError => error
-            msg = "#{error.user_message}"
+
         rescue => error
-            $LOG.error "Products NOT added to order: #{error.full_message}"
-            msg = "Unknown error. Please try again or contact us."
+              flash.alert = error.message
         end
 
         return json_error(msg) if request.xhr?

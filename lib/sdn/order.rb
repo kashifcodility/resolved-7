@@ -44,7 +44,7 @@ class Sdn::Order
     # products is expected to be an array of hashes: { product: [product model], price: [decimal] }
     def add_products(products, email_receipt: false, user_override: nil)
         begin
-            $DB.transaction do |t|
+            ActiveRecord::Base.transaction do
 
                 products.each do |product|
                     
@@ -54,11 +54,8 @@ class Sdn::Order
                 ReceiptMailer.new.send_customer_add_to_order_receipt(self, products.pluck(:product)).deliver if email_receipt and products.size > 1 # not sending receipts for only 1 product
 
             end
-        rescue OrderError => error
-            raise error
-        rescue => error
-            Rails.logger.error "Products NOT added to order - rolled back: [products: %s, order: %i, user: %s] %s" % [ products.inspect, order_id, user.email, error.full_message ]
-            raise OrderError.new(error.message, user_message: "Error adding products to order.")
+        rescue Exception => error
+            raise OrderError.new(error.message, user_message: "Error creating add products.")
         end
     end
 
@@ -74,21 +71,18 @@ class Sdn::Order
         price ||= product_model.rent_per_month
 
         begin
-            $DB.transaction do |t|
+            ActiveRecord::Base.transaction do
 
-                create_order_line(product: product_model, base_price: price, product_hash: product)
+                create_order_line(product: product_model, base_price: price, product_hash: product_hash)
                 create_product_piece_locations(product: product_model)
                 # refresh_damage_waiver will calculate after discussion.
                 ReceiptMailer.new.send_customer_add_to_order_receipt(self, product_model).deliver if email_receipt
                 OrderEditLog.add_product(model, product_model, user: user_override || user)
 
             end
-        rescue OrderError => error
-            raise error
-        rescue => error
-            Rails.logger.error "Product NOT added to order - rolled back: [product: %i, order: %i, user: %s] %s" % [ product_model&.id, order_id, user.email, error.full_message ]
-            raise OrderError.new(error.message, user_message: "Error adding product to order.")
-        end
+        rescue Exception => error
+            raise OrderError.new(error.message, user_message: "Error creating add product.")
+        end    
     end
 
     # Creates an order line
@@ -96,7 +90,7 @@ class Sdn::Order
     def create_order_line(product:, base_price:, taxed: true, room_id: nil, floor_id: nil, description: nil, product_hash: p)
 
         begin
-            $DB.transaction do
+            ActiveRecord::Base.transaction do
 
                 # Self rental commission
                 if user.id == product.customer_id
@@ -115,16 +109,16 @@ class Sdn::Order
                     base_price:  product_hash[:intent] == "rent" ? product.rating_price_rent : product.rating_price_sale, #price according rating of product
                     price:       discount_price,
                     description: description,
-                    type:        product_hash[:intent],
+                    line_type:   product_hash[:intent],
                     room_id:     product_hash[:room].present? ? product_hash[:room].to_i : user&.rooms&.find{ |e| e.name == "Unassigned" }&.id,
                     quantity:    product_hash[:quantity],
-                    floor_id:    floor_id || OrderLine.properties.find{ |e| e.name == :floor_id }.default,
+                    floor_id:    floor_id || Floor.first&.id,
                 )
 
-                if line.saved?
+                if line.persisted?
                     product_hash[:quantity].to_i.times do
     
-                        product_piece = ProductPiece.first(product_id: product.id, order_line_id: 0, status: "Available")
+                        product_piece = ProductPiece.where(product_id: product.id, order_line_id: 0, status: "Available")&.first
                         if product_piece.present? && product_piece.order_line_id == 0
                             product = product_piece.product
                             product.update(quantity: product.quantity.to_i - 1) if product.present?
@@ -142,10 +136,7 @@ class Sdn::Order
                 end
 
             end
-        rescue OrderError => error
-            raise error
-        rescue => error
-            Rails.logger.error "Order line NOT created - rolled back: [product: %i, order: %i, user: %s] %s" % [ product&.id, order_id, user.email, error.full_message ]
+        rescue Exception => error
             raise OrderError.new(error.message, user_message: "Error creating order line.")
         end
     end
@@ -153,7 +144,7 @@ class Sdn::Order
     # TODO: Write tests
     def create_product_piece_locations(product:, user_override: nil)
         begin
-            $DB.transaction do
+            ActiveRecord::Base.transaction do
 
                 created_ppls = []
                 product.product_pieces.each do |piece|
@@ -163,28 +154,22 @@ class Sdn::Order
                 return created_ppls
 
             end
-        rescue OrderError => error
-            raise error
-        rescue => error
-            Rails.logger.error "Product piece locations NOT created - rolled back: [product: %i, order: %i, user: %s] %s" % [ product&.id, order_id, user.email, error.full_message ]
-            raise OrderError.new(error.message, user_message: "Error putting #{product&.name} on order.")
+        rescue Exception => error
+            raise OrderError.new(error.message, user_message: "Error creating product piece location.")
         end
     end
 
     # TODO: Write tests
     def refresh_damage_waiver
         begin
-            $DB.transaction do
+            ActiveRecord::Base.transaction do
                 unless model.refresh_damage_waiver!
                     raise OrderError.new("Damage waiver NOT refreshed", user_message: "Error updating order's damage waiver.")
                 end
 
             end
-        rescue OrderError => error
-            raise error
-        rescue => error
-            Rails.logger.error "Damage waiver NOT refreshed - rolled back: #{error.full_message}"
-            raise OrderError.new(error.message, user_message: "Error updating order's damage waiver.")
+        rescue Exception => error
+            raise OrderError.new(error.message, user_message: "Error creating damage waiver.")
         end
     end
 
@@ -193,7 +178,7 @@ class Sdn::Order
         return if piece.void?
 
         begin
-            $DB.transaction do
+            ActiveRecord::Base.transaction do
 
                 ppl = ProductPieceLocation.create(
                     product_piece: piece,
@@ -204,7 +189,7 @@ class Sdn::Order
                     created_by:    user_override&.id || user.id,
                 )
 
-                if ppl.saved?
+                if ppl.persisted?
                     Rails.logger.info "PPL created: [ppl: %i, piece: %i, product: %i, order: %i, user: %s]" % [ ppl.id, piece.id, piece.product_id, order_id, user.email ]
                     return ppl
                 else
@@ -213,11 +198,8 @@ class Sdn::Order
                 end
 
             end
-        rescue OrderError => error
-            raise error
-        rescue => error
-            Rails.logger.error "PPL NOT created - rolled back: [piece: %i, product: %i, order: %i, user: %s] %s" % [ piece.id, piece.product_id, order_id, user.email, error.full_message ]
-            raise OrderError.new(error.message, user_message: "Error putting barcode on hold.")
+        rescue Exception => error
+            raise OrderError.new(error.message, user_message: "Error creating ppl.")
         end
     end
 
@@ -226,7 +208,7 @@ class Sdn::Order
     # TODO: Write tests
     def cancel(email_confirmation: true)
         begin
-            $DB.transaction do
+            ActiveRecord::Base.transaction do
 
                 # check_cancel_timeframe
                 check_cancel_order_status
@@ -234,11 +216,8 @@ class Sdn::Order
                 void(voided_by: model.user, email_confirmation: true)
 
             end
-        rescue OrderError => error
-            raise error
-        rescue => error
-            Rails.logger.error "Order NOT cancelled - rolled back: [order: %i, user: %s] %s" % [ order_id, user.email, error.full_message ]
-            raise OrderError.new(error.message, user_message: "Error cancelling order.")
+        rescue Exception => error
+            raise OrderError.new(error.message, user_message: "Error canceling order.")
         end
     end
 
@@ -256,7 +235,7 @@ class Sdn::Order
     # TODO: Write tests
     def void(voided_by:, email_confirmation: true)
         begin
-            $DB.transaction do
+            ActiveRecord::Base.transaction do
 
                 if model.void?
                     Rails.logger.debug "Order has already been voided: [order: #{order_id}]"
@@ -286,18 +265,15 @@ class Sdn::Order
                 return true
 
             end
-        rescue OrderError => error
-            raise error
-        rescue => error
-            Rails.logger.error "Order NOT voided - rolled back: [order: %i, user: %s] %s" % [ order_id, user.email, error.full_message ]
-            raise OrderError.new(error.message, user_message: "Error voiding order.")
+        rescue Exception => error
+            raise OrderError.new(error.message, user_message: "Error in voiding order.")
         end
     end
 
     # Requests destage
     def request_destage(date:, service: 'destage', expedited: false, requested_by:, email_confirmation: true, arrivy_task: true)
         begin
-            $DB.transaction do
+            ActiveRecord::Base.transaction do
                 date = date.to_date
                 raise OrderError.new("Invalid date, please select date at least 7 days out.", user_message: :message) unless model.can_be_destaged?(date: date)
 
@@ -324,46 +300,8 @@ class Sdn::Order
 
                 return true
             end
-        rescue OrderError => error
-            raise error
-        rescue => error
-            Rails.logger.error "Order destage NOT requested - rolled back: [order: %i, user: %s] %s" % [ order_id, user.email, error.full_message ]
-            raise OrderError.new(error.message, user_message: "Error requesting destage.")
-        end
-    end
-
-    # service type can be 'destage' or 'destage_dropoff'
-    def create_arrivy_destage_task(service = 'destage')
-        data = {
-            site_id:         model.site_id,
-            order_type:      'Return',
-            order_id:        model.id,
-            delivery_method: service,
-            site_name:       model.site.name.downcase,
-            first_name:      model.address.first_name,
-            last_name:       model.address.last_name,
-            email:           model.user.email,
-            mobile_number:   model.billing_address&.mobile_phone,
-            company_name:    model.address.company,
-            address1:        model.address.address1,
-            address2:        model.address.address2,
-            city:            model.address.city,
-            state:           model.address.state,
-            zipcode:         model.address.zipcode,
-            country:         'USA', # Not currently collecting this
-            amount_fields:  {
-                order_subtotal: model.order_lines.product_lines.pluck(:base_price).sum.to_f
-            },
-	    delivery_date:  "%s %s" % [ model.destage_date.strftime('%F %T'), Time.zone.now.formatted_offset ],
-            site_address: model.site.address.to_hash,
-        }
-
-        begin
-            $SAIL.create_arrivy_task(data)
-            Rails.logger.info "SAIL/Arrivy call successful [order: %i, data: %s]" % [model.id, data.inspect]
-        rescue => error
-            Rails.logger.error "SAIL/Arrivy call failed [order: %i, data: %s] %s" % [model.id, data.inspect, error.full_message]
-            raise SAILError, error.full_message
+        rescue Exception => error
+            raise OrderError.new(error.message, user_message: "Error in destaging order.")
         end
     end
 
@@ -405,9 +343,9 @@ class Sdn::Order
     def toggle_hold(onoff, employee:)
         begin
             raise OrderHoldError.new("Hold action must be 'on' or 'off'.", user_message: :message) unless onoff.among?('on', 'off')
-            raise OrderHoldError.new("Invalid user for holding.", user_message: :message) unless employee&.type == 'Employee'
+            raise OrderHoldError.new("Invalid user for holding.", user_message: :message) unless employee&.user_type.capitalize == 'Employee'
 
-            $DB.transaction do
+            ActiveRecord::Base.transaction do
 
                 hold = model.hold || ::OrderHold.new(order_id: order_id, created_by: employee.id, on_hold: nil)
                 old_state = hold.on_hold
@@ -434,7 +372,7 @@ class Sdn::Order
                 return true
 
             end
-        rescue OrderError => error
+        rescue Exception => error
             raise error
         rescue => error
             Rails.logger.error "Order hold NOT toggled - rolled back: [order: %i, action: %s, user: %s] %s" % [ order_id, onoff, employee&.email, error.full_message ]

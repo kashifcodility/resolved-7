@@ -106,7 +106,7 @@ class CartController < ApplicationController
 
         @items_by_site.each_with_index do |site, index|
             if (current_user&.user_group&.group_name == 'Diamond') || 
-               (current_user&.site&.site == "RE|Furnish" && current_user&.user_type == 'Employee') || 
+               (current_user&.site&.site == "RE|Furnish" && current_user&.user_type.capitalize == 'Employee') || 
                (current_user&.site&.site != "RE|Furnish")
                 @items_by_site[index][:open_orders] = current_user.orders.open.rentals.for_site(site.id).map do |order|
                     OpenStruct.new( id: order.id, project: order.project_name.presence, address: order.address&.address1 )
