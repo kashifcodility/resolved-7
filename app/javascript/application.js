@@ -15,6 +15,7 @@ import "edit_project_name"
 import "edit_stage_info"
 import "global_functions"
 import "user_account"
+import "project_detail_page"
 
 
 

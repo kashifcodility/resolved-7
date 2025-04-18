@@ -470,10 +470,10 @@ class AccountController < ApplicationController
         order_id = params[:id].to_i
         line_id  = params[:line_id].to_i
         bin_name = params.select { |key, value| key.start_with?('bin_name_') }.values[0]
-        bin = Bin.first(site_id: current_user&.site&.id, bin: bin_name)
+        bin = Bin.where(site_id: current_user&.site&.id, bin: bin_name)&.first
         bin = Bin.create(site_id: current_user&.site&.id, bin: bin_name, active: 'Active') if bin.blank? && bin_name.present?
         puts bin.inspect+"BINSSSSSSSSSSSSSSSSSSS"
-        product_pieces = ProductPiece.all(order_line_id: line_id)
+        product_pieces = ProductPiece.where(order_line_id: line_id)
         puts product_pieces.inspect+"jjjjjjjjjjjjjjjj"
         # Attributes voiding to impersonator, if applicable
         if session[:god] === true
