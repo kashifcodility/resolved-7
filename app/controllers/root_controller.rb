@@ -86,7 +86,7 @@ class RootController < ApplicationController
                     IntuitAccount.create_quickbooks_invoice(order_model.id, customer_id, false) if customer_id.present?
                     service = StripeInvoiceService.new(current_user, order_model) 
                     invoice = service.create_invoice(false)  if order_model.present?
-                    return redirect_to(account_order_path(order_model&.id), alert: 'Order updated successfully.')
+                    return redirect_to(account_order_path(order_model&.id), notice: 'Order updated successfully.')
                 end
             else
                 # create invoice here for already existing orders with order lines.
@@ -101,7 +101,7 @@ class RootController < ApplicationController
                     invoice_id_stripe = order_model&.invoices&.last&.stripe_invoice_id
                     service.update_invoice(added_lines, invoice_id_stripe)
                     IntuitAccount.update_quickbooks_invoice(invoice_id, added_lines) if invoice_id.present?
-                    return redirect_to(account_order_path(order_model&.id), alert: 'Order updated successfully.')
+                    return redirect_to(account_order_path(order_model&.id), notice: 'Order updated successfully.')
                 end
             end
         rescue Exception => e

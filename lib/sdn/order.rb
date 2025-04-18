@@ -217,22 +217,22 @@ class Sdn::Order
     # email_confirmation - sends an email to the customer if successful
     # TODO: Write tests
     def cancel(email_confirmation: true)
-        begin
+        # begin
             ActiveRecord::Base.transaction do
 
                 # check_cancel_timeframe
                 check_cancel_order_status
 
-                void(voided_by: model.user, email_confirmation: true)
+                void(voided_by: @model&.last&.user, email_confirmation: true)
 
             end
-        rescue Exception => error
-            raise OrderError.new(error.message, user_message: "Error canceling order.")
-        end
+        # rescue Exception => error
+        #     raise OrderError.new(error.message, user_message: "Error canceling order.")
+        # end
     end
 
     def check_cancel_order_status
-        raise OrderError.new("Order status must be 'Open' or 'Pulled' - got #{status}", user_message: "Order can not be cancelled - please contact us.") unless status.among?('Open', 'Pulled')
+        raise OrderError.new("Order status must be 'Open' or 'Pulled' - got #{status}", user_message: "Order can not be cancelled - please contact us.") unless ['Open', 'Pulled'].include?(status)
     end
 
     def check_cancel_timeframe
@@ -244,19 +244,20 @@ class Sdn::Order
     # Voids an order
     # TODO: Write tests
     def void(voided_by:, email_confirmation: true)
+        order_model = @model&.last
         begin
-            ActiveRecord::Base.transaction do
+            # ActiveRecord::Base.transaction do
 
-                if model.void?
+                if order_model.void?
                     Rails.logger.debug "Order has already been voided: [order: #{order_id}]"
                     raise OrderError.new("Order already voided.", user_message: :message)
                 end
                 # Void the order lines
                 # model.order_lines.each { |ol| ol.void!(voided_by: voided_by) }
-                model.order_lines.each do |ol| 
+                order_model.order_lines.each do |ol| 
                     product = ol.product
                     product.update(quantity: product.quantity + ol.quantity)
-                    product_pieces = ProductPiece.all(product_id: product.id, order_line_id: ol.id)  
+                    product_pieces = ProductPiece.where(product_id: product.id, order_line_id: ol.id)  
                     product_pieces.each do |pp|
                       pp.update(order_line_id: 0)
                     end unless product_pieces.blank?
@@ -264,8 +265,8 @@ class Sdn::Order
                     ol.update(voided_by: voided_by&.id, void: 'yes', voided_date: Time.zone.now)  
                 end
                 # Change order status to void
-                model.status = 'Void'
-                Rails.logger.info "Order voided: [order: %i, voided by: %s, user: %s]" % [ order_id, voided_by&.email, user.email ] if model.save
+                order_model.status = 'Void'
+                Rails.logger.info "Order voided: [order: %i, voided by: %s, user: %s]" % [ order_id, voided_by&.email, user.email ] if order_model.save
 
                 if email_confirmation
                     ReceiptMailer.new.send_customer_cancellation_confirmation(self).deliver
@@ -275,9 +276,9 @@ class Sdn::Order
                 return true
 
             end
-        rescue Exception => error
-            raise OrderError.new(error.message, user_message: "Error in voiding order.")
-        end
+        # rescue Exception => error
+        #     raise OrderError.new(error.message, user_message: "Error in voiding order.")
+        # end
     end
 
     # Requests destage
@@ -414,17 +415,17 @@ class Sdn::Order
 
     # TODO: Write tests
     def order_id
-        @order_id ||= model.id
+        @order_id ||= @model&.last.id
     end
 
     # TODO: Can an order not have a user?
     # TODO: Write tests
     def user
-        @user ||= model.user
+        @user ||= @model&.last.user
     end
 
     def status
-        model.status
+        @model.first.status
     end
 
 end

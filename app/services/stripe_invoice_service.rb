@@ -13,7 +13,7 @@ class StripeInvoiceService
       invoice = create_stripe_invoice(customer, recurring_invoice)
   
       add_invoice_items(invoice.id, customer.id, recurring_invoice)
-      local_db_invoice = Invoice.last(order_id: @order.id)
+      local_db_invoice = Invoice.where(order_id: @order.id)&.last
       local_db_invoice.update(stripe_invoice_id: invoice.id) if local_db_invoice.present?
       invoice
     end
@@ -62,7 +62,7 @@ class StripeInvoiceService
     def create_stripe_invoice(customer, recurring_invoice)
       new_stripe_doc_number = ''
       if recurring_invoice == true && Rails.env != "development"
-        invoice_db = Invoice.last(order_id: @order&.id)
+        invoice_db = Invoice.where(order_id: @order&.id)&.last
         stripe_doc_number = invoice_db.stripe_doc_number&.split('-')&.last if invoice_db.present?
         if stripe_doc_number.present?
           new_qbo_id = (stripe_doc_number.to_i + 1).to_s
