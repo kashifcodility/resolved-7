@@ -59,7 +59,7 @@ module QuickbooksOauth
       invoice.line_items << line_item
     end
     
-    def create_quickbooks_customer(user) 
+    def create_quickbooks_customer(order_user) 
       intuit_account = IntuitAccount.last
       user = order_user&.owner.present? ? order_user.owner : order_user
       if intuit_account.present? 

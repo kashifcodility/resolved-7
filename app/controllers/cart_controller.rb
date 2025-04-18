@@ -261,7 +261,7 @@ class CartController < ApplicationController
         @rush_order = params['rush_order']
         user_must_save_card?
         @user_must_fill_profile = current_user.company_name.blank? || current_user.shipping_address_id.blank?
-        if sdn_user.owner.present?
+        if current_user.owner.present?
             # binding.pry
             @credit_cards = Array.wrap(current_user.owner&.credit_cards&.last)
         else
