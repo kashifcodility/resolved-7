@@ -50,6 +50,7 @@ class User < ApplicationRecord
   belongs_to :user_group, foreign_key: :group_id, optional: true
   has_many :user_membership_levels
   belongs_to :site, optional: true
+  belongs_to :owner, class_name: 'User', foreign_key: 'owner_id', optional: true
   has_one :cart
   has_many :reseller_licenses
   has_many :orders

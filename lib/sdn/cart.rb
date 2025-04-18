@@ -347,6 +347,7 @@ class Sdn::Cart
             total:         self.total,
             shipping:      self.shipping
         )
+        user = @user.owner.present? ? @user.owner : @user
         # Always save CC and make it visible if user wants to "save for future use"
         if billing_data['payment_method'] == 'new' # now card is added from profile of user.
             # begin
@@ -394,7 +395,7 @@ class Sdn::Cart
         receipt = OpenStruct.new(orders: orders, totals: totals, card: nil, order_types: types)
 
         # Send email receipt
-        ReceiptMailer.new.send_customer_order_receipt(@user, receipt).deliver if orders.processed.any? rescue puts "-------------Email generation issue--------------------"
+        ReceiptMailer.new.send_customer_order_receipt(user, receipt).deliver if orders.processed.any? rescue puts "-------------Email generation issue--------------------"
 
         return receipt
     end
@@ -636,8 +637,9 @@ class Sdn::Cart
     # Creates single order by intent and location
     # TODO: Add support for adding to existing order
     def create_order_with_stripe_invoice(order_items, intent, site_id, data = {})
+        user = @user.owner.present? ? @user.owner : @user
         type = intent == 'buy' ? 'Sales' : 'Rental'
-        Rails.logger.info "Order creation initialized: [user: %s, cart: %i, type: %s, site: %i, items: %s]" % [@user.email, @cart_model.id, type, site_id, order_items]
+        Rails.logger.info "Order creation initialized: [user: %s, cart: %i, type: %s, site: %i, items: %s]" % [user.email, @cart_model.id, type, site_id, order_items]
 
         # Confirm all items are from the supplied site_id
         items_site_ids = order_items.pluck(:site_id).uniq
@@ -677,12 +679,12 @@ class Sdn::Cart
         
 
         if order.save
-            Rails.logger.info "Order created [id: %i, type: %s, user: %s]" % [order.id, type, @user.email]
+            Rails.logger.info "Order created [id: %i, type: %s, user: %s]" % [order.id, type, user.email]
         else
-            Rails.logger.error "Order not created [type: %s, user: %s] %s" % [type, @user.email, order.errors.inspect]
+            Rails.logger.error "Order not created [type: %s, user: %s] %s" % [type, user.email, order.errors.inspect]
             raise OrderError, order.errors.inspect
         end
-        create_order_lines_with_stripe_items(order, order_items, data, intent: intent, site_id: site_id, discount_percentage: @user&.user_group&.discount_percentage)    
+        create_order_lines_with_stripe_items(order, order_items, data, intent: intent, site_id: site_id, discount_percentage: @user&.user_group&.discount_percentage) #discount_percentage of owner that is @user
         
         
         # create_product_piece_locations(order, order_items)
@@ -694,7 +696,7 @@ class Sdn::Cart
     # Creates an order's order lines
     # TODO: Accomodate Showroom sales? (payment.php line 511)
     def create_order_lines_with_stripe_items(order, order_items, data = {}, intent:, site_id:, discount_percentage: )  
-
+        user = @user.owner.present? ? @user.owner : @user
         # customer = Stripe::Customer.retrieve(shipping_data['stripe_id'])
         order_items.each do |order_item|
             item = order_item.with_indifferent_access
@@ -761,7 +763,7 @@ class Sdn::Cart
         if order.save
             Rails.logger.info "Order lines created [lines: %s, order: %i, intent: %s, user: %s]" % [order.order_lines.pluck(:id).join('/'), order.id, intent, @user.email]
         else
-            Rails.logger.error "Order lines NOT created [order: %i, intent: %s, user: %s] %s" % [order.id, intent, @user.email, order.errors.inspect]
+            Rails.logger.error "Order lines NOT created [order: %i, intent: %s, user: %s] %s" % [order.id, intent, user.email, order.errors.inspect]
             raise OrderLineError, order.errors.inspect
         end
 
@@ -788,6 +790,7 @@ class Sdn::Cart
     # This is how the system keeps track of barcodes. We need to mark each barcode of a
     # product as 'OnOrder' so the ERP knows what to do and it's hidden from the frontend.
     def create_product_piece_locations(order, order_items)
+        user = @user.owner.present? ? @user.owner : @user
         order_items_models = Product.where(id: order_items.pluck(:id))
 
         order_items_models.each do |item|
@@ -801,7 +804,7 @@ class Sdn::Cart
                         table_id: order.id,
                         log_type: 'OnOrder',
                         log_status: 'Posted',
-                        created_by: @user.id,
+                        created_by: user.id,
                         created: Time.zone.now,
                     )
                     binding.pry
@@ -809,9 +812,9 @@ class Sdn::Cart
                     
                     ppl.save
                     if ppl.persisted?
-                        Rails.logger.info "Product piece location record created: OnOrder [piece id: %i, ppl id: %i, order: %i, user: %s]" % [pp.id, ppl.id, order.id, @user.email]
+                        Rails.logger.info "Product piece location record created: OnOrder [piece id: %i, ppl id: %i, order: %i, user: %s]" % [pp.id, ppl.id, order.id, user.email]
                     else
-                        Rails.logger.error "Product piece location record NOT created: OnOrder [piece id: %i, order: %i, user: %s] %s" % [pp.id, order.id, @user.email, ppl.errors.inspect]
+                        Rails.logger.error "Product piece location record NOT created: OnOrder [piece id: %i, order: %i, user: %s] %s" % [pp.id, order.id, user.email, ppl.errors.inspect]
                         raise ProductPieceError, ppl.errors.inspect
                     end
                 # rescue => error

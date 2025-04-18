@@ -433,7 +433,9 @@ class ProductsController < ApplicationController
 
     def autocomplete
         term = params[:term]
-        products = Product.all(site_id: current_user&.site_id, :product.like => "%#{term}%", :limit => 10, :fields => [:id, :product, :rent_per_month, :quantity])
+        products = Product.joins(:product_pieces)
+                    .where(product_pieces: { product_epc_id: params[:term] })
+                    # binding.pry
         render json: products
     end  
 

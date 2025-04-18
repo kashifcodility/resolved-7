@@ -63,21 +63,27 @@ class RootController < ApplicationController
         selected_products = JSON.parse(params[:product_ids])
         products = []
         product_ids = []
-        order_model = Order.get(params[:order_id])
-        order = ::SDN::Order.from_model(order_model)
+        order_model = Order.find(params[:order_id])
+        order = ::Sdn::Order.from_model(order_model)
         selected_products.each do |action, quantity, product_id|
-          product = Product.first(id: product_id)
+          product = Product.where(id: product_id)&.first
           product_ids << product.id
           products << { product: product, price: (action == "rent" ? product.rating_price_rent : product.rating_price_sale ), intent: action, quantity: quantity, room: "" }
         end
-        $DB.transaction do  
-            order.add_products(products, email_receipt: true, user_override: sdn_impersonator || current_user)
-            new_lines = order_model.order_lines
-            filtered_order_lines = new_lines.select{ |line| product_ids.include?(line.product_id) }
-            invoice_id = order_model&.invoices&.last&.qbo_invoice_id
-            IntuitAccount.update_quickbooks_invoice(invoice_id, filtered_order_lines) if invoice_id.present?
-        end
-        redirect_to(account_order_path(order_model&.id), notice: "added items successfully.")
+        begin
+            
+            ActiveRecord::Base.transaction do
+                order.add_products(products, email_receipt: true, user_override:  current_user)
+                new_lines = order_model.order_lines
+                filtered_order_lines = new_lines.select{ |line| product_ids.include?(line.product_id) }
+                invoice_id = order_model&.invoices&.last&.qbo_invoice_id
+                IntuitAccount.update_quickbooks_invoice(invoice_id, filtered_order_lines) if invoice_id.present?
+                redirect_to(account_order_path(order_model&.id), notice: "added items successfully.")
+            end
+        rescue Exception => e
+            flash.alert = e.message
+        end        
+        
     end    
 
     private
