@@ -217,7 +217,7 @@ class Sdn::Order
     # email_confirmation - sends an email to the customer if successful
     # TODO: Write tests
     def cancel(email_confirmation: true)
-        # begin
+        begin
             ActiveRecord::Base.transaction do
 
                 # check_cancel_timeframe
@@ -226,9 +226,9 @@ class Sdn::Order
                 void(voided_by: @model&.last&.user, email_confirmation: true)
 
             end
-        # rescue Exception => error
-        #     raise OrderError.new(error.message, user_message: "Error canceling order.")
-        # end
+        rescue Exception => error
+            raise OrderError.new(error.message, user_message: "Error canceling order.")
+        end
     end
 
     def check_cancel_order_status
@@ -246,7 +246,7 @@ class Sdn::Order
     def void(voided_by:, email_confirmation: true)
         order_model = @model&.last
         begin
-            # ActiveRecord::Base.transaction do
+            ActiveRecord::Base.transaction do
 
                 if order_model.void?
                     Rails.logger.debug "Order has already been voided: [order: #{order_id}]"
@@ -276,9 +276,9 @@ class Sdn::Order
                 return true
 
             end
-        # rescue Exception => error
-        #     raise OrderError.new(error.message, user_message: "Error in voiding order.")
-        # end
+        rescue Exception => error
+            raise OrderError.new(error.message, user_message: "Error in voiding order.")
+        end
     end
 
     # Requests destage
