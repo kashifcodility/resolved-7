@@ -511,7 +511,7 @@ class AccountController < ApplicationController
 
     def order_cancel
         order_id = params[:id].to_i
-        order = current_user.orders.first(id: order_id)
+        order = current_user.orders.where(id: order_id)
 
         unless order
             flash.alert = "Invalid order."
@@ -523,9 +523,10 @@ class AccountController < ApplicationController
             if session[:god] === true
                 order.void(voided_by: sdn_impersonator)
             else
-                invoice = Invoice.first(order_id: order_id)
+                invoice = Invoice.where(order_id: order_id)&.first
                 order.cancel
                 IntuitAccount.delete_quickbooks_invoice(invoice.qbo_invoice_id) if invoice.present?
+                #also for stripe to delete invoice
             end
 
             flash.notice = "Successfully cancelled order #{order_id}"

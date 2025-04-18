@@ -115,27 +115,7 @@ gem 'nokogiri'
 
 # gem "sidekiq", "~> 6.5"
 gem 'recaptcha'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+gem 'sidekiq'
+gem 'sidekiq-scheduler'
+gem "exception_notification", "~> 4.5"
 gem "devise", "~> 4.9"

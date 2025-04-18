@@ -536,7 +536,9 @@ class CartController < ApplicationController
             @receipt.orders&.processed.each do |order|
                 due_date = order.due_date.to_date
                 customer_id = IntuitAccount.create_quickbooks_customer(current_user) if due_date == Date.today    
-                IntuitAccount.create_quickbooks_invoice(order.id, customer_id, false) if order.present? && customer_id.present? && due_date == Date.today    
+                IntuitAccount.create_quickbooks_invoice(order.id, customer_id, false) if order.present? && customer_id.present? && due_date == Date.today
+                service = StripeInvoiceService.new(current_user, order) 
+                invoice = service.create_invoice(false)  if order.present? && due_date == Date.today 
             end      
         end    
         session[:room_product] = {}
