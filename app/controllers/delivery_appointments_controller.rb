@@ -1,7 +1,7 @@
 class DeliveryAppointmentsController < ApplicationController
 
   def index
-    if current_user.user_type == "Employee"
+    if current_user.user_type.capitalize == "Employee"
       @delivery_appointments = DeliveryAppointment.all
     else
       @delivery_appointments = DeliveryAppointment.where(user_id: current_user.id)

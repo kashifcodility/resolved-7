@@ -18,6 +18,7 @@
 #     property :created_at, DateTime
 
 class OrderEditLog < ApplicationRecord
+    self.table_name = "order_edit_log"  
     # Associations
     belongs_to :order
     belongs_to :user

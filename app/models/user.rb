@@ -35,6 +35,8 @@ class User < ApplicationRecord
   validates :site_id, numericality: { only_integer: true, allow_nil: true }
 
   has_many :credit_cards, dependent: :destroy
+  has_many :user_roles
+  has_many :roles, through: :user_roles
   belongs_to :default_credit_card, class_name: "CreditCard", optional: true
   has_many :order_queries
   has_many :delivery_appointments
@@ -45,7 +47,7 @@ class User < ApplicationRecord
   belongs_to :shipping_address, class_name: "Address", optional: true
   belongs_to :billing_address, class_name: "Address", optional: true
   belongs_to :membership_level, optional: true
-  belongs_to :user_group, optional: true
+  belongs_to :user_group, foreign_key: :group_id, optional: true
   has_many :user_membership_levels
   belongs_to :site, optional: true
   has_one :cart

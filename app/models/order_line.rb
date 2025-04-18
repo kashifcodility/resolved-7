@@ -149,7 +149,7 @@ class OrderLine < ApplicationRecord
     end
 
     def void!(voided_by:)
-        unless self.voidable? || voided_by.user_type == 'Employee'
+        unless self.voidable? || voided_by.user_type.capitalize == 'Employee'
             Rails.logger.debug "Order line NOT voided - not voidable: %i [user: %s, order: %i]" % [ self.id, voided_by&.email, self.order&.id ]
             return false
         end
