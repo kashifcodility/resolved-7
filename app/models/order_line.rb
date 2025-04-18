@@ -122,7 +122,10 @@ class OrderLine < ApplicationRecord
     end
 
     def self.void_line_belonging_to_user(line_id, user)
-        line = OrderLine.first(id: line_id, OrderLine.order.user_id => user&.id)
+        line = OrderLine.joins(:order)
+              .where(id: line_id, orders: { user_id: user&.id })
+              .first
+        # OrderLine.first(id: line_id, OrderLine.order.user_id => user&.id)
 
         unless line
             Rails.logger.debug "Order line belonging to user NOT voided: %i [user: %s]" % [ line_id, user.email ]
@@ -131,10 +134,10 @@ class OrderLine < ApplicationRecord
 
         product = line.product
         product.update(quantity: product.quantity + line.quantity)
-        product_pieces = ProductPiece.all(product_id: product.id, order_line_id: line.id)  
+        product_pieces = ProductPiece.where(product_id: product.id, order_line_id: line.id)  
         product_pieces.each do |pp|
           pp.update(order_line_id: 0)
-          order_log = OrderLog.first(order_id: line.order.id)
+          order_log = OrderLog.where(order_id: line.order.id)&.first
           array = eval(order_log.product_pieces) if order_log.present?
         #   array.reject! { |sub_array| sub_array[0] == product&.id && sub_array[1] == line&.id }
           array.reject! { |sub_array| sub_array[0] == product&.id } if array.present?

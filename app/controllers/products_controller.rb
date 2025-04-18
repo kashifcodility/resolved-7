@@ -439,11 +439,14 @@ class ProductsController < ApplicationController
 
     def autocomplete_bins
         term = params[:query]
-        bins = Bin.all(
-            :site_id => current_user&.site_id,
-            :conditions => ["CAST(id AS CHAR) LIKE ?", "%#{term}%"],
-            :limit => 10
-          )        
+        # bins = Bin.all(
+        #     :site_id => current_user&.site_id,
+        #     :conditions => ["CAST(id AS CHAR) LIKE ?", "%#{term}%"],
+        #     :limit => 10
+        #   ) 
+        bins = Bin.where(site_id: current_user&.site_id)
+          .where("CAST(id AS CHAR) LIKE ?", "%#{term}%")
+          .limit(10)       
         render json: bins.map { |bin| bin.bin }
     end  
       
