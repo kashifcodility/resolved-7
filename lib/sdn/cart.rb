@@ -484,7 +484,7 @@ class Sdn::Cart
                         # create_arrivy_task(order, intent: intent, site_id: site_id)
                         
                         # remove_items(items_by_intent.pluck(:id)) #this line replace with line below
-                        @cart_model.update(items: {})    
+                        @cart_model.update(items: {}, checkout: {}) # this will remove all items from cart and clear checkout data  
                         orders.processed << order
                 end
                 # rescue => error

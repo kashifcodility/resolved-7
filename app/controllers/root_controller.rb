@@ -70,18 +70,43 @@ class RootController < ApplicationController
           product_ids << product.id
           products << { product: product, price: (action == "rent" ? product.rating_price_rent : product.rating_price_sale ), intent: action, quantity: quantity, room: "" }
         end
+        invoice_id = order_model&.invoices&.last&.qbo_invoice_id
         begin
             
-            ActiveRecord::Base.transaction do
-                order.add_products(products, email_receipt: true, user_override:  current_user)
-                new_lines = order_model.order_lines
-                filtered_order_lines = new_lines.select{ |line| product_ids.include?(line.product_id) }
-                invoice_id = order_model&.invoices&.last&.qbo_invoice_id
-                IntuitAccount.update_quickbooks_invoice(invoice_id, filtered_order_lines) if invoice_id.present?
-                redirect_to(account_order_path(order_model&.id), notice: "added items successfully.")
+            if invoice_id.blank?
+                # create invoice here for blank orders created by admin.               
+                ActiveRecord::Base.transaction do
+                    order.add_products(products, email_receipt: true, user_override: current_user)
+                    # cart.remove_items(product_ids) unless product_id
+                    # new_lines = order_model.order_lines
+                    # filtered_order_lines = new_lines.select{ |line| product_ids.include?(line.product_id) }
+                    # # invoice_id = order_model&.invoices&.last&.qbo_invoice_id                    
+                    # IntuitAccount.update_quickbooks_invoice(invoice_id, filtered_order_lines) if invoice_id.present?
+                    customer_id = IntuitAccount.create_quickbooks_customer(current_user)
+                    IntuitAccount.create_quickbooks_invoice(order_model.id, customer_id, false) if customer_id.present?
+                    service = StripeInvoiceService.new(current_user, order_model) 
+                    invoice = service.create_invoice(false)  if order_model.present?
+                    return redirect_to(account_order_path(order_model&.id), alert: 'Order updated successfully.')
+                end
+            else
+                # create invoice here for already existing orders with order lines.
+                ActiveRecord::Base.transaction do
+                    order.add_products(products, email_receipt: true, user_override: current_user)
+                    # cart.remove_items(product_ids) unless product_id
+                    new_lines = order_model.order_lines
+                    filtered_order_lines = new_lines.select{ |line| product_ids.include?(line.product_id) }
+                    added_lines = filtered_order_lines.group_by { |order_line| order_line.product_id }.values.map(&:last)
+                    # invoice_id = order_model&.invoices&.last&.qbo_invoice_id
+                    service = StripeInvoiceService.new(current_user, order_model)
+                    invoice_id_stripe = order_model&.invoices&.last&.stripe_invoice_id
+                    service.update_invoice(added_lines, invoice_id_stripe)
+                    IntuitAccount.update_quickbooks_invoice(invoice_id, added_lines) if invoice_id.present?
+                    return redirect_to(account_order_path(order_model&.id), alert: 'Order updated successfully.')
+                end
             end
         rescue Exception => e
-            flash.alert = e.message
+            # flash.alert = e.message
+            return redirect_to(account_order_path(order_model&.id), alert: e.message)
         end        
         
     end    

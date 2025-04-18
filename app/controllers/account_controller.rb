@@ -467,37 +467,44 @@ class AccountController < ApplicationController
 
     # Voids/removes an order line from order
     def order_void_line
-        order_id = params[:id].to_i
-        line_id  = params[:line_id].to_i
-        ol = OrderLine.where(id: line_id)&.first
-        product_name = ol&.product&.product
-        bin_name = params.select { |key, value| key.start_with?('bin_name_') }.values[0]
-        bin = Bin.where(site_id: current_user&.site&.id, bin: bin_name)&.first
-        bin = Bin.create(site_id: current_user&.site&.id, bin: bin_name, active: 'Active') if bin.blank? && bin_name.present?
-        # puts bin.inspect+"BINSSSSSSSSSSSSSSSSSSS"
-        product_pieces = ProductPiece.where(order_line_id: line_id)
-        # puts product_pieces.inspect+"jjjjjjjjjjjjjjjj"
-        # Attributes voiding to impersonator, if applicable
-        if session[:god] === true
-            voided_line = OrderLine.get(line_id).void!(voided_by: sdn_impersonator)
-        else
-            voided_line = OrderLine.void_line_belonging_to_user(line_id, current_user)
-        end
-        
-        if voided_line
+        begin
+            ActiveRecord::Base.transaction do  
+                order_id = params[:id].to_i
+                line_id  = params[:line_id].to_i
+                ol = OrderLine.where(id: line_id)&.first
+                product_name = ol&.product&.product
+                bin_name = params.select { |key, value| key.start_with?('bin_name_') }.values[0]
+                bin = Bin.where(site_id: current_user&.site&.id, bin: bin_name)&.first
+                bin = Bin.create(site_id: current_user&.site&.id, bin: bin_name, active: 'Active') if bin.blank? && bin_name.present?
+                # puts bin.inspect+"BINSSSSSSSSSSSSSSSSSSS"
+                product_pieces = ProductPiece.where(order_line_id: line_id)
+                # puts product_pieces.inspect+"jjjjjjjjjjjjjjjj"
+                # Attributes voiding to impersonator, if applicable
+                if session[:god] === true
+                    voided_line = OrderLine.get(line_id).void!(voided_by: sdn_impersonator)
+                else
+                    voided_line = OrderLine.void_line_belonging_to_user(line_id, current_user)
+                end
+                
+                    
+                if voided_line
 
-            invoice_db = Invoice.where(order_id: ol&.order&.id)&.last
-            qbo_invoice_id = invoice_db&.qbo_invoice_id
-            stripe_invoice_id = invoice_db&.stripe_invoice_id
-            # product_pieces.map{ |piece| piece.update(bin_id: bin.id)} if bin.present? && product_pieces.present?
-            IntuitAccount.delete_quickbooks_line_item_from_invoice(product_name, qbo_invoice_id)
-            stripe_service = StripeInvoiceService.new(current_user, ol&.order)
-            stripe_service.delete_invoice_item(product_name, stripe_invoice_id)
-            product_pieces.map{ |piece| piece.update(bin_id: bin.id, status: 'Available')} if bin.present? && product_pieces.present?
-            flash.notice = "Successfully removed \"%s\" from order #%i." % [ voided_line.product, order_id ]
-        else
-            flash.alert = "Invalid order line selected."
-        end
+                    invoice_db = Invoice.where(order_id: ol&.order&.id)&.last
+                    qbo_invoice_id = invoice_db&.qbo_invoice_id
+                    stripe_invoice_id = invoice_db&.stripe_invoice_id
+                    # product_pieces.map{ |piece| piece.update(bin_id: bin.id)} if bin.present? && product_pieces.present?
+                    IntuitAccount.delete_quickbooks_line_item_from_invoice(product_name, qbo_invoice_id)
+                    stripe_service = StripeInvoiceService.new(current_user, ol&.order)
+                    stripe_service.delete_invoice_item(product_name, stripe_invoice_id)
+                    product_pieces.map{ |piece| piece.update(bin_id: bin.id, status: 'Available')} if bin.present? && product_pieces.present?
+                    flash.notice = "Successfully removed \"%s\" from order #%i." % [ voided_line.product, order_id ]
+                else
+                    flash.alert = "Invalid order line selected."
+                end
+            end
+        rescue Exception => e
+            flash.alert = e.message
+        end    
 
         return redirect_back(fallback_location: account_path)
     end
@@ -1443,16 +1450,40 @@ class AccountController < ApplicationController
 
             unless order_model.user == current_user
                 Rails.logger.debug "Product NOT added to order - invalid order: [products: %i, order: %i, user: %i]" % [ product_ids.join('/'), order_id, current_user&.email ]
-                raise ::Sdn::Order::Exceptions::OrderOwnershipInvalid
+                
             end
 
-            ActiveRecord::Base.transaction do
-                order.add_products(products, email_receipt: true, user_override:  current_user)
-                new_lines = order_model.order_lines
-                filtered_order_lines = new_lines.select{ |line| product_ids.include?(line.product_id) }
-                invoice_id = order_model&.invoices&.last&.qbo_invoice_id
-                IntuitAccount.update_quickbooks_invoice(invoice_id, filtered_order_lines) if invoice_id.present?
-                current_user.cart.update(items: {}) unless product_id
+
+            invoice_id = order_model&.invoices&.last&.qbo_invoice_id
+
+            if invoice_id.blank?
+                # create invoice here for blank orders created by admin.               
+                ActiveRecord::Base.transaction do  
+                    order.add_products(products, email_receipt: true, user_override: current_user)
+                    # new_lines = order_model.order_lines
+                    # filtered_order_lines = new_lines.select{ |line| product_ids.include?(line.product_id) }
+                    # # invoice_id = order_model&.invoices&.last&.qbo_invoice_id                    
+                    # IntuitAccount.update_quickbooks_invoice(invoice_id, filtered_order_lines) if invoice_id.present?
+                    customer_id = IntuitAccount.create_quickbooks_customer(current_user)
+                    IntuitAccount.create_quickbooks_invoice(order_model.id, customer_id, false) if customer_id.present?
+                    service = StripeInvoiceService.new(current_user, order_model) 
+                    invoice = service.create_invoice(false)  if order_model.present?
+                    current_user.cart.update(items: {}) unless product_id
+                end
+            else
+                # create invoice here for already existing orders with order lines.
+                ActiveRecord::Base.transaction do  
+                    order.add_products(products, email_receipt: true, user_override: current_user)
+                    new_lines = order_model.order_lines
+                    filtered_order_lines = new_lines.select{ |line| product_ids.include?(line.product_id) }
+                    added_lines = filtered_order_lines.group_by { |order_line| order_line.product_id }.values.map(&:last)
+                    # invoice_id = order_model&.invoices&.last&.qbo_invoice_id
+                    service = StripeInvoiceService.new(current_user, order_model)
+                    invoice_id_stripe = order_model&.invoices&.last&.stripe_invoice_id
+                    service.update_invoice(added_lines, invoice_id_stripe)
+                    IntuitAccount.update_quickbooks_invoice(invoice_id, added_lines) if invoice_id.present?
+                    current_user.cart.update(items: {}) unless product_id
+                end
             end
 
             msg = "Successfully added #{product_ids.size} products to order #{order_id}."
