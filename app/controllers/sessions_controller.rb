@@ -54,8 +54,8 @@ class SessionsController < ApplicationController
         if verify_recaptcha(action: 'signup', minimum_score: 0.5, response: token) || session[:recaptcha] == true
                 errors = []
                 errors << 'Missing required input.' unless ['email', 'password', 'password_confirmation'].all? { |e| params.keys.include? e }
-                errors << 'Email already exists.' if User.first(email: params[:email])
-                errors << 'UserName already exists.' if User.first(username: params[:username])
+                errors << 'Email already exists.' if User.where(email: params[:email])&.first
+                errors << 'UserName already exists.' if User.where(username: params[:username])&.first
                 errors << 'Password must be longer than 8 characters.' if params[:password].length <= 8
                 errors << 'Passwords did not match.' unless params[:password] == params[:password_confirmation]
                 # errors << 'Invalid warehouse location.' unless params[:site_id].to_i.among?(all_sites_for_select.map{|a| a[1] })
@@ -74,26 +74,35 @@ class SessionsController < ApplicationController
                 last_name:  params[:last_name],
                 email:      params[:email],
                 username:      params[:username],
-                encrypted_password:   params[:password],
+                password:   params[:password],
+                password_confirmation: params[:password_confirmation],
+                # encrypted_password:   params[:password],
                 # password: nil,
                 site_id:    default_site_furnish,
+                active:     'active',
                 # || DEFAULT_SITE_ID,
+                user_type:  'Customer',
+                pulled_credit: 1,
+                join_date: Time.now,
                 occupation: params[:shopper_type],
                 location_rights: default_site_furnish
             )
 
+            # binding.pry 
+
             if user.save
                 UserMembershipLevel.create_user_membership(user)
-                session[:user_id] = user.id
+                # session[:user_id] = user.id
+                sign_in(user)
 
-                $LOG.info "User account created: %s [id: %i, site: %i]" % [user.email, user.id, user.site_id]
+                Rails.logger.info "User account created: %s [id: %i, site: %i]" % [user.email, user.id, user.site_id]
                 flash.notice = "Signup successful. You are logged in!"
                 WelcomeMailer.new.send_welcome(user).deliver
                 session[:recaptcha] = nil
                 return URI(request.referrer).path == signup_path ? redirect_to(plp_path) : redirect_back(fallback_location: plp_path)
             else
                 session[:recaptcha] = true
-                $LOG.debug "User signup failed: [%s]" % [user.errors.inspect]
+                Rails.logger.debug "User signup failed: [%s]" % [user.errors.inspect]
                 return signup
             end
         else
@@ -117,17 +126,17 @@ class SessionsController < ApplicationController
         user.reset_code = reset_code
 
         unless user.save
-            $LOG.error "Password reset code NOT saved for user: %s [code: %s] %s" % [ user.email, reset_code, user.errors.inspect ]
+            Rails.logger.error "Password reset code NOT saved for user: %s [code: %s] %s" % [ user.email, reset_code, user.errors.inspect ]
             return redirect_to(forgot_password_path, alert: 'Unable to request a password reset. Please try again.')
         end
 
         # Send password reset email
         email = PasswordMailer.new.send_reset_password(user, code: reset_code).deliver
         if email.errors.any?
-            $LOG.error "Password reset email NOT sent for user: %s [%s]" % [ user.email, email.errors.inspect ]
+            Rails.logger.error "Password reset email NOT sent for user: %s [%s]" % [ user.email, email.errors.inspect ]
             return redirect_to(forgot_password_path, alert: 'Unable to send reset email. Please try again.')
         else
-            $LOG.info "Password reset email sent for user: %s" % [ user.email ]
+            Rails.logger.info "Password reset email sent for user: %s" % [ user.email ]
             EmailLog.create_from_mail_message(email, type: 'Password Reset')
             return redirect_to(root_path, notice: notice_message)
         end
@@ -151,19 +160,19 @@ class SessionsController < ApplicationController
         @user.password = password
 
         if @user.save
-            $LOG.info "User password updated: %s" % [ @user.email ]
+            Rails.logger.info "User password updated: %s" % [ @user.email ]
 
             email = PasswordMailer.new.send_password_changed(@user, changed_at: Time.zone.now).deliver
             if email.errors.any?
-                $LOG.error "Password changed email NOT sent for user: %s [%s]" % [ @user.email, email.errors.inspect ]
+                Rails.logger.error "Password changed email NOT sent for user: %s [%s]" % [ @user.email, email.errors.inspect ]
             else
-                $LOG.info "Password changed email sent for user: %s" % [ @user.email ]
+                Rails.logger.info "Password changed email sent for user: %s" % [ @user.email ]
                 EmailLog.create_from_mail_message(email, type: 'Password Changed')
             end
 
             return create
         else
-            $LOG.error "User password NOT updated: %s" % [ @user.email ]
+            Rails.logger.error "User password NOT updated: %s" % [ @user.email ]
             return redirect_back(fallback_location: reset_password_path, alert: 'Error updating password. Please try again.')
         end
     end
@@ -185,7 +194,7 @@ class SessionsController < ApplicationController
             session[:site_id] = site_id
             site_name = sites.find{ |s| s.id == site_id }.name
             site_name = site_id == 23 ? 'Seattle Closeout' : site_id == 24 ? 'Seattle' : site_name
-            $LOG.info "Site changed to %s for %s." % [ site_name, @current_user&.email || 'guest@guest.log' ]
+            Rails.logger.info "Site changed to %s for %s." % [ site_name, @current_user&.email || 'guest@guest.log' ]
             flash.notice = "Location changed to %s." % [ site_name ]
         end
 
@@ -214,7 +223,7 @@ class SessionsController < ApplicationController
 
     private
         def default_site_furnish
-          Site.first(site: 'RE|Furnish')&.id
+          Site.where(site: 'RE|Furnish').first&.id
         end    
         def valid_reset_password_params?
             email = params[:email]
@@ -222,7 +231,7 @@ class SessionsController < ApplicationController
 
             @user = User.locate(email)
             unless @user.reset_code == reset_code
-                $LOG.error "Invalid attempt to reset password: [email: %s, key: %s, ip: %s]" % [ email, reset_code, request.remote_ip ]
+                Rails.logger.error "Invalid attempt to reset password: [email: %s, key: %s, ip: %s]" % [ email, reset_code, request.remote_ip ]
                 return false
             end
 

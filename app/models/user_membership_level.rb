@@ -41,9 +41,9 @@ class UserMembershipLevel < ApplicationRecord
             created_by: created_by,
             created_with: created_with,
            )
-            $LOG.info "User membership level created: [user: #{user.email}]"
+            Rails.logger.info "User membership level created: [user: #{user.email}]"
         else
-            $LOG.error "User membership level NOT created: [user: #{user.email}] #{uml.errors.inspect}"
+            Rails.logger.error "User membership level NOT created: [user: #{user.email}] #{uml.errors.inspect}"
         end
     end
 end
