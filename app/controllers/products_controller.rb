@@ -25,7 +25,7 @@ class ProductsController < ApplicationController
         @all_materials = Product.get_materials
         @all_sizes = Product.get_sizes
         category_id = params[:category] ? params[:category].to_i : nil
-        @current_category = Category.select(:id, :name).find_by(id: category_id)
+        @current_category = Category.select(:id, :name, :parentid).find_by(id: category_id)
         # Category.first(fields: [ :id, :name ], id: category_id)
         return redirect_back(fallback_location: plp_path, alert: 'Invalid category.') if category_id && !@current_category
 
@@ -119,7 +119,7 @@ class ProductsController < ApplicationController
         product_ids.uniq! if product_ids.present?
 
         if product_ids.blank? && is_number?(params[:search]&.split('-')&.last) 
-            product_ids << ProductPiece.first(product_epc_id: params[:search]&.split('-')&.last)&.product_id
+            product_ids << ProductPiece.where(product_epc_id: params[:search]&.split('-')&.last)&.first&.product_id
         end
 
         # Gets product models and ancillary data/assets
@@ -173,7 +173,7 @@ class ProductsController < ApplicationController
         # Filter data
         # TODO: Re-add category counts within the scope
         # TODO: Refactor/abstract this category logic
-        # binding.pry
+
         scoped_options = Product.product_options(all_product_ids)
         @colors = params[:color].present? ? Product.get_active_colors(params[:color]) : Product.get_colors
         @materials = params[:material].present? ? Product.get_active_materials(params[:material]) : Product.get_materials
@@ -182,10 +182,10 @@ class ProductsController < ApplicationController
         @sites = Site.where(id: current_user&.location_rights&.split(',')&.map(&:to_i))
         # @sites = Site.all
 
-        if [@current_category&.id, @current_category&.parent_id].include?(BEDROOM_CATEGORY_ID) 
+        if [@current_category&.id, @current_category&.parentid].include?(BEDROOM_CATEGORY_ID) 
             @bed_sizes = scoped_options.pluck('bed_size_id', 'bed_size').select{ |e| e[0] && e[1] }.map{ |e| OpenStruct.new(id: e[0], label: e[1]) }.uniq
         end
-        if [@current_category&.id, @current_category&.parent_id].include?(SOFA_CATEGORY_ID)
+        if [@current_category&.id, @current_category&.parentid].include?(SOFA_CATEGORY_ID)
             @sofa_sizes = scoped_options.pluck('sofa_size_id', 'sofa_size').select{ |e| e[0] && e[1] }.map{ |e| OpenStruct.new(id: e[0], label: e[1]) }.uniq.sort_by{ |e| e.id }
         end
         @categories = scoped_options.pluck(:parent_category_id, :parent_category_name, :category_id, :category_name, :child_category_id, :child_category_name).select{ |e| e[2] && e[3] }.group_by{ |e| e[0] }
