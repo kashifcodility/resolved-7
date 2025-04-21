@@ -234,7 +234,7 @@ end
 												<% if @current_category %>
 													<% if @current_category&.id == parent_category&.id %>
 														<%= link_to(raw('<i class="fas fa-times-circle float-right"></i>'), plp_path + '/' + query_params(category: @current_category.parent_id)) %>
-													<% elsif @current_category.id.among?(parent_category.children.pluck(:id)) %>
+													<% elsif [parent_category.children.pluck(:id)].include?(@current_category.id) %>
 														<% if @current_category&.parent&.parent %>
 															<%= link_to(raw('<i class="fas fa-times-circle float-right"></i>'), plp_path + '/' + query_params(category: @current_category.parent.parent.id)) %>
 														<% end %>
