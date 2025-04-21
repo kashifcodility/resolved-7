@@ -1076,7 +1076,7 @@ function show_item_image( div_parent ){
     var bigimage = $("#imagechange", div_parent)
     $('.thumbnails a', div_parent).each(function(e) {
         $(this).on('click', function(e) {
-            imgsrc = $(this).find('.img-src').attr('src');
+            let imgsrc = $(this).find('.img-src').attr('src');
             bigimage.attr("src", imgsrc).fadeIn(1000);
         });  
     });
