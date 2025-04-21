@@ -122,41 +122,46 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
     // SHOW HEADER DROPDOWN 
-    function show_header_dropdown(){
-        // let show_shop_dropdown = document.querySelector(".show_shop_dropdown");
-        let header_dropdown = document.querySelector(".header_dropdown");
-        let top_header = document.querySelector("#top_header");
-        let shop_dropdown_arrow = document.querySelector(".shop_dropdown_arrow");
+    // function show_header_dropdown(){
+    //     // let show_shop_dropdown = document.querySelector(".show_shop_dropdown");
+    //     let header_dropdown = document.querySelector(".header_dropdown");
+    //     let top_header = document.querySelector("#top_header");
+    //     let shop_dropdown_arrow = document.querySelector(".shop_dropdown_arrow");
     
-        // show_shop_dropdown.addEventListener('click', function(){
-        //     showDropDown(header_dropdown);
-        // })
-        // No need for above piece of code as show_shop_dropdown has been removed
+    //     // show_shop_dropdown.addEventListener('click', function(){
+    //     //     showDropDown(header_dropdown);
+    //     // })
+    //     // No need for above piece of code as show_shop_dropdown has been removed
     
-        function showDropDown(elem){
-            if(elem.classList.contains('show_dropdown')){
-                elem.classList.remove('show_dropdown');
-                shop_dropdown_arrow.classList.remove('rotate_arrow')
-            }else{
-                elem.classList.add('show_dropdown');
-                shop_dropdown_arrow.classList.add('rotate_arrow')
-            }
-            window.addEventListener('click', function close_dropdown(e){   
-                if(document.getElementById('dropdown_container').contains(e.target) || document.getElementById('navbar').contains(e.target)){
-                  return false
-                } else{
-                    window.removeEventListener('click', close_dropdown, false)
-                    if(header_dropdown.classList.contains('show_dropdown')){
-                        header_dropdown.classList.remove('show_dropdown');
-                        shop_dropdown_arrow.classList.remove('rotate_arrow');
-                    }
-                }
-            });
-        }
+    //     function showDropDown(elem){
+    //         if(elem.classList.contains('show_dropdown')){
+    //             elem.classList.remove('show_dropdown');
+    //             shop_dropdown_arrow.classList.remove('rotate_arrow')
+    //         }else{
+    //             elem.classList.add('show_dropdown');
+    //             shop_dropdown_arrow.classList.add('rotate_arrow')
+    //         }
+    //         window.addEventListener('click', function close_dropdown(e){   
+    //             if(document.getElementById('dropdown_container').contains(e.target) || document.getElementById('navbar').contains(e.target)){
+    //               return false
+    //             } else{
+    //                 window.removeEventListener('click', close_dropdown, false)
+    //                 if(header_dropdown.classList.contains('show_dropdown')){
+    //                     header_dropdown.classList.remove('show_dropdown');
+    //                     shop_dropdown_arrow.classList.remove('rotate_arrow');
+    //                 }
+    //             }
+    //         });
+    //     }
 
-    }
-    show_header_dropdown()
+    // }
+    // show_header_dropdown()
     // END
+
+
+
+
+
 
     // SIDE CONTAINER - MOBILE NAVIGATION
     function menu_dropdown(){

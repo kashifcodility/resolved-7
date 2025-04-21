@@ -3,6 +3,34 @@ import { root_path, pdp_path, cart_preview_path, add_to_cart_path, create_favori
 
 var root = document.getElementById('home-link').innerHTML;
 
+document.addEventListener('DOMContentLoaded', function () {
+    const trigger = document.querySelector('.inventory-drop.with_arrow_down');
+    const dropdown = document.querySelector('.header_dropdown.animation1');
+    let timeout;
+  
+    trigger.addEventListener('mouseenter', () => {
+      clearTimeout(timeout);
+      dropdown.style.display = 'block';
+    });
+  
+    trigger.addEventListener('mouseleave', () => {
+      timeout = setTimeout(() => {
+        dropdown.style.display = 'none';
+      }, 200);
+    });
+  
+    dropdown.addEventListener('mouseenter', () => {
+      clearTimeout(timeout);
+    });
+  
+    dropdown.addEventListener('mouseleave', () => {
+      timeout = setTimeout(() => {
+        dropdown.style.display = 'none';
+      }, 200);
+    });
+});
+  
+
 $(document).ready(function() {
 
     jQuery('.datepicker-ab').datepicker({
