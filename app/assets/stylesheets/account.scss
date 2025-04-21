@@ -312,24 +312,24 @@ $menu_hover_color: $light_grey;
         content:"";
         width: 12px; 
         height: 12px;
-        background-image: image-url('new_icons/down-arrow.svg');
+        background-image: url('new_icons/down-arrow.svg');
         position: absolute;
         top: 50%;
         right: 20px;
         transform: translateY(-50%);
     }
     .submenu_item:after{
-        background-image: image-url('new_icons/down-arrow.svg');
+        background-image: url('new_icons/down-arrow.svg');
     }
     .active_menu:after,
     .active_submenu:after{
         content:"";
         width: 12px; 
         height: 12px;
-        background-image: image-url('new_icons/up-arrow.svg');
+        background-image: url('new_icons/up-arrow.svg');
     }
     .active_submenu:after{
-        background-image: image-url('new_icons/up-arrow.svg');
+        background-image: url('new_icons/up-arrow.svg');
     }
 
     .mobile_menu_item_container > div:last-child,
