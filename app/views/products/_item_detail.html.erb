@@ -209,3 +209,43 @@
 
 </script>
 
+<style>
+/* Ensures the images and radio buttons are aligned properly */
+.thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly; /* To space out images evenly */
+}
+
+.thumbnail-item {
+  width: 150px; /* Adjust as needed */
+  text-align: center;
+  margin: 10px;
+  position: relative;
+}
+
+.img-card {
+  display: block;
+}
+
+.img-src {
+  width: 100%; /* Ensures the image is responsive */
+  height: auto;
+}
+
+.radio-container {
+  margin-top: 8px; /* Space between image and radio button */
+  text-align: center;
+}
+
+.image-radio {
+  display: inline-block;
+  margin: 0 auto;
+}
+
+.woocommerce .thumbnail-item{width:70px;}
+.woocommerce .type-product.product div.thumbnails a{float:inherit;}
+.woocommerce .type-product.product div.thumbnails a:last-of-type{margin:auto;}
+.woocommerce .type-product.product div.thumbnails{justify-content: center;}
+
+</style>

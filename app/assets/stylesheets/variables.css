@@ -8,3 +8,346 @@
   --main-font: 'Montserrat', sans-serif;
   --p:  'Montserrat', sans-serif;
 }
+
+.drag-icon {
+  cursor: grab;
+  width: 24px;
+  height: 24px;
+}
+.sortable-item {
+  cursor: pointer;
+}
+
+.images {
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  top: -60px;
+  right: 10px;
+  background-color: #2bd6ce;
+  color: white;
+  border-radius: 50%;
+  padding: 10px;
+  font-size: 12px;
+  text-align: center;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.overlay-home {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  background-color: #2bd6ce;
+  color: white;
+  border-radius: 50%;
+  padding: 10px !important;
+  font-size: 10px;
+  text-align: center;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  white-space: normal; 
+  line-height: 1.2; 
+}
+
+@media (max-width: 768px) {
+  .overlay {
+      top: -50px; /* Adjusts the position for smaller devices */
+  }
+}
+
+
+.invoice-upper-box-mobile{
+  display:  none;
+}
+
+@media (max-width: 768px) {
+.invoice-container img {
+  height: 110px !important;
+  margin-top: 30px !important;
+}
+
+.invoice-container {
+  padding : 0.5rem 0rem !important;
+  width : 395px !important;
+}
+.heading-text {
+  font-size : 14px !important ;
+}
+.pricing-table tr td{
+  font-size: 14px !important;
+}
+.invoice {
+  width: 367px !important;
+margin-left: 0px !important;
+}
+.text-right{
+  font-size : 14px
+}
+
+.invoice-upper-box{
+  display : none;
+}
+.invoice-upper-box-mobile{
+  display:  block;
+  display: flex;
+}
+.value-text {
+  font-size : 13px !important;
+  margin-left: 5px !important;
+}
+.invoice-heading{
+  font-size : 1.5rem !important;
+}
+.invoice-address-details > p {
+  font-size: 13px !important;
+}
+}
+
+.invoice-container {
+  box-sizing: border-box;
+  margin: 10px auto;
+  max-width: 1250px;
+  border: 1px solid #aaa;
+  padding: 2rem;
+  font-size: 0.9em;
+  box-shadow: 5px 10px #888888;
+}
+.invoice {
+  background: white;
+  max-width:unset !important;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+.invoice-address-details > p{
+  margin: 2px 0;
+  font-weight: 500;
+}
+.invoice-heading{
+  color: #314459;
+}
+.heading-text{
+  color: #999ba0;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+}
+.value-text{
+  margin: 0px;
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 500;
+  color: #000000;
+}
+.pricing-table tr th{
+  background-color: #d6dade;
+  padding: 12px 6px;
+  color: #314459;
+}
+.pricing-table tr td{
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 6px 6px;
+}
+.bottom-border{
+  border-bottom: 3px dashed #d6dade;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination-link {
+  margin: 0 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.pagination-link.active {
+  font-weight: bold;
+  background-color: #007bff;
+  color: white;
+}
+
+.pagination-link.disabled {
+  color: gray;
+  cursor: not-allowed;
+}
+.pop-up-button{
+  background-color: #2bd6ce !important;
+  border: none !important;
+  font-weight: 600;
+  padding: 12px 12px;
+  text-align: center;
+  font-size: 14px;
+  display: inline-block;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.notification_dot {
+  position: relative;
+  top: 0px;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50% !important;
+}
+#menu-mob {
+  display: block;
+  width: 100%;
+  padding: 15px 20px;
+  text-transform: uppercase;
+  font-size: 15px;
+  font-weight: 300;
+  letter-spacing: 0.4px;
+  color: #222222;
+}
+.new_layout .header_dropdown{
+     z-index: 999;
+  }
+.modal-backdrop.show {
+  display:none;
+}
+
+.status {
+  margin-left: 50px;
+  padding: 5px;
+  color: white;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.status.open {
+  background-color: #a86d32;
+}
+
+.status.loaded {
+  background-color: #95a832;
+}
+
+.status.pulled {
+  background-color: #32a86d;
+}
+.status.complete {
+  background-color: #328da8;
+}
+.status.returned {
+  background-color: #328da8;
+}
+.status.available {
+  background-color: #328da8;
+}
+.status.received {
+  background-color: #328da8;
+}
+.status.missing {
+  background-color: #a83254;
+}
+
+.status.damage {
+  background-color: #a83254;
+}
+
+.status.incomplete {
+  background-color: #a83254;
+}
+
+.status.sold {
+  background-color: #a83254;
+}
+
+.status.renting {
+  background-color: #329ea8;
+}
+
+.status.delivered {
+  background-color: #2bd6ce;
+}
+
+.status.transferred {
+  background-color: #329ea8;
+}
+
+.main-div{
+  display:flex;
+}
+.open-signature{
+      margin-left: 17.5rem !important;
+}
+.open-signature2{
+      margin-left: -7rem !important;
+}
+@media (max-width: 768px) { 
+  .main-div{
+  display:flex;
+  justify-content:space-evenly;
+  width:100%;
+}
+.open-signature2{
+      margin-left: 1px !important;
+}
+.open-signature{
+      margin-left: 1px !important;
+}
+
+}
+.images {
+  position: relative;
+  text-align: center; /* Center-align content */
+}
+
+.mng {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 16px;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.stars-container {
+  text-align: center; /* Center the stars below the image */
+}
+
+.stars {
+  display: inline-block;
+  font-size: 70px; /* Adjust to desired size */
+  color: #ddd; /* Color for unfilled stars */
+  position: relative;
+}
+
+.stars-inner {
+  color: #f5c518; /* Color for filled stars */
+  overflow: hidden;
+  white-space: nowrap;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0; /* Dynamically set with JavaScript */
+}
+
+.stars::before {
+  content: "★★★"; /* Empty stars */
+}
+
+.stars-inner::before {
+  content: "★★★"; /* Filled stars */
+}
