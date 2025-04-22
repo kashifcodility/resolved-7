@@ -527,10 +527,11 @@ end
 
 			<ul class="products d-flex flex-wrap" id="product_list">
 				<% @products.each do |product| %>
+				
 				  <%if params[:search].blank?%>
 				    <%= render partial: 'item', locals: { product: product, show_favorite: user_signed_in? } if product.pieces_count > 0 && product.product_pieces_order_line.include?(0)%>
 				  <%else%>
-				    <%= render partial: 'item', locals: { product: product, show_favorite: user_signed_in? } %>
+				    <%= render partial: 'item', locals: { product: product, show_favorite: user_signed_in? } if product.pieces_count > 0 && product.product_pieces_order_line.include?(0)%>
 				  <%end%>
 				<% end %>
 			</ul>
@@ -624,8 +625,7 @@ $(function() {
     });
 
     // Lazy loading/infinite scroll with loading flag to prevent duplicates
-    var isLoading = false;
-
+    var isLoading = false;	
     var infinite = new Waypoint.Infinite({
         element: $('.products')[0],
         items: '.product',
@@ -641,7 +641,6 @@ $(function() {
 			//$(function() { bind_quickviews(); });
 
            window.bind_quickviews();
-		   
             isLoading = false; // Reset flag after loading
 
             var loader = $('#products_list_loader');
