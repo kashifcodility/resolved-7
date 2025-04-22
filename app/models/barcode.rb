@@ -104,22 +104,22 @@ class Barcode < ApplicationRecord
         #
         # The result from all three queries are merged together in that order (implemented
         # in reverse) and de-duplicated.
-        if o[:search_query]
-            o[:sort] = false
+        # if o[:search_query]
+        #     o[:sort] = false
 
-            ranked_ids = []
-            ranked_ids += Barcode.query_available_product_ids(**o)
+        #     ranked_ids = []
+        #     ranked_ids += Barcode.query_available_product_ids(**o)
 
-            query = o.extract!(:search_query).fetch(:search_query)
+        #     query = o.extract!(:search_query).fetch(:search_query)
 
-            o[:search_category] = query
-            ranked_ids += Barcode.query_available_product_ids(**o)
+        #     o[:search_category] = query
+        #     ranked_ids += Barcode.query_available_product_ids(**o)
 
-            o[:search_product] = query
-            ranked_ids += Barcode.query_available_product_ids(**o)
+        #     o[:search_product] = query
+        #     ranked_ids += Barcode.query_available_product_ids(**o)
 
-            return ranked_ids.uniq.reverse
-        end
+        #     return ranked_ids.uniq.reverse
+        # end
 
         return Barcode.query_available_product_ids(**o)
     end
@@ -306,7 +306,7 @@ class Barcode < ApplicationRecord
             j += "INNER JOIN `order_lines` ON `products`.`id` = `order_lines`.`product_id` "
             j += "INNER JOIN `orders` ON `order_lines`.`order_id` = `orders`.`id` "
             w += "AND `orders`.`status` = 'Destage' "
-            order = "`orders`.`id` DESC "
+            order = "MAX(`orders`.`id`) DESC "
         
         
         elsif o[:sort] == false
@@ -400,14 +400,36 @@ class Barcode < ApplicationRecord
             end
         end
         query = "SELECT #{s} FROM `products` #{j} WHERE (#{w}) GROUP BY #{group} HAVING #{h} ORDER BY #{order} LIMIT #{o[:offset]}, #{o[:limit]}"
-        
         unless p.empty?
-            return [2]
+            
+            if o[:search_query].present?
+
+                search_term = o[:search_query]
+                sql = <<-SQL
+                SELECT products.id AS product_id
+                FROM products
+                INNER JOIN yuxi_products ON products.id = yuxi_products.product_id
+                WHERE products.site_id IN (26,30)
+                    AND yuxi_products.category_id NOT IN (2,203,204)
+                    AND products.for_rent = TRUE
+                    AND NOT EXISTS (
+                    SELECT 1 FROM product_reservations
+                    WHERE product_reservations.product_id = products.id
+                    )
+                    AND products.active = 'Active'
+                    AND LOWER(products.product) LIKE ?
+                GROUP BY products.id
+                SQL
+                result = Product.find_by_sql([sql, "%#{search_term.downcase}%"]).map { |row| row.product_id }   
+                return result
+            else 
+              return [2]
+            end
 
         end
-        result = ActiveRecord::Base.connection.execute(query)
-        array_ids = result.map { |row| row[0]  }
-        return array_ids
+            result = ActiveRecord::Base.connection.execute(query)
+            array_ids = result.map { |row| row[0]  }
+            return array_ids
 
         # return $DB.select(query)  # return like [121,34234,343,342,32432,465,5467]
     end
