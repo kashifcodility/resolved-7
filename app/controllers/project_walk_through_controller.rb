@@ -14,29 +14,16 @@ class ProjectWalkThroughController < ApplicationController
         errors = []
         file_url = ''
 
+ 
         if params[:img]
-            errors << 'Photo too large. Max size is 4 MB.' unless params[:img].size <= 4.megabyte
-  
+            errors << 'Photo too large. Max size is 1 MB.' unless params[:img].size <= 1.megabyte
+
             unless errors.any?
                 new_filename = "#{current_user.username}_#{Time.zone.now.to_i}_#{params[:img].original_filename}"
                 s3_bucket = 'sdn-content'
-  
-                # Perform the upload
-                upload_success = $AWS.s3.upload(
-                    params[:img].tempfile,
-                    bucket: s3_bucket,
-                    as: new_filename,
-                )
-    
-                if upload_success
-                    # Generate the file URL
-                    file_url = $AWS.s3.public_url_for(new_filename, bucket: s3_bucket)
-                    # order_query.image_url = file_url
-                else
-                    errors << 'Error uploading photo.'
-                end
-  
-                puts 'received your file. now move to the next step'
+
+                file_url = Order.upload_to_s3(file: params[:img].tempfile, bucket: s3_bucket, filename: new_filename)
+ 
             end
         end
 
@@ -1789,23 +1776,12 @@ class ProjectWalkThroughController < ApplicationController
     
     def handle_images(new_urls, old_urls, need_to_retain_urls, errors, need_to_retain, all_urls)
         if params[:files].present?
-            params[:files].each do |file|                
-                new_filename = "#{current_user.username}_#{Time.zone.now.to_i}_#{file.original_filename}"
-                s3_bucket = 'sdn-content'
-                # Perform the upload
-                upload_success = $AWS.s3.upload(
-                    file.tempfile,
-                    bucket: s3_bucket,
-                    as: new_filename,
-                )    
-                if upload_success
-                    # Generate the file URL
-                    file_url = $AWS.s3.public_url_for(new_filename, bucket: s3_bucket)
-                    puts file_url.inspect+"QQQQQQQQQQQQQQQQQQQQQQ"
-                    new_urls << file_url
-                else
-                    errors << 'Error uploading photo.'
-                end   
+            params[:files].each do |file|   
+
+                 new_filename = "#{current_user.username}_#{Time.zone.now.to_i}_#{file.original_filename}"
+                 s3_bucket = 'sdn-content'
+                 file_url = Order.upload_to_s3(file: file.tempfile, bucket: s3_bucket, filename: new_filename)
+                 new_urls << file_url if file_url.present?   
             end  
             puts 'received your file. now move to the next step'  
         end

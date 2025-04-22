@@ -683,7 +683,6 @@ class Order < ApplicationRecord
         region: 'us-east-1',
         credentials: Aws::Credentials.new(ENV['AWS_KEY_ID'], ENV['AWS_SECRET'])
         )
-        binding.pry
         obj = s3.bucket(bucket).object(filename)
 
         success = obj.upload_file(file.path, acl: 'public-read')
