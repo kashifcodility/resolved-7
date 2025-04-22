@@ -203,7 +203,7 @@ class Barcode < ApplicationRecord
         # group = "`products`.`id`,`orders`.`id` "
 
         if o[:from_product]
-            group = "`products`.`id`,`orders`.`id` "
+            group = "`products`.`id`,`orders`.`id`, `products`.`quantity` "
         else    
             group = "`products`.`id` "
         end
@@ -216,7 +216,7 @@ class Barcode < ApplicationRecord
             group = "NULL"
         else
             if o[:from_product]
-                s = "`products`.`id` AS product_id, `orders`.`id` AS order_id"
+                s = "`products`.`id` AS product_id, `orders`.`id` AS order_id "
             else    
                 s = "`products`.`id` AS product_id"
             end
@@ -260,15 +260,15 @@ class Barcode < ApplicationRecord
             yp_bool_sql.call('sales_item', :on_sale)
 
             if o[:color_id]
-                w += "AND `yuxi_products`.`color_id` IN (#{o[:color_id]}) "
+                w += "AND `yuxi_products`.`color_id` IN (#{o[:color_id].split(',').map(&:to_i).join(',')}) "
             end
 
             if o[:material_id]
-                w += "AND `yuxi_products`.`material_id` = #{o[:material_id].to_i} "
+                w += "AND `yuxi_products`.`material_id` IN (#{o[:material_id].split(',').map(&:to_i).join(',')}) "
             end
 
             if o[:size_id]
-                w += "AND `yuxi_products`.`size_id` = #{o[:size_id].to_i} "
+                w += "AND `yuxi_products`.`size_id` IN (#{o[:size_id].split(',').map(&:to_i).join(',')}) "
             end
 
             if o[:bed_size_id]
@@ -401,7 +401,6 @@ class Barcode < ApplicationRecord
         end
         query = "SELECT #{s} FROM `products` #{j} WHERE (#{w}) GROUP BY #{group} HAVING #{h} ORDER BY #{order} LIMIT #{o[:offset]}, #{o[:limit]}"
         unless p.empty?
-            
             if o[:search_query].present?
 
                 search_term = o[:search_query]
@@ -427,6 +426,7 @@ class Barcode < ApplicationRecord
             end
 
         end
+        
             result = ActiveRecord::Base.connection.execute(query)
             array_ids = result.map { |row| row[0]  }
             return array_ids
