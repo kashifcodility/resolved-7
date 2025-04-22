@@ -112,13 +112,13 @@ class ProductsController < ApplicationController
 
         filters = { product_ids: @inhome_product_ids, show_on_frontend_only: false } if @inhome_product_ids
         # not_available_products = Product.products_in_open_orders
-# binding.pry
+
         all_product_ids = Barcode.available_product_ids(**filters) 
         @product_count = all_product_ids.size
         product_ids = all_product_ids[offset, limit]
         product_ids.uniq! if product_ids.present?
 
-        if product_ids.blank? && is_number?(params[:search]&.split('-')&.last) 
+        if product_ids.blank? && params[:search].present? && is_number?(params[:search]&.split('-')&.last) 
             product_ids << ProductPiece.where(product_epc_id: params[:search]&.split('-')&.last)&.first&.product_id
         end
 

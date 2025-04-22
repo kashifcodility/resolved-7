@@ -156,7 +156,7 @@ end
 										<% @active_filters.each do |filter|%>
 										<% next if filter[:key] == "sort" %>
 											<span class="badge badge-info">
-												<a href="<%= plp_path + '/' + remove_query_param(filter[:key]) %>"><%= "#{filter[:key_label]}: " if filter[:key_label] %> <%= filter[:value_label] %> <i class="ml-1 fas fa-times-circle"></i></a>
+												<a href="<%= plp_path + '/?' + remove_query_param(filter[:key]) %>"><%= "#{filter[:key_label]}: " if filter[:key_label] %> <%= filter[:value_label] %> <i class="ml-1 fas fa-times-circle"></i></a>
 											</span>
 										<% end %>
 									</div>
@@ -230,13 +230,14 @@ end
 									<ul id="categories_filter" class="<%= params[:category] ? 'show' : 'collapse' %>">
 										<% @categories.each do |parent_category| %>
 											<li class="filter_category_title_container">
-												<%= link_to(parent_category.label, plp_path + '/' + query_params(category: parent_category.id), class:"parent-category-filter filter_category_title") %>
+												<%= link_to(parent_category.label, plp_path + '/' + query_params(category: parent_category.id, sort: 'qhtl'), class:"parent-category-filter filter_category_title") %>
 												<% if @current_category %>
 													<% if @current_category&.id == parent_category&.id %>
-														<%= link_to(raw('<i class="fas fa-times-circle float-right"></i>'), plp_path + '/' + query_params(category: @current_category.parent_id)) %>
+													
+														<%= link_to(raw('<i class="fas fa-times-circle float-right"></i>'), plp_path + '/' + query_params(category: @current_category.id, sort: 'qhtl')) %>
 													<% elsif [parent_category.children.pluck(:id)].include?(@current_category.id) %>
 														<% if @current_category&.parent&.parent %>
-															<%= link_to(raw('<i class="fas fa-times-circle float-right"></i>'), plp_path + '/' + query_params(category: @current_category.parent.parent.id)) %>
+															<%= link_to(raw('<i class="fas fa-times-circle float-right"></i>'), plp_path + '/' + query_params(category: @current_category.parent.parent.id, sort: 'qhtl')) %>
 														<% end %>
 													<% end %>
 												<% end %>
@@ -244,9 +245,9 @@ end
 													<ul class="filter_submenu">
 														<% parent_category.children.each do |category| %>
 															<li>
-																<%= link_to(category.label, plp_path + '/' + query_params(category: category.id)) %>
+																<%= link_to(category.label, plp_path + '/' + query_params(category: category.id, sort: 'qhtl')) %>
 																<% if @current_category&.id == category.id %>
-																	<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' + query_params(category: parent_category.id)) %>
+																	<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' + query_params(category: parent_category.id, sort: 'qhtl')) %>
 																<% end %>
 															</li>
 														<% end %>
