@@ -505,7 +505,7 @@ end
 											<option selected>Relevance</option>
 											<option disabled>Not available in search</option>
 										<% else %>
-											<option value="<%= plp_path + '/' + remove_query_param(:sort) %>"
+											<option value="<%= plp_path + '/?' + remove_query_param(:sort) %>"
 											<% if params[:sort].nil? %> selected <% end %>>Recently Added</option>
 											<option value="<%= plp_path + '/' + query_params(sort: 'rrp') %>"
 											<% if params[:sort] == 'rrp' %> selected <% end %>>Recently Destaged</option>
