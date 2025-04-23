@@ -155,3 +155,17 @@ button.btn.btn.btn-lg.btn-block:hover {
    font-size: 14px !important;
    height: 36px !important;
 }
+
+.search-container {
+  margin: 20px 0;
+  text-align: center;
+}
+
+#project-search {
+  width: 50%;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* Makes the width include padding */
+}

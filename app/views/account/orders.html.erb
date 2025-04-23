@@ -51,6 +51,9 @@ end
    }
 </style>
 
+        <div class="search-container">
+            <input type="text" id="project-search" placeholder="Search Projects..." onkeyup="searchProjects()" />
+        </div>
 
 
 <!-- ALL PROJECTS PAGE - app -->
@@ -290,6 +293,28 @@ end
     $(document).ready(function(){
         $('[data-toggle="tooltip"]').tooltip();
     });
+
+    function searchProjects() {
+        // Get the search input value and convert it to lowercase for case-insensitive matching
+        var searchTerm = document.getElementById("project-search").value.toLowerCase();
+        
+        // Get all the project preview elements (each project listed)
+        var projects = document.getElementsByClassName("one_project_preview");
+
+        // Loop through each project to filter based on the search term
+        Array.from(projects).forEach(function(project) {
+            // Get the project name and address (you can add more fields if needed)
+            var projectName = project.querySelector(".proj_name").textContent.toLowerCase();
+            var projectAddress = project.querySelector(".proj_description_container p").textContent.toLowerCase();
+
+            // If either project name or address contains the search term, show the project
+            if (projectName.includes(searchTerm) || projectAddress.includes(searchTerm)) {
+                project.style.display = "block";  // Show project
+            } else {
+                project.style.display = "none";   // Hide project
+            }
+        });
+    }
 </script>
 
 <%#= javascript_include_tag "project_detail_page.js" %>
