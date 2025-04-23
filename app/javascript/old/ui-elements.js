@@ -465,6 +465,9 @@ function bind_favorites() {
                 url: action == 'favorite' ? create_favorite_path() : remove_favorite_path(),
                 type: action == 'favorite' ? 'POST' : 'DELETE',
                 data: { product_id: btn.dataset.pid },
+                headers: {
+                    'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')  // Adding CSRF token to request headers
+                },
                 beforeSend: function(){
                     btn.style.display = 'none';
                     btn.insertAdjacentElement('beforebegin', spinner);
@@ -474,7 +477,7 @@ function bind_favorites() {
                     btn.style.display = null;
                 },
                 success: function(result) {
-                    btn_icon = btn.getElementsByTagName('i')[0];
+                    let btn_icon = btn.getElementsByTagName('i')[0];
                     if(action == 'favorite') {
                         btn.dataset.action = 'unfavorite';
                         btn_icon.setAttribute('aria-label', 'unfavorite');

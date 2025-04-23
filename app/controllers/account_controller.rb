@@ -1006,7 +1006,7 @@ class AccountController < ApplicationController
 
     def create_inventory_favorite
         product_id = params[:product_id].to_i
-        product = Product.get(product_id)
+        product = Product.find(product_id)
         log_params = [ current_user&.email, product_id ]
 
         unless product
@@ -1017,7 +1017,7 @@ class AccountController < ApplicationController
         begin
             favorite = UserWishlist.create(user_id: current_user.id, product_id: product.id)
 
-            if favorite.saved?
+            if favorite.persisted?
                 Rails.logger.info "Favorite created for user: %s [product: %i, wishlist: %i]" % (log_params << favorite.id)
                 return render(json: { success: true, message: "Favorite created." })
             else
@@ -1034,7 +1034,7 @@ class AccountController < ApplicationController
 
     def remove_inventory_favorite
         product_id = params[:product_id].to_i
-        favorite = current_user.wishlist.first(product_id: product_id)
+        favorite = current_user.wishlist.where(product_id: product_id)&.first
         log_params = [ current_user&.email, favorite&.id.to_i, product_id ]
 
         unless favorite
