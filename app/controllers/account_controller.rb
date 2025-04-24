@@ -557,18 +557,15 @@ class AccountController < ApplicationController
         service = params[:destage_service] == 'destage_dropoff' ? 'destage_dropoff' : 'destage'
         expedited = params[:expedited]
 
-        order = current_user.orders.first(id: order_id)
+        order = current_user.orders.where(id: order_id)&.first
 
         return redirect_back(fallback_location: account_orders_path, alert: 'Invalid order selected.') unless order
 
         begin
             ::Sdn::Order.from_model(order).request_destage(date: date, service: service, expedited: expedited, requested_by: current_user)
-
             return redirect_back(fallback_location: account_orders_path, notice: 'Destage has successfully been requested.')
-        rescue ::Sdn::Order::OrderError => error
-            return redirect_back(fallback_location: account_orders_path, alert: error.user_message)
-        rescue
-            return redirect_back(fallback_location: account_orders_path, alert: 'An error has occurred. Please contact us.')
+        rescue Exception => e
+            return redirect_back(fallback_location: account_orders_path, alert: e)
         end
     end
 

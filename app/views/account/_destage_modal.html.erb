@@ -21,7 +21,8 @@
                             <div class="new_design">
                                 <div class="form_design_1">
                                     
-                    
+                                        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+
                                         <!-- Appointment Date -->
                                         <div class="input_w_label">
                                             <label for="address1">Desired Appointment Date:</label>
@@ -87,7 +88,7 @@
     function requestDestage(order_id) {
         document.getElementById('order_destage_id').innerHTML = order_id;
         var form = document.getElementById('request_destage_form');
-        form.action = Routes.request_destage_path(order_id);
+        form.action = `/account/orders/${order_id}/request_destage`;
         
         $("#destage_date").datepicker({
             format: 'yyyy-mm-dd',
