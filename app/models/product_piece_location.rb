@@ -57,11 +57,11 @@ class ProductPieceLocation < ApplicationRecord
     enum void: { yes: 'yes', no: 'no' }, _default: :no
   
     # Validations
-    validates :product_piece_id, presence: true
-    validates :log_status, presence: true
-    validates :log_type, presence: true
-    validates :table_name, presence: true
-    validates :table_id, presence: true
+    # validates :product_piece_id, presence: true
+    # validates :log_status, presence: true
+    # validates :log_type, presence: true
+    # validates :table_name, presence: true
+    # validates :table_id, presence: true
     
   
     # Columns mapping
@@ -77,7 +77,7 @@ class ProductPieceLocation < ApplicationRecord
         ppl_ids = ProductPieceLocation.for_order_line_not_voided(line_id).pluck(:id).map(&:to_i)
         ppls = ProductPieceLocation.all(id: ppl_ids)
 
-        $DB.transaction do
+        ActiveRecord::Base.transaction do
             ppls.each do |ppl|
                 return false unless ppl.void!(voided_by: voided_by)
             end

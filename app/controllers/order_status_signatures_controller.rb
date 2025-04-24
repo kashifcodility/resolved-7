@@ -24,22 +24,22 @@ class OrderStatusSignaturesController < ApplicationController
         order_status_signature = OrderStatusSignature.new(notes: params[:notes], signature_url: file_url, 
                                                              order_status: params[:order_status], updated_by: current_user.id, 
                                                              order_id: params[:order_id], created_at: Time.now)
-        $DB.transaction do                                                             
+        ActiveRecord::Base.transaction do
             if order_status_signature.save
-                order = Order.first(id: params[:order_id])
+                order = Order.where(id: params[:order_id])&.first
                 order.update(status: params[:order_status]) if order.present?
                 previous_status = ""
                 params[:product_ids]&.split(' ').each do |pp|
                     product_id, line_id = pp.split('-')
-                    product_piece = ProductPiece.first(product_id: product_id, order_line_id: line_id)
+                    product_piece = ProductPiece.where(product_id: product_id, order_line_id: line_id)&.first
                     
-                    order_line = OrderLine.first(id: line_id)
+                    order_line = OrderLine.where(id: line_id)&.first
                     product = product_piece.product
                     
                     previous_status = product_piece.status                     
                     if params[:order_status] == "Renting"
 
-                        all_pieces = ProductPiece.all(product_id: product_id, order_line_id: order_line.id)
+                        all_pieces = ProductPiece.where(product_id: product_id, order_line_id: order_line.id)
                         all_pieces.each do |product_piece|
                     
                             product_piece.status = params[pp]
@@ -64,7 +64,7 @@ class OrderStatusSignaturesController < ApplicationController
                             product.update(quantity: quantity + order_line.quantity)
                         end
 
-                        all_pieces = ProductPiece.all(product_id: product_id, order_line_id: order_line.id)
+                        all_pieces = ProductPiece.where(product_id: product_id, order_line_id: order_line.id)
                         all_pieces.each do |product_piece|
                             product_piece.status = order_line&.type == "rent" ? params[pp] : "Sold"
                             product_piece.order_line_id = 0

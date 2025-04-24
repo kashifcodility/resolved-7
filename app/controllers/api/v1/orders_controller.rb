@@ -5,7 +5,7 @@ module Api
       skip_before_action :verify_authenticity_token
       def create
         begin
-            $DB.transaction do
+          ActiveRecord::Base.transaction do
               if params[:order].present? && params[:address].present? && 
                  params[:order][:user_id].present? && params[:order][:site_id].present?
                 address = Address.new(address_params)

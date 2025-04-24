@@ -47,33 +47,33 @@ class OrderLine < ApplicationRecord
 
         return unless product&.product_pieces
 
-  # Build the base query for ProductPieceLocation
-  onorder_logs_query = ProductPieceLocation.where(
-    table_name: 'orders',
-    table_id: order_id,
-    log_type: 'OnOrder',
-    product_piece_id: product.product_pieces.select(:id)
-  )
+        # Build the base query for ProductPieceLocation
+        onorder_logs_query = ProductPieceLocation.where(
+          table_name: 'orders',
+          table_id: order_id,
+          log_type: 'OnOrder',
+          product_piece_id: product.product_pieces.select(:id)
+        )
 
-  # Apply the void filter if needed
-  onorder_logs_query = onorder_logs_query.where(void: 'no') unless show_void
+        # Apply the void filter if needed
+        onorder_logs_query = onorder_logs_query.where(void: 'no') unless show_void
 
-  # Execute the query to get the result
-  onorder_logs = onorder_logs_query.order(:id)
+        # Execute the query to get the result
+        onorder_logs = onorder_logs_query.order(:id)
 
-  # Get the product piece IDs for the current product
-  all_product_piece_ids = product.product_pieces.select(:id)
+        # Get the product piece IDs for the current product
+        all_product_piece_ids = product.product_pieces.select(:id)
 
-  # Get the unscanned pieces by checking which product pieces are not in onorder_logs
-  unscanned_onorder_pieces = all_product_piece_ids.where.not(id: onorder_logs.select(:product_piece_id))
+        # Get the unscanned pieces by checking which product pieces are not in onorder_logs
+        unscanned_onorder_pieces = all_product_piece_ids.where.not(id: onorder_logs.select(:product_piece_id))
 
-  # If there are any unscanned pieces, log the message
-  if onorder_logs.exists? && unscanned_onorder_pieces.exists?
-    Rails.logger.debug "Order line #created_at - not all barcodes have been scanned OnOrder: [line: %i, order: %i, piece(s): %s]" % [id, order_id, unscanned_onorder_pieces.pluck(:id).join(',')]
-  end
+        # If there are any unscanned pieces, log the message
+        if onorder_logs.exists? && unscanned_onorder_pieces.exists?
+          Rails.logger.debug "Order line #created_at - not all barcodes have been scanned OnOrder: [line: %i, order: %i, piece(s): %s]" % [id, order_id, unscanned_onorder_pieces.pluck(:id).join(',')]
+        end
 
-  # Return the created_at of the first onorder_log
-  onorder_logs.first&.created_at
+        # Return the created_at of the first onorder_log
+        onorder_logs.first&.created
     end
 
     # NOTE: Gets first product's product piece return date
@@ -82,9 +82,9 @@ class OrderLine < ApplicationRecord
         return unless product&.product_pieces
         # returned_logs = ProductPieceLocation.all(table_name: 'orders', table_id: order_id, log_type: 'Returned', void: 'no', product_piece_id: product.product_pieces.pluck(:id), order: [ :id.desc ])
         returned_logs = ProductPieceLocation
-  .where(table_name: 'orders', table_id: order_id, log_type: 'Returned', void: 'no')
-  .where(product_piece_id: product.product_pieces.pluck(:id))
-  .order(id: :desc)
+                        .where(table_name: 'orders', table_id: order_id, log_type: 'Returned', void: 'no')
+                        .where(product_piece_id: product.product_pieces.pluck(:id))
+                        .order(id: :desc)
         returned_logs_piece_ids = returned_logs.pluck(:product_piece_id)
         all_product_piece_ids = product.product_pieces.pluck(:id)
 
@@ -94,7 +94,7 @@ class OrderLine < ApplicationRecord
             return
         end
 
-        return returned_logs.first&.created_at
+        return returned_logs.first&.created
     end
 
     # TODO: Update this to use the OrderLineDetail model
@@ -118,7 +118,7 @@ class OrderLine < ApplicationRecord
             Rails.logger.debug "Order line #shipped_at - not all barcodes have been scanned Shipped: [line: %i, order: %i, piece(s): %s]" % [ id, order_id, unscanned_shipped_pieces.join(',') ]
         end
 
-        return shipped_logs.first&.created_at
+        return shipped_logs.first&.created
     end
 
     def self.void_line_belonging_to_user(line_id, user)
@@ -159,7 +159,7 @@ class OrderLine < ApplicationRecord
 
         result = false
 
-        $DB.transaction do
+        ActiveRecord::Base.transaction do
             # Void product piece locations records
             return false unless ProductPieceLocation.void_by_order_line(self.id, voided_by: voided_by)
 
@@ -167,7 +167,7 @@ class OrderLine < ApplicationRecord
 
             # Void order line row
             self.void = 'yes'
-	    self.voided_date = Time.zone.now
+	          self.voided_date = Time.zone.now
             self.voided_by = voided_by&.id
 
             if self.save && order.changed! && order.refresh_damage_waiver!

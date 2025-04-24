@@ -298,7 +298,7 @@ class InhomeController < ApplicationController
         # TODO: Verify all items are transactable
 
         begin
-            $DB.transaction do
+            ActiveRecord::Base.transaction do
                 # Charge card
                 @receipt = cc.charge!(@summary.total)
 
