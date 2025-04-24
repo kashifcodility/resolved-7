@@ -24,7 +24,7 @@ class ReceiptMailer < ApplicationMailer
         @orders = @orders.map do |order|
             OpenStruct.new(
                 id:               order.id,
-                type:             order.type,
+                type:             order.order_type,
                 location:         order.site.name,
                 ordered_date:     order.ordered_date,
                 delivery_date:    order.due_date,

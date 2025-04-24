@@ -20,8 +20,8 @@
                 <div class="profile_info_large">
 
                     <div class="profile_photo">
-                        <% if ['.jpg', '.jpeg', '.png', '.gif'].any? { |ext| @profile.image_url.to_s.downcase.include?(ext) }
- %>
+                  
+                        <% if @profile.image_url.present? %>
                             <%= image_tag(@profile.image_url, alt: 'Profile Photo') %>
                         <% else %>
                             <%= image_tag("icons/temp-profile.png", alt: 'Temp Profile Photo') %>

@@ -1060,20 +1060,23 @@ class AccountController < ApplicationController
 
         if params[:photo]
             errors << 'Photo too large. Max size is 1 MB.' unless params[:photo].size <= 1000000
-            errors << 'Invalid file. Allowed: JPG, PNG, GIF' unless params[:photo].content_type.among?("image/jpeg", "image/pjpeg", "image/png", "image/x-png", "image/gif")
+            errors << 'Invalid file. Allowed: JPG, PNG, GIF' unless ["image/jpeg", "image/pjpeg", "image/png", "image/x-png", "image/gif"].include?(params[:photo].content_type)
 
             unless errors.any?
-                new_filename = "#{current_user.full_name}_#{Time.zone.now.to_i}_#{params[:photo].original_filename}".parameterize.underscore
 
-                unless $AWS.s3.upload(
-                        params[:photo].tempfile,
-                        bucket: $AWS.s3.bucket(User::S3_BUCKET_LOGOS).name,
-                        as: new_filename,
-                    )
+                
+
+                new_filename = "#{current_user.full_name}_#{Time.zone.now.to_i}_#{params[:photo].original_filename}".parameterize.underscore
+                s3_bucket = 'sdn-content'
+
+                file_url = Order.upload_to_s3(file: params[:photo].tempfile, bucket: s3_bucket, filename: new_filename)
+
+
+                unless file_url.present?
 
                     errors << 'Error uploading photo.'
                 else
-                    current_user.logo_path = new_filename
+                    current_user.logo_path = file_url
                     errors << 'Error saving photo.' unless current_user.save
                 end
             end
@@ -1092,11 +1095,9 @@ class AccountController < ApplicationController
             Rails.logger.error "Error updating profile for %s. | %s" % [ current_user.email, current_user.errors.inspect ]
         end
 
-        billing_address = Address.first_or_new(
+        billing_address = Address.find_or_initialize_by(
             id:         current_user&.billing_address_id,
-            active:     'Active',
-            table_name: 'users',
-            table_id:   current_user.id,
+            active:     'Active'
         )
         billing_address.attributes = {
             address1:   params[:address_1],
@@ -1105,8 +1106,9 @@ class AccountController < ApplicationController
             state:      params[:state],
             zipcode:    params[:zipcode],
         }
-        new_address = billing_address.new?
-
+        new_address = billing_address.new_record?
+        billing_address['table_name'] = 'users'
+        billing_address['table_id'] = current_user.id
         if billing_address.save
             if new_address
                 current_user.billing_address_id = billing_address.id
@@ -1274,10 +1276,9 @@ class AccountController < ApplicationController
             end
 
             CreditCard.create(user_id: current_user.id, customer_key: customer.id,
-                              type: p['card']['brand'], last_four: p['card']['last4'], month: p['card']['exp_month'],
-                              year: p['card']['exp_year'],created_with: 'StoreCard',visible: 1, updated_with: 'StoreCard',
-                              updated_by: current_user.id, info_key: customer.created,created_by: current_user.id, label: params[:label]) if customer.present? && p.present?
-            
+                              card_type: p['card']['brand'], last_four: p['card']['last4'], month: p['card']['exp_month'],created: Time.now,
+                              year: p['card']['exp_year'],created_with: 'StoreCard',visible: 1, edited_with: 'StoreCard',
+                              edited_by: current_user.id, info_key: customer.created,created_by: current_user.id, label: params[:label]) if customer.present? && p.present?
             if current_user.cart&.items&.present?
               redirect_to '/checkout'
             else
