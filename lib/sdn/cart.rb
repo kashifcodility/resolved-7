@@ -688,7 +688,7 @@ class Sdn::Cart
         
         
         create_product_piece_locations(order, order_items)
-        # create_ihs_catalog(order) if intent == 'rent' # no need currently, may be in future 
+        create_ihs_catalog(order) if intent == 'rent' 
 
         return order
     end

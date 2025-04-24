@@ -1,3 +1,5 @@
+import { project_update_product_room_path } from 'routes';
+
 document.addEventListener("DOMContentLoaded", function(event) {
     // GLOBAL PAGE WITH FILTERS gpwf
     function global_page_with_filters(){
@@ -90,8 +92,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         $.ajax({
             async: false,
-            url: Routes.project_update_product_room_path(order_id),
+            url: project_update_product_room_path(order_id),
             data: JSON.stringify(data),
+            headers: {
+                'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')  // Adding CSRF token to request headers
+            },
             type: 'post',
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',

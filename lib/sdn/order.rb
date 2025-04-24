@@ -74,7 +74,7 @@ class Sdn::Order
             ActiveRecord::Base.transaction do
 
                 create_order_line(product: product_model, base_price: price, product_hash: product_hash)
-                # create_product_piece_locations(product: product_model) #not working my be need in future
+                create_product_piece_locations(product: product_model) 
                 # refresh_damage_waiver will calculate after discussion.
                 ReceiptMailer.new.send_customer_add_to_order_receipt(self, product_model).deliver if email_receipt
                 OrderEditLog.add_product(model, product_model, user: user_override || user)

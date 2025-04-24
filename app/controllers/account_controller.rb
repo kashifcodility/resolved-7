@@ -1345,20 +1345,20 @@ class AccountController < ApplicationController
         order_line_id = params[:line_id].to_i
         room_id = params[:room_id].to_i
 
-        unless order_id.among?(current_user.orders.pluck('id'))
+        unless current_user.orders.pluck('id').include?(order_id)
             flash.alert = "Invalid order number."
             return redirect_back(fallback_location: account_path)
         end
 
-        order = Order.get(order_id)
+        order = Order.find(order_id)
 
-        unless order_line_id.among?(order.order_lines.pluck('id'))
+        unless order.order_lines.pluck('id').include?(order_line_id)
             flash.alert = "Invalid order line."
             return redirect_back(fallback_location: account_path)
         end
 
         order_line = order.order_lines.find{ |ol| ol.id == order_line_id }
-        room = Room.get(room_id)
+        room = Room.find(room_id)
 
         unless room
             flash.alert = "Invalid room selected."
