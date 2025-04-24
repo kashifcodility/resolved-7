@@ -1394,7 +1394,7 @@ class AccountController < ApplicationController
         card_id = params[:card_id].to_i
 
         begin
-            $DB.transaction do
+            ActiveRecord::Base.transaction do
 
                 order = ::Sdn::Order.from_model(Order.get(order_id))
                 cc = CreditCard.get(card_id)

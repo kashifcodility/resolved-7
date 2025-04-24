@@ -687,7 +687,7 @@ class Sdn::Cart
         create_order_lines_with_stripe_items(order, order_items, data, intent: intent, site_id: site_id, discount_percentage: @user&.user_group&.discount_percentage) #discount_percentage of owner that is @user
         
         
-        # create_product_piece_locations(order, order_items)
+        create_product_piece_locations(order, order_items)
         # create_ihs_catalog(order) if intent == 'rent' # no need currently, may be in future 
 
         return order
@@ -795,10 +795,11 @@ class Sdn::Cart
 
         order_items_models.each do |item|
             item.product_pieces.each do |pp|
-                # begin
+                
+                begin
                     next if pp.void?
 
-                    ppl = ProductPieceLocation.create(
+                    ppl = ProductPieceLocation.new(
                         product_piece: pp,
                         table_name: 'orders',
                         table_id: order.id,
@@ -807,7 +808,7 @@ class Sdn::Cart
                         created_by: user.id,
                         created: Time.zone.now,
                     )
-                    binding.pry
+                
                     # ppl[:table_name] = 'orders'
                     
                     ppl.save
@@ -817,10 +818,10 @@ class Sdn::Cart
                         Rails.logger.error "Product piece location record NOT created: OnOrder [piece id: %i, order: %i, user: %s] %s" % [pp.id, order.id, user.email, ppl.errors.inspect]
                         raise ProductPieceError, ppl.errors.inspect
                     end
-                # rescue => error
-                    # Rails.logger.error "Product piece location record NOT created. Because product pieces not exist.- SQL error (check PPL trigger): [piece id: %i, order: %i, user: %s]" % [pp.id, order.id, @user.email]
+                rescue => error
+                    Rails.logger.error "Product piece location record NOT created. Because product pieces not exist.- SQL error (check PPL trigger): [piece id: %i, order: %i, user: %s]" % [pp.id, order.id, @user.email]
                     # raise error
-                # end
+                end
             end
         end
     end
