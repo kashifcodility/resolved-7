@@ -197,6 +197,7 @@ class Sdn::Order
                     log_type:      'OnOrder',
                     log_status:    'Posted',
                     created_by:    user_override&.id || user.id,
+                    created: Time.zone.now,
                 )
 
                 if ppl.persisted?
@@ -415,13 +416,13 @@ class Sdn::Order
 
     # TODO: Write tests
     def order_id
-        @order_id ||= @model&.last.id
+        @order_id ||= @model&.id
     end
 
     # TODO: Can an order not have a user?
     # TODO: Write tests
     def user
-        @user ||= @model&.last.user
+        @user ||= @model&.user
     end
 
     def status
