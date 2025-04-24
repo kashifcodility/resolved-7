@@ -7,14 +7,14 @@ class CreditCard < ApplicationRecord
     validates :info_key, presence: true, length: { maximum: 20 }
     validates :customer_key, length: { maximum: 20 }, allow_nil: true
     validates :label, length: { maximum: 255 }, allow_nil: true
-    validates :type, length: { maximum: 20 }, allow_nil: true
+    validates :card_type, length: { maximum: 20 }, allow_nil: true
     validates :last_four, length: { maximum: 4 }, allow_nil: true
     validates :month, length: { maximum: 2 }, allow_nil: true
     validates :year, length: { maximum: 4 }, allow_nil: true
     validates :created_by, length: { maximum: 40 }, allow_nil: true
     validates :created_with, length: { maximum: 50 }, allow_nil: true
-    validates :updated_by, length: { maximum: 40 }, allow_nil: true
-    validates :updated_with, length: { maximum: 50 }, allow_nil: true
+    # validates :updated_by, length: { maximum: 40 }, allow_nil: true
+    # validates :updated_with, length: { maximum: 50 }, allow_nil: true
   
     # Field mappings
     alias_attribute :token, :info_key
@@ -97,7 +97,7 @@ class CreditCard < ApplicationRecord
 
     # Shows label or formatted card type and number
     def display(label_default: false)
-        return "%s %s ending in %i (exp %s/%s)%s" % [ label.present? ? "#{label} - " : '', type, last_four&.to_i, month.to_s, year.to_s, label_default && default? ? ' (default)' : '' ]
+        return "%s %s ending in %i (exp %s/%s)%s" % [ label.present? ? "#{label} - " : '', card_type, last_four&.to_i, month.to_s, year.to_s, label_default && default? ? ' (default)' : '' ]
     end
 
     def display_short(label_default: false)

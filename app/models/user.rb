@@ -156,6 +156,7 @@ class User < ApplicationRecord
   end
 
   def logo_url
+    logo_path
     # "https://#{S3_BUCKET_LOGOS}.s3-#{::SDN::AWS::S3::REGIONS[S3_BUCKET_LOGOS]}.amazonaws.com/#{logo_path}"
   end
 
