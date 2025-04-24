@@ -29,13 +29,14 @@ require 'tempfile'
 class IhsCatalog < ApplicationRecord
     # Associations
     belongs_to :order
+    self.table_name = 'ihs_orders_catalogs'
   
     # Validations (optional, based on your business logic)
-    validates :partner_type, length: { maximum: 255 }, allow_nil: true
-    validates :partner_name, length: { maximum: 255 }, allow_nil: true
-    validates :partner_email, length: { maximum: 255 }, allow_nil: true
-    validates :partner_telephone, length: { maximum: 255 }, allow_nil: true
-    validates :qrcode_filename, length: { maximum: 255 }, allow_nil: true
+    # validates :partner_type, length: { maximum: 255 }, allow_nil: true
+    # validates :partner_name, length: { maximum: 255 }, allow_nil: true
+    # validates :partner_email, length: { maximum: 255 }, allow_nil: true
+    # validates :partner_telephone, length: { maximum: 255 }, allow_nil: true
+    # validates :qrcode_filename, length: { maximum: 255 }, allow_nil: true
   
     def qrcode_url
         $AWS.s3.public_url_for(qrcode_filename, bucket: 'sdn-ihs-qrcodes') rescue nil
