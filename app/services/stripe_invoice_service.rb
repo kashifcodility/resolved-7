@@ -29,7 +29,7 @@ class StripeInvoiceService
           create_invoice_item(ol.quantity, price_in_cents, ol&.product&.product, invoice_id, customer.id) 
         end  
       else
-        raise "Invoice is already finalized and cannot be updated"
+        Rails.logger.info "Invoice is already finalized and cannot be updated"
       end  
       
       # Return the updated invoice

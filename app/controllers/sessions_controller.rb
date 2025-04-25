@@ -93,6 +93,20 @@ class SessionsController < ApplicationController
             if user.save
                 UserMembershipLevel.create_user_membership(user)
                 # session[:user_id] = user.id
+                default_rooms = Room.where(id: 1..20)
+
+                unless default_rooms.blank?
+                    default_rooms.each do |room|
+                        Room.create(
+                        name: room.name,
+                        zone: room.zone,
+                        token: room.token,
+                        position: room.position,
+                        user_id: user.id
+                        )
+                    end
+                end
+
                 sign_in(user)
 
                 Rails.logger.info "User account created: %s [id: %i, site: %i]" % [user.email, user.id, user.site_id]
@@ -102,6 +116,7 @@ class SessionsController < ApplicationController
                 return URI(request.referrer).path == signup_path ? redirect_to(plp_path) : redirect_back(fallback_location: plp_path)
             else
                 session[:recaptcha] = true
+                flash.alert = user.errors.inspect
                 Rails.logger.debug "User signup failed: [%s]" % [user.errors.inspect]
                 return signup
             end
