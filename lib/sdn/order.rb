@@ -105,6 +105,8 @@ class Sdn::Order
 
                 if discount_percentage.present?
                     discount_price = product_hash[:price].to_f - (product_hash[:price].to_f * discount_percentage.to_i / 100) 
+                else
+                    discount_price = product_hash[:price].to_f     
                 end
 
                 # discount_percentage = user&.user_group&.discount_percentage #according user group gold , diamond
