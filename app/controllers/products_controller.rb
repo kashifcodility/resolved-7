@@ -220,7 +220,7 @@ class ProductsController < ApplicationController
             when :color
                 { key: 'color',     key_label: 'Color', value: value, value_label: Product.get_active_colors(params[:color]).map{|c| c.label}, }
             when :site
-                { key: 'site',      key_label: 'Site', value: value, value_label: Site.get(value.to_i)&.site, }
+                { key: 'site',      key_label: 'Site', value: value, value_label: Site.find(value.to_i)&.site, }
             when :material
                 { key: 'material',  key_label: 'Material', value: value, value_label: Product.get_active_materials(params[:material]).map{|c| c.label}, }
             when :size
