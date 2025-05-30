@@ -33,7 +33,9 @@ module ApplicationHelper
     end
 
     def all_sites_for_select
-        return Site.all(:id.not => 23).map{ |s| [s.name, s.id] }
+        Site.where.not(id: 23).map { |s| [s.name, s.id] }
+
+        # return Site.all(:id.not => 23).map{ |s| [s.name, s.id] }
     end
 
     # Loads states for select dropdowns

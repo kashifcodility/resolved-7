@@ -61,11 +61,11 @@ class Site < ApplicationRecord
   
     has_many :users
     has_many :products
-  
+    belongs_to :tier
     validates :email, length: { maximum: 100 }, allow_nil: true
-  
+    has_one :subscription, class_name: 'Subscription'
     # Enum or fixed string for 'type' property, using 'Site' as default
-    validates :type, length: { maximum: 30 }
+    # validates :type, length: { maximum: 30 }
   
     # Additional foreign keys
     validates :default_contact_id, :receive_bin_id, :pick_bin_id, :will_call_bin_id, numericality: { only_integer: true }, allow_nil: true

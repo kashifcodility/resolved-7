@@ -210,7 +210,12 @@
 			<%else%>
 				<% unless @checkout_disabled %>
 					<div class="side_button2">
-						<a href="<%= checkout_form_path %>" style="background-color: #2bd6ce;">PROCEED <%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %></a>
+				
+					    <%if sdn_user && sdn_user.subscription_expired? %>
+						  <%= button_to "Pay with Stripe", stripe_checkout_path, method: :post %>
+						<%else%>
+						  <a href="<%= checkout_form_path %>" style="background-color: #2bd6ce;">PROCEED <%=image_tag("new_icons/proceed_arrow_white.svg", alt:"proceed_arrow_white") %></a>
+						<%end%>  
 					</div>
 					<div class="separator20"></div>
 				<% end %>
@@ -260,6 +265,7 @@
 					success: function(response) {
 							// Update the quantity on success
 							let amount = parseFloat(response.price_total);
+							let sub_amount = parseFloat(response.sub_total);
 							let sub_amount = parseFloat(response.sub_total);
 							let damage_amount = parseFloat(damage);
 							let total = (amount + damage_amount) - 500.00;

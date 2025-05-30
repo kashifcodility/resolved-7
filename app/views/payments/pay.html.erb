@@ -1,0 +1,12 @@
+<div class="container">
+    <h1 style="text-align: center; margin-top: 20px;">Pay Subscription</h1>
+<div class="new_design">
+    <div class="form_design_1 ">
+        <%if (current_user && current_user.user_type == "employee" && current_user.site.subscription.present? &&
+          current_user.site.subscription.subscription_end_date.to_date < Date.today) || (current_user && current_user.user_type == "employee" &&
+                                                                                    current_user.site.subscription.blank?)%>
+						  <%= button_to "Pay with Stripe", stripe_checkout_path, method: :post %>
+        <%end%>                  
+    </div>
+</div>
+</div>
