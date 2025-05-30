@@ -3,6 +3,8 @@ require 'stripe'
 class CartController < ApplicationController
     before_action :require_login, :redirect_if_no_cart
     skip_before_action :redirect_if_no_cart, only: [:index, :create]
+    before_action :check_projects_limit, only: [:checkout_form]
+
 
     # const_def :REQUIRED_SHIPPING_FIELDS, [ 'project_name', 'shipping_method', 'shipping_contact_name', 'shipping_contact_phone',
     #                                        'shipping_address', 'shipping_city', 'shipping_state', 'shipping_zipcode', ]
@@ -253,6 +255,27 @@ class CartController < ApplicationController
         end
 
         return redirect_to(cart_path)
+    end
+
+    # Checkout form to collect billing and shipping info
+    def checkout_form
+        @rush_order = params['rush_order']
+        user_must_save_card?
+        @user_must_fill_profile = sdn_user.company_name.blank? || sdn_user.shipping_address_id.blank?
+        if sdn_user.owner.present?
+            # binding.pry
+            @credit_cards = Array.wrap(sdn_user.owner&.credit_cards&.last)
+        else
+            @credit_cards = sdn_user.valid_visible_credit_cards
+        end    
+
+        # TODO: Add delivery calendar blackout dates
+        @scheduling_date_pickup_min = scheduling_date_pickup_min
+        @scheduling_date_delivery_min = scheduling_date_delivery_min
+        @holidays = BusinessTime::Config.holidays.to_a
+
+        return redirect_to(cart_path) if checkout_disabled?
+        return render('checkout_form')
     end
 
     # Checkout form to collect billing and shipping info
@@ -736,6 +759,24 @@ class CartController < ApplicationController
         end
     end
 
+    def update_tier
+        @tiers = Tier.all(default: true)
+        @current_tier = sdn_user.site&.tier     
+    end
+      
+    def set_updated_tier
+        site = Site.first(id: sdn_user.site&.id)
+        if site && site.update(tier_id: params[:selected_tier].split('-')[1])
+            subscription = Subscription.first(site_id: sdn_user.site&.id)       
+            subscription.update(subscription_end_date: Time.now.yesterday) if subscription.present?                                
+            session[:subscription] = true
+            flash.notice = "Subscription updated successfully."
+        else
+            flash.alert = "Unable to update subscription."
+        end
+        return redirect_to(cart_path)
+    end  
+
     private
         # Redirects user to cart if no cart created
         def redirect_if_no_cart
@@ -744,6 +785,28 @@ class CartController < ApplicationController
                 return redirect_to(cart_path)
             end
         end
+
+        def check_projects_limit
+            if sdn_user  && (sdn_user.site&.projects_count > sdn_user.site&.tier&.projects_limit )
+              # ||
+                          #   sdn_user.site&.users_count > sdn_user.site&.tier&.users_limit ||
+                          #   sdn_user.site&.products_count > sdn_user.site&.tier&.products_limit)
+              
+              if sdn_user.type == 'Employee'
+                  flash.alert = "You have reached the maximum number of projects allowed for your account. update your subscription."
+                  # return redirect_to(update_tier_path) #if update tier functionlaity need to implement
+                  return redirect_to(cart_path)
+              else    
+                  flash.alert = "You have reached the maximum number of projects allowed for your account. contact your admin."
+                  return redirect_to(cart_path)
+              end  
+            elsif (sdn_user && sdn_user&.site&.subscription.blank? && sdn_user.type == 'customer')  || 
+                  (sdn_user && sdn_user&.site&.subscription&.present? && sdn_user.type == 'customer' && 
+                  sdn_user.site&.subscription&.subscription_end_date&.to_date < Date.today)
+              flash.alert = "Your account is not paid. Please contact your admin."
+              return redirect_to(cart_path)
+            end
+        end   
 
         # Determines if checkout can proceed or not
         #   - Disabled if no cart

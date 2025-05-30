@@ -1,0 +1,106 @@
+<div class="container">
+    <h1 style="text-align: center; margin-top: 20px;">Update Subscription</h1>
+<div class="new_design">
+    <div class="form_design_1 ">
+        <%= form_tag(set_updated_tier_path, class: 'form-horizontal login-form') %>
+
+
+                <style>
+                .modal-dialog{max-width:1100px;}
+                .gerenric-card-radio input[type="radio"] {display: none;}
+                .gerenric-card-radio label {cursor: pointer;position: relative; width: calc(100% - 20px);border:3px solid transparent;}
+                .gerenric-card-radio input[type="radio"]:checked + label {border:3px solid #2bd6ce;border-radius:20px;}
+                .signup-card-container{width:100%; margin-bottom:40px;}
+                .signup-card-container .card-box{ border-radius:20px; padding:30px 20px; backbround-color:#fff; box-shadow:0px 0px 20px rgba(0,0,0,0.15)}
+                .signup-card-container .card-box.brown-card .card-prise{color:#9e9271;}
+                .signup-card-container .card-box.brown-card .card-title{background-color:#9e9271; color:#fff;}
+                .signup-card-container .card-box.brown-card .subscirbe-button{background-color:#9e9271; color:#fff;}
+                .signup-card-container .card-box.gray-card .card-prise{color:#444;}
+                .signup-card-container .card-box.gray-card .card-title{background-color:#444; color:#fff;}
+                .signup-card-container .card-box.gray-card .subscirbe-button{background-color:#444; color:#fff;}
+                .signup-card-container .card-box .card-prise{font-size:60px; font-weight:bold; color:#2bd6ce; text-align:center;padding-top:20px; margin-bottom:30px}
+                .signup-card-container .card-box .card-title{margin:0px -20px;font-weight:600; font-size:30px;background-color:#2bd6ce; padding:10px 20px ;color:#fff; text-align:center; margin-bottom:40px;}
+                .signup-card-container .card-box ul.card-listing{width:100%;}
+                .signup-card-container .card-box ul.card-listing li{list-style-type: none; font-size:18px;height: auto;background-color: transparent; margin-bottom:10px;font-weight:500; color:#222; text-align:center;}
+                .signup-card-container .subscirbe-button{display: inline-block; cursor:pointer; background-color:#2bd6ce; padding: 15px 30px;font-family: "Montserrat", sans-serif;font-size: 16px;font-weight: 600;text-transform: uppercase;letter-spacing: 1px;border:0px; border-radius: 5px;text-decoration: none;color: #fff;transition: 0.5s;cursor: pointer;}
+                </style>
+                <div class="signup-card-container">
+                    <div class="row mb-5">
+
+                    
+                    <% @tiers.each_with_index do |tier, index| %> 
+                        <div class="col-lg-4 mb-3">
+                            <div class="gerenric-card-radio">
+                                <input type="radio" id="radio-<%=tier.id%>" name="subscription" <%= 'checked' if @current_tier.price == tier.price %> />
+                                 <label for="radio-<%=tier.id%>">
+                                    <%if index == 0%>
+                                      <div class="card-box">
+                                    <%elsif index == 1%>
+                                      <div class="card-box brown-card">
+                                    <%else%>
+                                      <div class="card-box gray-card">
+                                    <%end%>
+                                        <div class="card-prise">$<%=tier.price %></div>
+                                        <div class="card-title"></div>
+                                        <ul class="card-listing">
+                                            <li><%=tier.users_limit %> User</li>
+                                            <li><%=tier.products_limit %> products</li>
+                                            <li><%=tier.projects_limit %> projects per year</li>
+                                        </ul>
+                                    </div>
+                                 </label>
+                            </div>
+                        </div>
+                    <% end %>   
+                    
+
+
+
+
+
+
+
+
+
+
+                      
+
+
+
+
+                    </div>
+                </div>
+                 
+               
+                
+                
+                <%= hidden_field_tag :selected_tier, '' %>
+                <div id="site-message" style="color:red; margin-top:5px;"></div>
+                <div class="separator10"></div>
+                
+               
+              
+                  
+                <!-- BUTTON -->
+                <br>
+                <div class="form_button">
+                    <%= button_tag('update tier', type: 'submit', class: 'fd_button prime_color') %>
+                </div>
+
+        </form>
+    </div>
+</div>
+</div>
+
+
+
+<script>
+$(document).ready(function() {
+  // When the radio buttons change
+  $('input[name="subscription"]').on('change', function() {
+    var selectedRadioId = $('input[name="subscription"]:checked').attr('id');
+       document.getElementById('selected_tier').value = selectedRadioId;
+  });
+});
+
+</script>

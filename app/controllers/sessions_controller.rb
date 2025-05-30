@@ -9,6 +9,33 @@ class SessionsController < ApplicationController
         render "login"
     end
 
+    def register_site
+        # @tiers = Tier.all(default: true)
+        @tiers = Tier.where(default: true)
+    end    
+
+    def create_site
+        site_name = params[:sitename]
+        if Site.where(:conditions => ['LOWER(site) = ?', site_name.downcase])&.first
+            flash.now[:alert] = "site already exists."
+            return register_site
+            # $LOG.debug "User signup failed: [%s]" % ['site already exists']
+        else
+            site = Site.create( site: site_name, created_at: Time.now, 
+                     created_with: 'SiteMaintenance', updated_at: Time.now,
+                     edited_with: 'save site', active: 'Active',tax_authority_id: 796, 
+                     tier_id: params[:selected_tier].split('-')[1], location_id: 1)
+            if site.persisted?
+                flash.notice = "Site created successfully."
+                return redirect_to root_path
+            else
+                flash.alert = "Error creating site."
+                return register_site
+            end
+            
+        end  
+    end
+
     # Locate user via the three known SDN user logins
     def create
         account = params[:email]
@@ -48,8 +75,25 @@ class SessionsController < ApplicationController
         render "signup"
     end
 
+    def check_site
+        if site_exists?(params[:name])
+            render json: { exists: true, message: 'Site already exists' }
+        else
+            render json: { exists: false }
+        end
+    end
+
+    def check_username
+        user_name = params[:name]
+        if User.where('LOWER(username) = ?', user_name.downcase)&.first
+            render json: { exists: true, message: 'User name already exists' }
+        else
+            render json: { exists: false }
+        end
+    end
+
     def create_account
-        token = params['recaptcha_token']
+        token = params['recaptcha_token'] || params['recaptcha_token_site']
     
         if verify_recaptcha(action: 'signup', minimum_score: 0.5, response: token) || session[:recaptcha] == true
                 errors = []
@@ -58,67 +102,113 @@ class SessionsController < ApplicationController
                 errors << 'UserName already exists.' if User.where(username: params[:username])&.first
                 errors << 'Password must be longer than 8 characters.' if params[:password].length <= 8
                 errors << 'Passwords did not match.' unless params[:password] == params[:password_confirmation]
+                errors << 'Site already exist.' if site_exists?(params[:sitename])
                 # errors << 'Invalid warehouse location.' unless params[:site_id].to_i.among?(all_sites_for_select.map{|a| a[1] })
+                site = Site.create( site: params[:sitename], created: Time.now, 
+                created_with: 'SiteMaintenance', edited: Time.now,
+                edited_with: 'save site', active: 'Active',tax_authority_id: 796, 
+                tier_id: params[:selected_tier].split('-')[1], location_id: 1)  if params[:sitename].present?
 
+                errors << 'Site not created. try again' if site.blank? && params[:sitename].present?    
                 # FIXME: Re-enable when we have the terms from legal
                 # errors << 'Must agree to our terms.' unless params[:terms] == 'yes'
 
                 if errors.any?
-                    flash.now[:alert] = errors
+                    flash.alert = errors
+                    @tiers = Tier.where(default: true)
                     session[:recaptcha] = true
-                    return signup
-                end
+                    if params[:sitename].present?
+                        site.destroy if site.present?
+                        render :register_site
+                        return
+                    else
+                        render :signup
+                        return
+                    end
+                end 
 
-            user = User.new(
-                first_name: params[:first_name],
-                last_name:  params[:last_name],
-                email:      params[:email],
-                username:      params[:username],
-                password:   params[:password],
-                password_confirmation: params[:password_confirmation],
-                # encrypted_password:   params[:password],
-                # password: nil,
-                site_id:    default_site_furnish,
-                active:     'active',
-                # || DEFAULT_SITE_ID,
-                user_type:  'Customer',
-                pulled_credit: 1,
-                join_date: Time.now,
-                occupation: params[:shopper_type],
-                location_rights: default_site_furnish
-            )
-
-            # binding.pry 
-
-            if user.save
+                user = User.new(
+                    first_name: params[:first_name],
+                    last_name:  params[:last_name],
+                    email:      params[:email],
+                    username:   params[:username],
+                    password:   params[:password],
+                    active:     'Active',
+                    # password: nil,
+                    site_id:    site.present? ? site.id : params[:site_id],    
+                    # || DEFAULT_SITE_ID,
+                    occupation: params[:shopper_type],
+                    pulled_credit:  1,
+                    join_date: Time.now,    
+                    location_rights: site.present? ? site.id : params[:site_id]
+                )
+                params[:sitename].present? ? user.user_type = 'Employee' : user.user_type = 'Customer'  
+                puts user.inspect+"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                if user.save
                 UserMembershipLevel.create_user_membership(user)
                 # session[:user_id] = user.id
-                default_rooms = Room.where(id: 1..20)
+                User.save_rooms_subscriptions(user) 
+                user_authentication = UserAuthentication.create(auth_code: SecureRandom.hex(16), created: Time.now, user_id: user.id)
+                session[:auth_code] = user_authentication.auth_code
 
-                unless default_rooms.blank?
-                    default_rooms.each do |room|
-                        Room.create(
-                        name: room.name,
-                        zone: room.zone,
-                        token: room.token,
-                        position: room.position,
-                        user_id: user.id
-                        )
-                    end
-                end
+                address = Address.new(company: site.name, address1: params[:address], city: params[:city],
+                                   state: params[:state], zipcode: params[:zip],table_name: 'sites', table_id: site.id) 
+                                   address[:table_id] = site.id
+                                   address[:table_name] = 'sites'                                    
+                address.save
+                user.update(billing_address_id:  address.id, telephone: params[:phone],
+                            company_name: params[:sitename]) if address.present?
+                site.update(created_by: user.id)  
 
+                # default_rooms = Room.where(id: 1..20)
+
+                # unless default_rooms.blank?
+                #     default_rooms.each do |room|
+                #         Room.create(
+                #         name: room.name,
+                #         zone: room.zone,
+                #         token: room.token,
+                #         position: room.position,
+                #         user_id: user.id
+                #         )
+                #     end
+                # end
+
+                
                 sign_in(user)
+
+                if user.user_type == "Employee"
+                    role = Role.where(role: 'Administrator').first
+                    site.update(users_count: site.users_count.to_i + 1)
+                    UserRole.create(user_id: user.id, role_id: role&.id)
+                    redirect_to pay_path
+                else
+                    role = Role.where(role: 'Customer').first
+                    UserRole.create(user_id: user.id, role_id: role&.id)  
+                    redirect_to root_path    
+                end
 
                 Rails.logger.info "User account created: %s [id: %i, site: %i]" % [user.email, user.id, user.site_id]
                 flash.notice = "Signup successful. You are logged in!"
                 WelcomeMailer.new.send_welcome(user).deliver
                 session[:recaptcha] = nil
-                return URI(request.referrer).path == signup_path ? redirect_to(plp_path) : redirect_back(fallback_location: plp_path)
+                # return URI(request.referrer).path == signup_path ? redirect_to(plp_path) : redirect_back(fallback_location: plp_path)
             else
-                session[:recaptcha] = true
-                flash.alert = user.errors.inspect
+                # session[:recaptcha] = true
+                # flash.alert = user.errors.inspect
                 Rails.logger.debug "User signup failed: [%s]" % [user.errors.inspect]
-                return signup
+                # return signup
+
+                session[:recaptcha] = true
+                
+                flash.alert = user.errors.full_messages.join(', ')  
+                site.destroy if site.present?
+                if params[:sitename].present?
+                    return register_site
+                else
+                    return signup
+                end 
+
             end
         else
             redirect_to root_path, alert: 'reCAPTCHA failed!'
@@ -152,7 +242,7 @@ class SessionsController < ApplicationController
             return redirect_to(forgot_password_path, alert: 'Unable to send reset email. Please try again.')
         else
             Rails.logger.info "Password reset email sent for user: %s" % [ user.email ]
-            EmailLog.create_from_mail_message(email, type: 'Password Reset')
+            EmailLog.create_from_mail_message(email, email_type: 'Password Reset')
             return redirect_to(root_path, notice: notice_message)
         end
     end
@@ -182,7 +272,7 @@ class SessionsController < ApplicationController
                 Rails.logger.error "Password changed email NOT sent for user: %s [%s]" % [ @user.email, email.errors.inspect ]
             else
                 Rails.logger.info "Password changed email sent for user: %s" % [ @user.email ]
-                EmailLog.create_from_mail_message(email, type: 'Password Changed')
+                EmailLog.create_from_mail_message(email, email_type: 'Password Changed')
             end
 
             return create
@@ -226,6 +316,7 @@ class SessionsController < ApplicationController
             session[:god] = nil
             session[:impersonate] = nil
         end
+        session[:auth_code] = nil
         redirect_to root_url, notice: "Logged out!"
     end
 
@@ -251,6 +342,11 @@ class SessionsController < ApplicationController
             end
 
             return true
+        end
+        def site_exists?(name)
+            # Site.where(:conditions => ['LOWER(site) = ?', name.to_s.downcase])&.first.present?
+            Site.where('LOWER(site) = ?', name.to_s.downcase)&.first.present?
+
         end
 
 end

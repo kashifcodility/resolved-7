@@ -15,6 +15,8 @@ class ApplicationController < ActionController::Base
 
   before_action :get_cart
   before_action :load_order_status
+  before_action :check_paid_status
+
 
   helper :all # import them all into views
   layout "application"
@@ -201,22 +203,18 @@ class ApplicationController < ActionController::Base
           @recently_returned = Product.recently_returned(amount: 7, site_id: site_id)
         end
     #   end
-      
-    
-
-
-
-
-
-
-
-
-
-
   end
 
 
-
+  def check_paid_status
+    exempt_paths = [logout_path, pay_path, login_path, signup_path, register_site_path, 
+                    payments_success_path, payments_cancel_path, stripe_checkout_path ]
+    #  binding.pry
+    return if exempt_paths.include?(request.path)
+    if current_user && current_user.subscription_expired?
+      redirect_to pay_path
+    end
+  end
 
 
 

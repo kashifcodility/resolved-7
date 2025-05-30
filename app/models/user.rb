@@ -77,6 +77,23 @@ class User < ApplicationRecord
       mobile
   end
 
+  def self.save_rooms_subscriptions(user)
+                            
+    default_rooms = Room.where("id >= ? AND id <= ?", 1, 20)
+    default_rooms.each do |room|
+    Room.create(name: room.name, zone: room.zone, 
+                token: room.token, position: room.position, user_id: user.id)
+    end unless default_rooms.blank? 
+  end    
+
+  def subscription_expired?
+    (user_type == "employee" &&
+      site&.subscription.blank?) ||
+      (user_type == "employee" &&
+      site&.subscription.present? && 
+      site&.subscription&.subscription_end_date&.to_date < Date.today)
+  end
+
   def has_valid_credit_card?
       credit_cards.not_expired.any?
   end
@@ -87,7 +104,7 @@ class User < ApplicationRecord
             id:        c.id,
             label:     c.display_short(label_default: true),
             last_four: c.last_four,
-            type:      c.type.capitalize,
+            card_type:      c.type.capitalize,
             exp_month: c.month,
             exp_year:  c.year,
             default?:  c.default?,
@@ -201,7 +218,7 @@ class User < ApplicationRecord
         id: c.id,
         label: c.display_short(label_default: true),
         last_four: c.last_four,
-        type: c.card_type.capitalize,
+        card_type: c.card_type.capitalize,
         exp_month: c.month,
         exp_year: c.year,
         default?: c.default?,

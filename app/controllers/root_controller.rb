@@ -17,10 +17,9 @@ class RootController < ApplicationController
     # https://timlentse.github.io/2015/12/06/How-to-mount-a-rails-app-in-a-subdirectory-with-NGINX.html
 
     def index
-        binding.pry
         if params[:auth_user_id].present? && params[:auth_code].present?
-           user = User.first(id: params[:auth_user_id])
-           user_authentication = UserAuthentication.last(user_id: params[:auth_user_id])
+           user = User.where(id: params[:auth_user_id])&.first
+           user_authentication = UserAuthentication.where(user_id: params[:auth_user_id])&.last
            if user.present? && user_authentication.present?
             session[:user_id] = user.id
             session[:auth_code] = user_authentication.auth_code
