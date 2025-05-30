@@ -193,7 +193,7 @@ class ApplicationController < ActionController::Base
       
           # ✅ ActiveRecord fix for site logic
           if current_user&.location_rights == "ALL"
-            site_id = Site.pluck(:id)
+            site_id = Site.all.pluck(:id)
           else
             site_ids = current_user&.location_rights&.split(',')&.map(&:to_i)
             site_id = Site.where(id: site_ids).pluck(:id)

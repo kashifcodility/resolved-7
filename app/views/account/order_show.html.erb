@@ -989,50 +989,52 @@
     </div>
  </div>
 
-<%= form_tag(add_items_to_order_path, method: :post, id: 'product-form') do %>
+<%if @order.status == "Open"%>
+    <%= form_tag(add_items_to_order_path, method: :post, id: 'product-form') do %>
 
-        <!-- app/views/products/index.html.erb -->
-        <div class="container mt-4">
-        <h2>Product Search</h2>
-        <p>Product Rent/Buy:</p>
-        <select id="product-action" class="form-control mt-2">
-            <option value="rent">Rent</option>
-            <option value="buy">Buy</option>
-        </select>
-        <%= hidden_field_tag :order_id, @order.id%>
-        <!-- Dropdown for Quantity selection (1-10) -->
-        
-        <select id="product-quantity" class="form-control mt-2" style="display: none;">
-            <% (1..4).each do |n| %>
-            <option value="<%= n %>"><%= n %></option>
-            <% end %>
-        </select>
-        <p></p>
-        <!-- Autocomplete input field -->
-        <input type="text" id="product-autocomplete" class="form-control" placeholder="Search for a product">
+            <!-- app/views/products/index.html.erb -->
+            <div class="container mt-4">
+            <h2>Product Search</h2>
+            <p>Product Rent/Buy:</p>
+            <select id="product-action" class="form-control mt-2">
+                <option value="rent">Rent</option>
+                <option value="buy">Buy</option>
+            </select>
+            <%= hidden_field_tag :order_id, @order.id%>
+            <!-- Dropdown for Quantity selection (1-10) -->
+            
+            <select id="product-quantity" class="form-control mt-2" style="display: none;">
+                <% (1..4).each do |n| %>
+                <option value="<%= n %>"><%= n %></option>
+                <% end %>
+            </select>
+            <p></p>
+            <!-- Autocomplete input field -->
+            <input type="text" id="product-autocomplete" class="form-control" placeholder="Search for a product">
 
-        <!-- Hidden field to store selected product IDs -->
-        <input type="hidden" id="selected-products" name="product_ids">
+            <!-- Hidden field to store selected product IDs -->
+            <input type="hidden" id="selected-products" name="product_ids">
 
-        <!-- Bootstrap table to display selected products -->
-        <table class="table table-bordered mt-4" id="product-table">
-            <thead>
-            <tr>
-                <th>Type</th>
-                <th>Quantity</th>
-                <th>Product Name</th>
-                <th>Price</th>
-                <th>Remove</th>
-            </tr>
-            </thead>
-            <tbody>
-            <!-- Selected product rows will be inserted here -->
-            </tbody>
-        </table>
+            <!-- Bootstrap table to display selected products -->
+            <table class="table table-bordered mt-4" id="product-table">
+                <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Remove</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Selected product rows will be inserted here -->
+                </tbody>
+            </table>
 
-        <!-- Add Item Button -->
-        <button id="add-item" class="btn btn-primary">Add Item</button>
-        </div>
+            <!-- Add Item Button -->
+            <button id="add-item" class="btn btn-primary">Add Item</button>
+            </div>
+    <% end %>
 <% end %>
 
 

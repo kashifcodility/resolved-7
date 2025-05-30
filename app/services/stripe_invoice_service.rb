@@ -50,7 +50,17 @@ class StripeInvoiceService
         end
       end if invoice.present? && invoice.status == 'draft'
 
-    end  
+    end
+    
+    def delete_invoice(invoice_id)
+      invoice = Stripe::Invoice.retrieve(invoice_id)
+      
+      if invoice.status == 'draft'
+        Stripe::Invoice.delete(invoice_id)
+      else
+        Stripe::Invoice.void_invoice(invoice_id) #invoice finalized but not paid, delete isn't allowed — you can void it.
+      end
+    end 
   
     private
   

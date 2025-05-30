@@ -519,14 +519,21 @@ class AccountController < ApplicationController
         end
 
         begin
-            order = ::Sdn::Order.from_model(order)
+            order_sdn = ::Sdn::Order.from_model(order)
             if session[:god] === true
-                order.void(voided_by: sdn_impersonator)
+                order_sdn.void(voided_by: sdn_impersonator)
             else
+
                 invoice = Invoice.where(order_id: order_id)&.first
-                order.cancel
-                IntuitAccount.delete_quickbooks_invoice(invoice.qbo_invoice_id) if invoice.present?
-                #also for stripe to delete invoice
+                order_sdn.cancel
+                IntuitAccount.delete_quickbooks_invoice(invoice.qbo_invoice_id) if invoice.present? && invoice.qbo_invoice_id.present?  
+                stripe_service = StripeInvoiceService.new(sdn_user, order)
+                stripe_service.delete_invoice(invoice.stripe_invoice_id) if invoice.present? && invoice.stripe_invoice_id.present?  
+
+                # invoice = Invoice.where(order_id: order_id)&.first
+                # order.cancel
+                # IntuitAccount.delete_quickbooks_invoice(invoice.qbo_invoice_id) if invoice.present?
+                # #also for stripe to delete invoice
             end
 
             flash.notice = "Successfully cancelled order #{order_id}"
