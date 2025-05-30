@@ -163,14 +163,14 @@ end
 								<% end %>
 								
 								<!-- Sites-->
-								<% if current_user&.location_rights&.first == 'ALL'%>
+								<% if current_user%>
 									<aside class="widget widget-categories widget_section">
 										<h3 class="widget-title" data-toggle="collapse" data-target="#sites">Sites: <span id="expand_marker"><% if params[:site]%>-<%else%>+<%end%></span></h3>
 										<%= hidden_field_tag(:site, params[:site]) if params[:site] %>
 										<ul id="sites" class="<%= params[:site] ? 'show' : 'collapse' %> filter_submenu">
 											<% @sites.each do |site| %>
 											<li class="sites_list">
-												<a href="<%= plp_path + '/' + (params[:site].to_i == site.id ? remove_query_param(:site) : query_params(site: site.id)) %>">
+												<a href="<%= plp_path + '/' +  query_params(site: site.id) %>">
 													<span class="site <%= site.site.downcase %>-bg" data-toggle="tooltip" title="<%= site.site %>"><%= site.site %></span>
 													<% if params[:site].to_i == site.id %>
 														<%= link_to(raw('<i class="fas fa-times-circle float-right "></i>'), plp_path + '/' +  remove_query_param(:site)) %>
