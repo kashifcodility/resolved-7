@@ -179,7 +179,16 @@ class ProductsController < ApplicationController
         @materials = params[:material].present? ? Product.get_active_materials(params[:material]) : Product.get_materials
         @sizes = params[:size].present? ? Product.get_active_sizes(params[:size]) : Product.get_sizes
         
-        @sites = Site.where(id: current_user&.location_rights&.split(',')&.map(&:to_i))
+        if current_user && current_user.location_rights == "ALL"
+            @sites = Site.all
+          
+        elsif current_user && current_user.location_rights == "ONE"
+            @sites = Site.where(id: 26)
+        
+        else
+            location_ids = current_user&.location_rights&.split(',')&.map(&:to_i) || []
+            @sites = Site.where(id: location_ids)
+        end
         # @sites = Site.all
 
         if [@current_category&.id, @current_category&.parentid].include?(BEDROOM_CATEGORY_ID) 
